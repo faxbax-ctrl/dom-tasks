@@ -186,7 +186,7 @@ body.editmode .newgrp,body.editmode .newsub{display:flex}
 .fld>span,.fld-lbl{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
 .fld input,.fld textarea{width:100%;border:1.5px solid var(--line);background:#fff;border-radius:11px;padding:12px 13px;font-family:inherit;font-size:16px;color:var(--ink)}
 .fld input:focus,.fld textarea:focus{outline:none;border-color:var(--indigo)}
-.fld textarea{min-height:80px;line-height:1.4;resize:vertical;font-size:15px}
+.fld textarea{min-height:122px;line-height:1.4;resize:vertical;font-size:15px}
 .prof-sec{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:20px 2px 9px}
 .prof-cat{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow)}
 .prof-cat .pc-emo{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
@@ -211,8 +211,17 @@ body.editmode .newgrp,body.editmode .newsub{display:flex}
 .ts-head h3{margin:0}
 .ts-del{border:0;background:none;color:var(--red);font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;padding:6px 4px;display:flex;align-items:center;gap:5px}
 .ts-del.hidden{display:none}
-.ts-btns{display:flex;gap:8px}
+.ts-btns{display:flex;gap:8px;position:relative}
 .ts-btns.hidden{display:none}
+/* выпадающий список «Перенести» */
+.mv-panel{position:absolute;right:0;top:42px;z-index:6;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(20,26,44,.18);max-height:250px;overflow-y:auto;overscroll-behavior:contain;min-width:220px;padding:6px;display:none}
+.mv-panel.show{display:block}
+.mv-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:var(--ink)}
+.mv-item:active{background:var(--bg)}
+.mv-item.cur{color:var(--muted);cursor:default}
+.mv-item .ic{font-size:16px}
+.mv-note{font-size:12px;font-weight:700;color:var(--indigo);background:var(--indigo-soft);border-radius:10px;padding:8px 11px;margin:-4px 0 12px;display:none}
+.mv-note.show{display:block}
 .tsb{width:36px;height:36px;border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-size:18px}
 .tsb.del{color:var(--red);border-color:#e6cfc9}
 /* контекстное меню задачи (долгое нажатие) */
@@ -259,9 +268,8 @@ body.editmode .newgrp,body.editmode .newsub{display:flex}
 .wktog.on .toggle::after{transform:translateX(17px)}
 .cs-lbl{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .cs-lbl .tag{background:var(--amber-soft);color:var(--pamber);font-size:9.5px;padding:1px 6px;border-radius:99px;font-weight:800}
-.cs-grid{display:flex;flex-wrap:nowrap;gap:5px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;padding-bottom:4px;scrollbar-width:none}
-.cs-grid::-webkit-scrollbar{display:none}
-.cs-b{border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--ink);font-family:inherit;display:flex;align-items:center;gap:5px;flex:none;white-space:nowrap}
+.cs-grid{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;max-height:138px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:2px}
+.cs-b{border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:6px 9px;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--ink);font-family:inherit;display:flex;align-items:center;gap:5px;white-space:nowrap}
 .cs-b .ic{font-size:14px}
 .cs-b.on{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo);font-weight:800}
 .sheet-acts{display:flex;gap:10px;margin-top:6px}
@@ -360,9 +368,12 @@ body.noscroll{overflow:hidden}
 <div id="tsheet" class="sheet-back hidden" onclick="if(event.target===this) closeTaskSheet()">
   <div class="sheet-card"><div class="grip"></div>
     <div class="ts-head"><h3 id="tsTitle">Задача</h3><span class="ts-btns" id="tsBtns">
+      <button class="tsb" onclick="toggleMovePanel(event)" title="Перенести в категорию"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M9 13h6"/><path d="m12.5 10.5 2.5 2.5-2.5 2.5"/></svg></span></button>
+      <div class="mv-panel" id="mvPanel"></div>
       <button class="tsb" onclick="duplicateFromSheet()" title="Дублировать задачу"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span></button>
       <button class="tsb del" onclick="deleteTaskFromSheet()" title="Удалить задачу"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5h17"/><path d="M8.5 6.5V4.5a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v2"/><path d="M6 6.5 7 20a1.8 1.8 0 0 0 1.8 1.6h6.4A1.8 1.8 0 0 0 17 20l1-13.5"/></svg></span></button>
     </span></div>
+    <div class="mv-note" id="mvNote"></div>
     <label class="fld"><span>Заголовок</span><input id="tsName" type="text" placeholder="Что сделать" autocomplete="off" enterkeyhint="done"></label>
     <label class="fld"><span>Комментарий</span><textarea id="tsNote" placeholder="Детали, количество, напоминание…"></textarea></label>
     <div class="fld-lbl">Приоритет</div><div class="pri-row" id="tsPri"></div>
@@ -1094,18 +1105,33 @@ function placeByRec(id){
 }
 function renderTsCat(){
   const wrap=document.getElementById('tsCatWrap');
-  // селектор категории показываем всегда (перенос между категориями)
+  if(tsMode==='edit'){ wrap.innerHTML=''; return; } // в правке перенос — кнопкой «Перенести» вверху
   let cats=''; STATE.cats.forEach(c=>{ cats+=`<button class="cs-b ${tsTargetCat===c.key?'on':''}" onclick="tsSetCat('${c.key}')">${ic(c.icon,'color:'+catColor(c))}${esc(c.title||c.tab)}</button>`; });
   const fromInbox = tsTargetCat && catByKey(tsTargetCat) && catByKey(tsTargetCat).kind==='inbox';
   wrap.innerHTML=`<div class="cs-lbl">Категория${fromInbox?' <span class="tag">разобрать из Входящих</span>':''}</div><div class="cs-grid">${cats}</div>`;
-  wireHScroll(wrap.querySelector('.cs-grid'));
-  const on=wrap.querySelector('.cs-b.on'); if(on) on.scrollIntoView({block:'nearest',inline:'center'});
+  const on=wrap.querySelector('.cs-b.on'); if(on) on.scrollIntoView({block:'nearest'});
 }
-/* Горизонтальная лента: колесо/трекпад листают её и на компьютере */
-function wireHScroll(el){
-  if(!el||el.__hs) return; el.__hs=true;
-  el.addEventListener('wheel',e=>{ if(el.scrollWidth>el.clientWidth){ el.scrollLeft+=(e.deltaX||e.deltaY); e.preventDefault(); } },{passive:false});
+/* --- «Перенести»: выпадающий список категорий по алфавиту --- */
+function alphaCats(){ return STATE.cats.slice().sort((a,b)=>(a.title||a.tab||'').localeCompare(b.title||b.tab||'','ru')); }
+function toggleMovePanel(e){
+  if(e&&e.stopPropagation) e.stopPropagation();
+  const p=document.getElementById('mvPanel');
+  if(p.classList.contains('show')){ p.classList.remove('show'); return; }
+  p.innerHTML=alphaCats().map(c=>{
+    const cur=c.key===tsTargetCat;
+    return `<div class="mv-item${cur?' cur':''}" onclick="mvPick('${c.key}')">${ic(c.icon,'color:'+catColor(c))}${esc(c.title||c.tab)}${cur?' ✓':''}</div>`;
+  }).join('');
+  p.classList.add('show');
 }
+function mvPick(key){
+  const p=document.getElementById('mvPanel'); p.classList.remove('show');
+  const f=tsId&&findItem(tsId); if(!f) return;
+  tsTargetCat=key;
+  const note=document.getElementById('mvNote');
+  if(key!==f.c.key){ const c=catByKey(key); note.textContent='После «ОК» задача переедет в: '+(c?(c.title||c.tab):''); note.classList.add('show'); }
+  else { note.classList.remove('show'); }
+}
+function hideMoveUI(){ document.getElementById('mvPanel').classList.remove('show'); document.getElementById('mvNote').classList.remove('show'); }
 function tsSetCat(k){ tsTargetCat=k; renderTsCat(); }
 function openTaskEdit(id){
   if(justDragged||tapSuppressed()) return;
@@ -1114,6 +1140,7 @@ function openTaskEdit(id){
   tsMode='edit'; tsId=id; tsPri=f.it.pri||''; tsWk=!!f.it.wk; tsTargetCat=f.c.key;
   document.getElementById('tsTitle').textContent='Задача';
   document.getElementById('tsBtns').classList.remove('hidden');
+  hideMoveUI();
   document.getElementById('tsName').value=f.it.t||'';
   document.getElementById('tsNote').value=f.it.n||'';
   renderTsPri(); document.getElementById('tsWk').classList.toggle('on',tsWk); tsSetRecUI(f.it.rec||null); renderTsCat();
@@ -1123,13 +1150,14 @@ function openTaskNew(catKey,gi){
   tsMode='new'; tsCatKey=catKey; tsGi=gi; tsId=null; tsPri=''; tsWk=false; tsTargetCat=catKey;
   document.getElementById('tsTitle').textContent='Новая задача';
   document.getElementById('tsBtns').classList.add('hidden');
+  hideMoveUI();
   document.getElementById('tsName').value='';
   document.getElementById('tsNote').value='';
   renderTsPri(); document.getElementById('tsWk').classList.remove('on'); tsSetRecUI(null); renderTsCat();
   openSheet(document.getElementById('tsheet'));
   setTimeout(()=>document.getElementById('tsName').focus(),80);
 }
-function closeTaskSheet(){ closeSheet(document.getElementById('tsheet')); }
+function closeTaskSheet(){ hideMoveUI(); closeSheet(document.getElementById('tsheet')); }
 function saveTaskSheet(){
   const t=document.getElementById('tsName').value.trim();
   const n=document.getElementById('tsNote').value.trim();
@@ -1180,8 +1208,7 @@ function openQuick(){
 function renderQaCats(){
   let cats=''; [getInbox(),...realCats()].forEach(c=>{ cats+=`<button class="cs-b ${qaCat===c.key?'on':''}" onclick="qaSetCat('${c.key}')">${ic(c.icon,'color:'+catColor(c))}${esc(c.title||c.tab)}</button>`; });
   const box=document.getElementById('qaCats'); box.innerHTML=cats;
-  wireHScroll(box);
-  const on=box.querySelector('.cs-b.on'); if(on) on.scrollIntoView({block:'nearest',inline:'center'});
+  const on=box.querySelector('.cs-b.on'); if(on) on.scrollIntoView({block:'nearest'});
 }
 function qaSetCat(k){ qaCat=k; renderQaCats(); }
 function qaSetPri(p){ qaPri=p; document.getElementById('qaPri').innerHTML=priChips(qaPri,'qaSetPri'); }
