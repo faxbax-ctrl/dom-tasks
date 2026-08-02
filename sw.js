@@ -1,5 +1,5 @@
 /* «Дом!» — service worker (офлайн-кэш оболочки) */
-const CACHE = 'dom-v1';
+const CACHE = 'dom-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -22,6 +22,9 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  /* Кэшируем только свои файлы: запросы к Firebase/CDN не трогаем,
+     иначе кэш растёт бесконечно, а на офлайн-ошибку API вернётся index.html */
+  if (new URL(e.request.url).origin !== location.origin) return;
   e.respondWith(
     caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
       const copy = res.clone();

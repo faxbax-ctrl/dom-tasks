@@ -161,7 +161,11 @@ body.editmode .newgrp,body.editmode .newsub{display:flex}
 @media(min-width:680px){ .fab{right:calc(50% - 320px + 16px)} }
 
 /* ---- Profile ---- */
-#profile{position:fixed;inset:0;z-index:85;background:var(--bg);display:flex;flex-direction:column;padding:calc(12px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch}
+#profile{position:fixed;inset:0;z-index:85;background:var(--bg);display:flex;flex-direction:column;padding:calc(12px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.prof-store{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;box-shadow:var(--shadow)}
+.tc-bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.tc-bar>i{display:block;height:100%;background:var(--indigo);border-radius:99px}
+.tc-lbl{font-size:11px;color:var(--muted);font-weight:600;margin-top:7px;line-height:1.4}
 #profile.hidden{display:none}
 .scr-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .scr-head h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px}
@@ -298,6 +302,7 @@ body.noscroll{overflow:hidden}
   <div class="prof-sec">Категории</div>
   <div id="profCats"></div>
   <button class="newcat-btn" onclick="openCatEditor(null)"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span> Категория</button>
+  <div id="profStore"></div>
   <button class="prof-logout" onclick="doSignOut()">Выйти из аккаунта</button>
 </div>
 
@@ -463,7 +468,7 @@ function showLogin(){
   document.getElementById('lock').classList.remove('hidden');
   document.getElementById('app').style.display='none';
   ['profile'].forEach(id=>document.getElementById(id).classList.add('hidden'));
-  profileOpen=false;
+  profileOpen=false; resetScrollLocks();
   document.getElementById('lockMsg').textContent='Войдите, чтобы открыть список дел';
   document.getElementById('pwErr').textContent='';
   document.getElementById('gsi').style.display='flex';
@@ -514,7 +519,20 @@ function migrate(raw){
 let STATE, MODEL=[];
 function syncModelRef(){ MODEL=STATE.cats; }
 function load(){ try{const s=localStorage.getItem(KEY); if(s){ STATE=migrate(JSON.parse(s)); syncModelRef(); return; }}catch(e){} STATE=migrate(freshState()); syncModelRef(); }
-function save(){ localUpdatedAt=Date.now(); try{localStorage.setItem(KEY,JSON.stringify(STATE)); localStorage.setItem(KEY+"_ts",String(localUpdatedAt));}catch(e){} pushCloud(); }
+/* Весь STATE лежит одним документом в Firestore; лимит документа — 1 МиБ.
+   Берём с запасом 1 000 000 байт и предупреждаем при заполнении на 80%. */
+const STORE_LIMIT=1000000;
+let __storeWarned=false;
+function stateBytes(){ try{ return new Blob([JSON.stringify(STATE)]).size; }catch(e){ return 0; } }
+function checkStorage(bytes){
+  if(bytes>=STORE_LIMIT*0.8 && !__storeWarned){ __storeWarned=true;
+    setTimeout(()=>alert('⚠️ Облачное хранилище заполнено на '+Math.round(bytes/STORE_LIMIT*100)+'% (лимит ~1 МБ).\nУдалите старые выполненные задачи — иначе синхронизация перестанет сохранять изменения.\nТекущее заполнение видно в Профиле.'),100); }
+}
+function save(){ localUpdatedAt=Date.now();
+  let bytes=0;
+  try{ const s=JSON.stringify(STATE); bytes=new Blob([s]).size;
+    localStorage.setItem(KEY,s); localStorage.setItem(KEY+"_ts",String(localUpdatedAt)); }catch(e){}
+  checkStorage(bytes); pushCloud(); }
 load();
 let localUpdatedAt=0; try{ localUpdatedAt=parseInt(localStorage.getItem(KEY+"_ts")||"0",10)||0; }catch(e){}
 const myId=Math.random().toString(36).slice(2);
@@ -533,7 +551,7 @@ function totalStats(){ let t=0,d=0; eachItem(it=>{ t++; if(it.done)d++; }); retu
 function totalUrgent(){ let n=0; eachItem(it=>{ if(it.pri==='red'&&!it.done)n++; }); return n; }
 function inboxCount(){ let n=0; getInbox().groups.forEach(g=>g.items&&g.items.forEach(it=>{ if(!it.done)n++; })); return n; }
 function wkCount(){ return weekendItems().reduce((n,g)=>n+g.items.length,0); }
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 /* ---------- ОБЛАКО ---------- */
 let __pushTimer=null;
@@ -550,7 +568,9 @@ function startCloud(){
         localUpdatedAt=d.updatedAt||Date.now();
         try{ localStorage.setItem(KEY,JSON.stringify(STATE)); localStorage.setItem(KEY+"_ts",String(localUpdatedAt)); }catch(e){}
         if(active && active!=='__wk__' && !catByKey(active)) active=null;
-        render(); if(profileOpen) renderProfileCats();
+        /* Пришёл снапшот во время перетаскивания — не перестраиваем DOM под пальцем */
+        if(drag){ pendingRemoteRender=true; }
+        else { render(); if(profileOpen) renderProfileCats(); }
       } else { pushCloud(); }
     }, (e)=>{ if(e && e.code==='permission-denied'){ showDenied(__authedUser && __authedUser.email); } });
   };
@@ -711,9 +731,26 @@ function delItem(e,id){ e.stopPropagation(); const f=findItem(id); if(!f) return
 
 /* ---------- SHEET: задача ---------- */
 let tsMode='new', tsId=null, tsCatKey=null, tsGi=null, tsPri='', tsWk=false, tsTargetCat=null;
-function lockScroll(on){ document.body.classList.toggle('noscroll', on); }
-function openSheet(el){ el.classList.remove('hidden'); lockScroll(true); requestAnimationFrame(()=>el.classList.add('show')); }
-function closeSheet(el){ el.classList.remove('show'); lockScroll(false); setTimeout(()=>el.classList.add('hidden'),220); }
+/* Счётчик, а не флаг: поверх профиля может открыться bottom-sheet —
+   его закрытие не должно разблокировать фон, пока профиль ещё открыт. */
+let scrollLocks=0;
+function lockScroll(on){
+  scrollLocks=Math.max(0, scrollLocks+(on?1:-1));
+  document.body.classList.toggle('noscroll', scrollLocks>0);
+}
+function resetScrollLocks(){ scrollLocks=0; document.body.classList.remove('noscroll'); }
+/* data-open ставится синхронно (класс .show появляется через rAF) —
+   защита от двойного открытия/закрытия, чтобы счётчик не разъезжался. */
+function openSheet(el){
+  if(el.dataset.open==='1') return; el.dataset.open='1';
+  el.classList.remove('hidden'); lockScroll(true);
+  requestAnimationFrame(()=>el.classList.add('show'));
+}
+function closeSheet(el){
+  if(el.dataset.open!=='1') return; el.dataset.open='';
+  el.classList.remove('show'); lockScroll(false);
+  setTimeout(()=>{ if(el.dataset.open!=='1') el.classList.add('hidden'); },220);
+}
 function renderTsPri(){ document.getElementById('tsPri').innerHTML=priChips(tsPri,'tsSetPri'); }
 function tsSetPri(p){ tsPri=p; renderTsPri(); }
 function tsToggleWk(){ tsWk=!tsWk; document.getElementById('tsWk').classList.toggle('on',tsWk); }
@@ -905,17 +942,26 @@ function getProfName(){ try{ return localStorage.getItem('prof_'+profUid())||'';
 function setProfNameStore(v){ try{ localStorage.setItem('prof_'+profUid(), v); }catch(e){} }
 function updateAvatar(){ renderHeader(); }
 function openProfile(welcome){
-  profileOpen=true;
+  if(!profileOpen){ profileOpen=true; lockScroll(true); }
   const nm=getProfName() || (welcome && __authedUser && __authedUser.displayName ? __authedUser.displayName : '');
   document.getElementById('profName').value=nm;
   if(nm && welcome) setProfNameStore(nm);
   const hint=document.getElementById('profHint');
   if(welcome){ hint.style.display='block'; hint.textContent='Добро пожаловать! Заполните имя — так вы и близкие будете видеть, чей это список.'; }
   else hint.style.display='none';
-  renderProfileCats();
-  document.getElementById('profile').classList.remove('hidden'); window.scrollTo({top:0});
+  renderProfileCats(); renderStorage();
+  document.getElementById('profile').classList.remove('hidden'); document.getElementById('profile').scrollTop=0;
 }
-function closeProfile(){ profileOpen=false; document.getElementById('profile').classList.add('hidden'); render(); }
+function closeProfile(){ if(!profileOpen) return; profileOpen=false; document.getElementById('profile').classList.add('hidden'); lockScroll(false); render(); }
+function renderStorage(){
+  const el=document.getElementById('profStore'); if(!el) return;
+  const used=stateBytes(); const pct=Math.min(100, Math.round(used/STORE_LIMIT*100));
+  const warn=pct>=80;
+  el.innerHTML=`<div class="prof-sec">Облачное хранилище</div>
+    <div class="prof-store"><div class="tc-bar"><i style="width:${Math.max(pct,2)}%${warn?';background:var(--red)':''}"></i></div>
+    <div class="tc-lbl">${Math.round(used/1024)} КБ из ~977 КБ (${pct}%) — лимит облачного документа</div>
+    ${warn?'<div class="tc-lbl" style="color:var(--red);font-weight:700">⚠️ Больше 80% — удалите старые выполненные задачи</div>':''}</div>`;
+}
 function saveProfName(){ setProfNameStore(document.getElementById('profName').value.trim()); }
 function renderProfileCats(){
   const box=document.getElementById('profCats'); if(!box) return;
@@ -934,7 +980,7 @@ function renderProfileCats(){
 /* ============ ПЕРЕТАСКИВАНИЕ (движок из «Соберись!») ============ */
 function haptic(){ try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){} }
 function clearSel(){ try{ const s=window.getSelection&&window.getSelection(); if(s&&s.removeAllRanges) s.removeAllRanges(); }catch(e){} }
-let drag=null, lastPt={x:0,y:0}, dragRaf=false, dragPt={x:0,y:0};
+let drag=null, lastPt={x:0,y:0}, dragRaf=false, dragPt={x:0,y:0}, pendingRemoteRender=false;
 function startLongPress(e,onFire){
   const sx=e.clientX, sy=e.clientY; lastPt={x:sx,y:sy};
   const timer=setTimeout(()=>{ cleanup(); haptic(); onFire(); },230);
@@ -945,7 +991,15 @@ function startLongPress(e,onFire){
 }
 function mkClone(el,r){ const c=el.cloneNode(true); c.classList.add('drag-clone');
   c.style.cssText+=`position:fixed;z-index:200;pointer-events:none;margin:0;width:${r.width}px;left:${r.left}px;top:${r.top}px;opacity:.97;will-change:transform`; return c; }
-function attachDrag(){ window.addEventListener('pointermove',onDragMove,{passive:false}); window.addEventListener('pointerup',onDragUp,{once:true}); window.addEventListener('pointercancel',onDragUp,{once:true}); }
+/* iOS Safari: preventDefault в pointermove НЕ останавливает нативный скролл —
+   на время драга глушим touchmove не-пассивным слушателем. */
+function blockTouchScroll(e){ e.preventDefault(); }
+function attachDrag(){
+  window.addEventListener('pointermove',onDragMove,{passive:false});
+  window.addEventListener('touchmove',blockTouchScroll,{passive:false});
+  window.addEventListener('pointerup',onDragUp,{once:true});
+  window.addEventListener('pointercancel',onDragUp,{once:true});
+}
 function autoScroll(y){ const m=80; let cont=null; if(drag&&drag.kind==='cat') cont=document.getElementById('profile');
   if(cont){ if(y<m+70) cont.scrollBy(0,-14); else if(y>window.innerHeight-m) cont.scrollBy(0,14); }
   else { if(y<m) window.scrollBy(0,-14); else if(y>window.innerHeight-m) window.scrollBy(0,14); } }
@@ -957,13 +1011,44 @@ function onDragMove(e){ if(!drag) return; e.preventDefault(); dragPt={x:e.client
     else if(drag.kind==='group') groupDragOver(dragPt.x,dragPt.y);
     else if(drag.kind==='cat') catDragOver(dragPt.x,dragPt.y);
   }); }
-function onDragUp(){ window.removeEventListener('pointermove',onDragMove); document.body.classList.remove('dragging');
+function onDragUp(){ window.removeEventListener('pointermove',onDragMove); window.removeEventListener('touchmove',blockTouchScroll); document.body.classList.remove('dragging');
   if(!drag) return; const d=drag; drag=null;
   if(d.clone) d.clone.remove(); if(d.ph) d.ph.remove(); if(d.el) d.el.style.display='';
   if(d.kind==='item') applyItemDrop(d); else if(d.kind==='group') applyGroupDrop(d); else if(d.kind==='cat') applyCatDrop(d);
+  if(pendingRemoteRender){ pendingRemoteRender=false; render(); if(profileOpen) renderProfileCats(); }
   justDragged=true; setTimeout(()=>{ justDragged=false; },350);
 }
-function placePh(over,refNode){ if(refNode===drag.ph||drag.ph.nextSibling===refNode) return; over.parentNode.insertBefore(drag.ph,refNode); }
+/* Палец над самим плейсхолдером: elementFromPoint проваливается сквозь него
+   (pointer-events:none) в контейнер — раньше это давало петлю «прыжок туда-обратно». */
+function overPh(x,y){
+  if(!drag||!drag.ph||!drag.ph.parentNode) return false;
+  const r=drag.ph.getBoundingClientRect();
+  return y>=r.top && y<=r.bottom && x>=r.left-20 && x<=r.right+20;
+}
+/* Гистерезис: у середины строки — «мёртвая зона», без явного пересечения не переключаемся */
+function midAfter(rect,y){
+  const mid=rect.top+rect.height/2, dz=Math.min(12,rect.height*0.25);
+  if(Math.abs(y-mid)<=dz) return null;
+  return y>mid;
+}
+/* Двигаем плейсхолдер только если он реально должен встать в другое место.
+   Сдвиг соседних строк анимируется (FLIP): вместо телепорта — плавный переезд. */
+function placePhAt(parent,refNode){
+  if(!parent || refNode===drag.ph) return;
+  if(drag.ph.parentNode===parent && drag.ph.nextSibling===refNode) return;
+  const affected=new Set();
+  const grab=p=>{ if(p) for(const ch of p.children){ if(ch!==drag.ph && ch.style.display!=='none') affected.add(ch); } };
+  grab(drag.ph.parentNode); grab(parent);
+  const before=new Map(); affected.forEach(el=>before.set(el, el.getBoundingClientRect().top));
+  parent.insertBefore(drag.ph,refNode);
+  affected.forEach(el=>{
+    const dy=before.get(el)-el.getBoundingClientRect().top;
+    if(Math.abs(dy)<1) return;
+    el.style.transition='none'; el.style.transform='translateY('+dy+'px)';
+    requestAnimationFrame(()=>{ el.style.transition='transform .15s ease'; el.style.transform=''; });
+  });
+}
+function placePh(over,refNode){ placePhAt(over.parentNode,refNode); }
 function beginDragCommon(){ document.body.classList.add('dragging'); clearSel(); }
 /* задачи */
 function onItemPointerDown(e,id){ if(!editmode) return; if(e.target.closest('button')||e.target.closest('.box')||e.target.closest('.drag')) return; startLongPress(e,()=>beginItemDrag(id,lastPt.x,lastPt.y)); }
@@ -972,23 +1057,40 @@ function beginItemDrag(id,x,y){ const el=document.querySelector('.item[data-id="
   const r=el.getBoundingClientRect(); const clone=mkClone(el,r); document.body.appendChild(clone);
   const ph=document.createElement('div'); ph.className='drag-ph'; ph.style.height=r.height+'px'; el.parentNode.insertBefore(ph,el); el.style.display='none';
   beginDragCommon(); drag={kind:'item',id,el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
-function itemDragOver(x,y){ const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
+function itemDragOver(x,y){
+  if(overPh(x,y)) return;
+  const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
   const over=el.closest('.item');
-  if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.style.display!=='none'){ const rect=over.getBoundingClientRect(); const after=y>rect.top+rect.height/2; placePh(over,after?over.nextSibling:over); drag.target={refId:over.dataset.id,after}; return; }
-  const grp=el.closest('.grp'); if(grp){ const box=grp.querySelector('.items'); if(box){ const add=box.querySelector('.additem'); if(drag.ph.parentNode!==box||drag.ph.nextSibling!==add) box.insertBefore(drag.ph,add); drag.target={groupGk:grp.dataset.gk}; } } }
-function applyItemDrop(d){ const src=findItem(d.id); if(!src){ render(); return; } const from=src.g.items; from.splice(from.indexOf(src.it),1); const t=d.target;
+  if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.style.display!=='none'){
+    const rect=over.getBoundingClientRect(); const after=midAfter(rect,y);
+    if(after===null) return;
+    placePh(over,after?over.nextSibling:over); drag.target={refId:over.dataset.id,after}; return;
+  }
+  const grp=el.closest('.grp');
+  if(grp){
+    const box=grp.querySelector('.items'); if(!box) return;
+    /* «в конец группы» — только если палец ниже последней видимой задачи (или группа пуста),
+       иначе заголовок/зазоры группы утаскивали плейсхолдер вниз и он дребезжал */
+    const items=[...box.querySelectorAll('.item')].filter(n=>n!==drag.el && n.style.display!=='none');
+    const last=items[items.length-1];
+    if(last && y<=last.getBoundingClientRect().bottom) return;
+    placePhAt(box, box.querySelector('.additem'));
+    drag.target={groupGk:grp.dataset.gk};
+  }
+}
+function applyItemDrop(d){ const src=findItem(d.id); if(!src){ render(); return; } const from=src.g.items; const origIdx=from.indexOf(src.it); from.splice(origIdx,1); const t=d.target;
   if(t&&t.refId!=null){ const rf=findItem(t.refId); if(rf){ const arr=rf.g.items; let i=arr.indexOf(rf.it); if(t.after)i++; arr.splice(i,0,src.it); save(); render(); return; } }
   if(t&&t.groupGk!=null){ const [ck,gi]=t.groupGk.split('-'); const c=catByKey(ck); const g=c&&c.groups[parseInt(gi,10)]; if(g){ (g.items||(g.items=[])).push(src.it); save(); render(); return; } }
-  from.push(src.it); render(); }
+  from.splice(origIdx,0,src.it); render(); /* цели нет — вернуть на исходное место, ничего не менять */ }
 /* подкатегории / заголовки */
 function onGroupHandleDown(e,catKey,gi){ e.preventDefault(); e.stopPropagation(); const el=e.target.closest('.grp,.sub'); beginGroupDrag(catKey,gi,el,e.clientX,e.clientY); }
 function beginGroupDrag(catKey,gi,el,x,y){ const c=catByKey(catKey); if(!c||!el) return;
   const r=el.getBoundingClientRect(); const clone=mkClone(el,r); document.body.appendChild(clone);
   const ph=document.createElement('div'); ph.className='drag-ph grp'; ph.style.height=r.height+'px'; el.parentNode.insertBefore(ph,el); el.style.display='none';
   beginDragCommon(); drag={kind:'group',c,srcObj:c.groups[gi],el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
-function groupDragOver(x,y){ const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
+function groupDragOver(x,y){ if(overPh(x,y)) return; const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
   const over=el.closest('.grp')||el.closest('.sub');
-  if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.gi!=null){ const rect=over.getBoundingClientRect(); const after=y>rect.top+rect.height/2; placePh(over,after?over.nextSibling:over); drag.target={refObj:drag.c.groups[parseInt(over.dataset.gi,10)],after}; } }
+  if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.gi!=null){ const rect=over.getBoundingClientRect(); const after=midAfter(rect,y); if(after===null) return; placePh(over,after?over.nextSibling:over); drag.target={refObj:drag.c.groups[parseInt(over.dataset.gi,10)],after}; } }
 function applyGroupDrop(d){ const arr=d.c.groups; const si=arr.indexOf(d.srcObj); if(si<0){ render(); return; } arr.splice(si,1); const t=d.target;
   if(t&&t.refObj){ let i=arr.indexOf(t.refObj); if(i<0)i=arr.length; else if(t.after)i++; arr.splice(i,0,d.srcObj); } else arr.splice(Math.min(si,arr.length),0,d.srcObj);
   save(); render(); }
@@ -997,9 +1099,9 @@ function onCatHandleDown(e,key){ e.preventDefault(); e.stopPropagation(); const 
 function beginCatDrag(key,el,x,y){ if(!el) return; const r=el.getBoundingClientRect(); const clone=mkClone(el,r); document.body.appendChild(clone);
   const ph=document.createElement('div'); ph.className='drag-ph'; ph.style.height=r.height+'px'; ph.style.margin='0 0 8px'; el.parentNode.insertBefore(ph,el); el.style.display='none';
   beginDragCommon(); drag={kind:'cat',srcObj:catByKey(key),container:el.parentNode,el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
-function catDragOver(x,y){ const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
+function catDragOver(x,y){ if(overPh(x,y)) return; const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
   const over=el.closest('.prof-cat');
-  if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.key&&drag.container.contains(over)){ const tc=catByKey(over.dataset.key); if(tc&&tc.kind==='inbox') return; const rect=over.getBoundingClientRect(); const after=y>rect.top+rect.height/2; placePh(over,after?over.nextSibling:over); drag.target={refObj:tc,after}; } }
+  if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.key&&drag.container.contains(over)){ const tc=catByKey(over.dataset.key); if(tc&&tc.kind==='inbox') return; const rect=over.getBoundingClientRect(); const after=midAfter(rect,y); if(after===null) return; placePh(over,after?over.nextSibling:over); drag.target={refObj:tc,after}; } }
 function applyCatDrop(d){ const arr=STATE.cats; const si=arr.indexOf(d.srcObj); if(si<0){ render(); renderProfileCats(); return; } arr.splice(si,1); const t=d.target;
   if(t&&t.refObj){ let i=arr.indexOf(t.refObj); if(i<0)i=arr.length; else if(t.after)i++; if(i===0)i=1; arr.splice(i,0,d.srcObj); } else arr.splice(Math.min(si,arr.length),0,d.srcObj);
   ensureInbox(STATE); save(); render(); renderProfileCats(); }
