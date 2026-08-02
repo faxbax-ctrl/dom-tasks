@@ -221,6 +221,19 @@ body.editmode .newgrp,body.editmode .newsub{display:flex}
 .cm-btn .ic{font-size:18px;color:var(--muted)}
 .cm-btn.del{color:var(--red);border-color:#e6cfc9}
 .cm-btn.del .ic{color:var(--red)}
+/* цикличные задачи */
+.rec-row{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;margin-bottom:12px}
+.rec-row input{width:64px;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px;font-family:inherit;font-size:16px;text-align:center}
+.rec-row select{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px;font-family:inherit;font-size:15px;color:var(--ink)}
+.rec-row input:focus,.rec-row select:focus{outline:none;border-color:var(--indigo)}
+.recline{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#2f8a7e;margin-top:3px}
+.recline .ic{font-size:12px}
+.recline.late{color:var(--pri-red)}
+.svc-cat{font-size:10.5px;color:var(--muted);font-weight:600;margin-top:2px;display:block}
+.log-row{padding:9px 2px;border-bottom:1px solid var(--line);font-size:13.5px;line-height:1.4}
+.log-row .ld{font-weight:800;color:var(--ink)}
+.log-row .lc{color:var(--muted);font-weight:600;font-size:11.5px}
+.log-row .ln{color:var(--muted);font-size:12.5px;margin-top:2px}
 .qa-input{width:100%;border:1.5px solid var(--indigo);border-radius:12px;padding:12px 13px;font-family:inherit;font-size:16px;color:var(--ink);background:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--indigo) 12%,transparent)}
 .qa-input:focus{outline:none}
 .qa-input::placeholder{color:var(--muted)}
@@ -354,6 +367,11 @@ body.noscroll{overflow:hidden}
     <label class="fld"><span>Комментарий</span><textarea id="tsNote" placeholder="Детали, количество, напоминание…"></textarea></label>
     <div class="fld-lbl">Приоритет</div><div class="pri-row" id="tsPri"></div>
     <div class="wktog" id="tsWk" onclick="tsToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">На выходные<small>Показать в общей витрине выходных</small></span><span class="toggle"></span></div>
+    <div class="wktog" id="tsRec" onclick="tsToggleRec()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span><span class="wl">Повторять<small>Цикличная задача — попадёт в «Обслужить»</small></span><span class="toggle"></span></div>
+    <div id="tsRecCfg" style="display:none">
+      <div class="rec-row">каждые <input id="tsRecN" type="number" min="1" max="365" value="1" inputmode="numeric"> <select id="tsRecU"><option value="d">дней</option><option value="w">недель</option><option value="m" selected>месяцев</option><option value="y">лет</option></select></div>
+      <label class="fld"><span>Следующий срок</span><input id="tsRecD" type="date"></label>
+    </div>
     <div id="tsCatWrap"></div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeTaskSheet()">Отмена</button><button class="btn-main" onclick="saveTaskSheet()">ОК</button></div>
   </div>
@@ -387,6 +405,26 @@ body.noscroll{overflow:hidden}
       <div class="col-row" id="colorRow"></div>
     </div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeESheet()">Отмена</button><button class="btn-main" onclick="saveESheet()">Сохранить</button></div>
+  </div>
+</div>
+
+<!-- ===== SHEET: выполнение цикличной задачи ===== -->
+<div id="ssheet" class="sheet-back hidden" onclick="if(event.target===this) closeSvcDone()">
+  <div class="sheet-card"><div class="grip"></div>
+    <h3>Выполнено!</h3>
+    <div class="cm-title" id="ssTask"></div>
+    <label class="fld"><span>Комментарий в журнал (необязательно)</span>
+      <input id="ssNote" type="text" placeholder="Например: фильтр Аквафор К5" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();event.target.blur();}"></label>
+    <div class="ip-note" id="ssNext"></div>
+    <div class="sheet-acts"><button class="btn-ghost" onclick="closeSvcDone()">Отмена</button><button class="btn-main" onclick="svcConfirm()">Записать в журнал</button></div>
+  </div>
+</div>
+
+<!-- ===== SHEET: журнал обслуживания ===== -->
+<div id="lsheet" class="sheet-back hidden" onclick="if(event.target===this) closeSvcLog()">
+  <div class="sheet-card"><div class="grip"></div>
+    <div class="ts-head"><h3>Журнал обслуживания</h3><button class="ts-del" style="color:var(--muted)" onclick="closeSvcLog()">Закрыть</button></div>
+    <div id="lsBody"></div>
   </div>
 </div>
 
@@ -626,6 +664,8 @@ function migrate(raw){
   /* счётчики «за всё время»: при первом запуске отталкиваемся от текущего списка */
   if(!s.stats){ let t=0,d=0; s.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ t++; if(it.done)d++; }); })); s.stats={created:t,done:d}; }
   if(!Array.isArray(s.doneLog)) s.doneLog=[];
+  if(!Array.isArray(s.svcLog)) s.svcLog=[];
+  s.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.rec && !it.rec.next) delete it.rec; }); }));
   return s;
 }
 let STATE, MODEL=[];
@@ -675,6 +715,22 @@ function lastWeekendDone(){
   const satStart=d0.getTime()-back*86400000;
   return STATE.doneLog.filter(e=>e.ts>=satStart && e.ts<satStart+2*86400000).length;
 }
+/* ---------- ЦИКЛИЧНЫЕ ЗАДАЧИ («Обслужить») ---------- */
+function toISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function isoToday(){ return toISO(new Date()); }
+function parseISO(s){ const p=(s||'').split('-'); return new Date(+p[0],(+p[1]||1)-1,+p[2]||1); }
+function fmtD(s){ const p=(s||'').split('-'); return p.length===3 ? (+p[2])+'.'+p[1]+'.'+p[0].slice(2) : ''; }
+function daysTo(s){ const n=new Date(); const t0=new Date(n.getFullYear(),n.getMonth(),n.getDate()); return Math.round((parseISO(s)-t0)/86400000); }
+function addPeriod(iso,n,unit){ const d=parseISO(iso);
+  if(unit==='d') d.setDate(d.getDate()+n);
+  else if(unit==='w') d.setDate(d.getDate()+7*n);
+  else if(unit==='m') d.setMonth(d.getMonth()+n);
+  else d.setFullYear(d.getFullYear()+n);
+  return toISO(d); }
+function dueLabel(d){ return d<0 ? ('просрочено '+(-d)+' дн.') : d===0 ? 'сегодня' : d===1 ? 'завтра' : ('через '+d+' дн.'); }
+function recTasks(){ const out=[]; STATE.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.rec&&it.rec.next) out.push({it,c}); }); })); return out; }
+function svcDueCount(){ return recTasks().filter(r=>daysTo(r.it.rec.next)<=7).length; }
+function ensureSvcGroup(c){ let g=c.groups.find(x=>x.svc&&x.items); if(!g){ g={emo:'repeat',title:'Цикличные',items:[],svc:true}; c.groups.unshift(g); } return g; }
 function totalUrgent(){ let n=0; eachItem(it=>{ if(it.pri==='red'&&!it.done)n++; }); return n; }
 function inboxCount(){ let n=0; getInbox().groups.forEach(g=>g.items&&g.items.forEach(it=>{ if(!it.done)n++; })); return n; }
 function wkCount(){ return weekendItems().reduce((n,g)=>n+g.items.length,0); }
@@ -717,12 +773,13 @@ const viewEl=document.getElementById('view');
 const hdrEl=document.getElementById('hdr');
 
 function render(){
-  if(active && active!=='__wk__' && !catByKey(active)) active=null;
+  if(active && active!=='__wk__' && active!=='__svc__' && !catByKey(active)) active=null;
   renderHeader();
-  document.body.classList.toggle('editmode', editmode && active!=='__wk__');
-  document.getElementById('fab').classList.toggle('hidden', active==='__wk__');
+  document.body.classList.toggle('editmode', editmode && active!=='__wk__' && active!=='__svc__');
+  document.getElementById('fab').classList.toggle('hidden', active==='__wk__'||active==='__svc__');
   if(active===null) renderHub();
   else if(active==='__wk__') renderWeekend();
+  else if(active==='__svc__') renderService();
   else renderCat(active);
 }
 function avatarBtn(){ const n=getProfName().trim(); return `<button class="av" onclick="openProfile(false)">${n?esc(n[0].toUpperCase()):'👤'}</button>`; }
@@ -744,6 +801,11 @@ function renderHeader(){
       <button class="bk" onclick="goHub()">${ic('chevL')}</button>
       <div class="catttl"><span class="ce" style="${chipStyle('#37478f')}">${ic('calendar')}</span><span class="nm">${esc(STATE.wkTitle)}</span></div>
       <div class="h-right">${avatarBtn()}</div></div>`;
+  } else if(active==='__svc__'){
+    hdrEl.innerHTML=`<div class="h-row">
+      <button class="bk" onclick="goHub()">${ic('chevL')}</button>
+      <div class="catttl"><span class="ce" style="${chipStyle('#2f8a7e')}">${ic('repeat')}</span><span class="nm">Обслужить</span></div>
+      <div class="h-right"><button class="hb" onclick="openSvcLog()" title="Журнал обслуживания">${ic('history')}</button>${avatarBtn()}</div></div>`;
   } else {
     const c=catByKey(active); const s=catStats(c); const col=catColor(c);
     const isInbox=c.kind==='inbox';
@@ -767,6 +829,8 @@ function renderHub(){
   const ib=getInbox();
   let h=`<div class="pin inbox" onclick="openCat('${ib.key}')"><span class="ico">${ic('inbox')}</span><span class="nm">${esc(ib.title||'Входящие')}<small>Быстрый ввод, разобрать позже</small></span><span class="badge ${inboxCount()?'':'zero'}">${inboxCount()}</span></div>`;
   h+=`<div class="pin wk" onclick="openWeekend()"><span class="ico">${ic('calendar')}</span><span class="nm">${esc(STATE.wkTitle)}<small>Отмеченные задачи со всех категорий</small></span><span class="badge ${wkCount()?'':'zero'}">${wkCount()}</span></div>`;
+  const svcDue=svcDueCount();
+  h+=`<div class="pin svc" onclick="openService()"><span class="ico" style="${chipStyle('#2f8a7e')}">${ic('repeat')}</span><span class="nm">Обслужить<small>Цикличные дела: фильтры, чистка, ТО</small></span><span class="badge ${svcDue?'':'zero'}"${svcDue?' style="background:#2f8a7e"':''}>${svcDue}</span></div>`;
   h+=`<div class="sect-l"><span>Категории</span></div><div class="hub">`;
   const cats=realCats();
   if(!cats.length){ h+=`<div class="hub-empty">Категорий пока нет.<br>Добавьте первую — например «Кухня» или «Ремонт».</div>`; }
@@ -797,10 +861,11 @@ function toggleFav(e,key){ e.stopPropagation(); const c=catByKey(key); if(!c) re
 function itemRow(it){
   const stripe=it.pri?`<span class="pri-stripe" style="background:${PRI[it.pri].c}"></span>`:'';
   const note=it.n?`<span class="note">${esc(it.n)}</span>`:'';
+  const rec=(it.rec&&it.rec.next)?`<span class="recline${daysTo(it.rec.next)<0?' late':''}">${ic('repeat')} ${fmtD(it.rec.next)} · ${dueLabel(daysTo(it.rec.next))}</span>`:'';
   return `<div class="item${it.done?' checked':''}" data-id="${it.id}" onpointerdown="onItemPointerDown(event,'${it.id}')">
     ${stripe}
     <span class="box" onclick="boxTap(event,'${it.id}')">${ic('check')}</span>
-    <div class="lw" onclick="openTaskEdit('${it.id}')"><span class="lbl">${esc(it.t)}</span>${note}</div>
+    <div class="lw" onclick="openTaskEdit('${it.id}')"><span class="lbl">${esc(it.t)}</span>${note}${rec}</div>
     <span class="irow-btns">
       <button class="iqb ${it.wk?'wkon':''}" title="Взять на выходные" onclick="quickWk(event,'${it.id}')">${ic('calcheck')}</button>
     </span>
@@ -857,10 +922,32 @@ function renderWeekend(){
   });
   viewEl.innerHTML=h;
 }
+function renderService(){
+  const rs=recTasks();
+  if(!rs.length){ viewEl.innerHTML=`<div class="empty">${ic('repeat')}<br>Цикличных дел пока нет.<br>Откройте задачу и включите «Повторять» —<br>она появится здесь с датой и напоминанием.</div>`; return; }
+  rs.sort((a,b)=>daysTo(a.it.rec.next)-daysTo(b.it.rec.next));
+  let h='';
+  const near=rs.filter(r=>daysTo(r.it.rec.next)<=7);
+  if(near.length){
+    h+=`<div class="wkgrp-h">${ic('clock','color:#c1503b')} Ближайшие</div><div class="grp"><div class="items">`;
+    near.forEach(r=>h+=itemRow(r.it));
+    h+=`</div></div>`;
+  }
+  h+=`<div class="wkgrp-h">${ic('repeat','color:#2f8a7e')} Всё обслуживание</div>`;
+  STATE.cats.forEach(c=>{
+    const l=rs.filter(r=>r.c===c);
+    if(!l.length) return;
+    h+=`<div class="wkgrp-h" style="font-size:11.5px;color:var(--muted)">${ic(c.icon,'color:'+catColor(c))} ${esc(c.title||c.tab)}</div><div class="grp"><div class="items">`;
+    l.forEach(r=>h+=itemRow(r.it));
+    h+=`</div></div>`;
+  });
+  viewEl.innerHTML=h;
+}
 function refreshCounts(){ /* прогресс в шапке уже отрисован renderHeader */ }
 
 function openCat(k){ active=k; editmode=false; window.scrollTo({top:0}); render(); }
 function openWeekend(){ active='__wk__'; editmode=false; window.scrollTo({top:0}); render(); }
+function openService(){ active='__svc__'; editmode=false; window.scrollTo({top:0}); render(); }
 function goHub(){ active=null; editmode=false; window.scrollTo({top:0}); render(); }
 function toggleGroup(gk){ openState[gk]=!(openState[gk]!==false); const el=document.querySelector(`.grp[data-gk="${gk}"]`); if(el) el.classList.toggle('closed'); }
 
@@ -870,7 +957,40 @@ function toggleEdit(){ editmode=!editmode; render(); }
 /* ---------- ДЕЙСТВИЯ НАД ЗАДАЧАМИ ---------- */
 let justDragged=false, suppressNextTap=false;
 function tapSuppressed(){ if(suppressNextTap){ suppressNextTap=false; return true; } return false; }
-function boxTap(e,id){ e.stopPropagation(); if(editmode||tapSuppressed()) return; const f=findItem(id); if(!f) return; f.it.done=!f.it.done; markDone(f.it,f.it.done); save(); render(); if(urgentOpen) renderUrgentBody(); }
+function boxTap(e,id){ e.stopPropagation(); if(editmode||tapSuppressed()) return; const f=findItem(id); if(!f) return;
+  if(f.it.rec && !f.it.done){ openSvcDone(id); return; } /* цикличная: выполнение через журнал */
+  f.it.done=!f.it.done; markDone(f.it,f.it.done); save(); render(); if(urgentOpen) renderUrgentBody(); }
+/* --- выполнение цикличной задачи --- */
+let svcId=null;
+function openSvcDone(id){
+  const f=findItem(id); if(!f) return;
+  svcId=id;
+  document.getElementById('ssTask').textContent=f.it.t||'';
+  document.getElementById('ssNote').value='';
+  document.getElementById('ssNext').textContent='Задача пересоздастся автоматически: следующий срок — '
+    +fmtD(addPeriod(isoToday(),f.it.rec.n,f.it.rec.unit))+'.';
+  openSheet(document.getElementById('ssheet'));
+}
+function closeSvcDone(){ closeSheet(document.getElementById('ssheet')); }
+function svcConfirm(){
+  const f=svcId&&findItem(svcId); if(!f){ closeSvcDone(); return; }
+  const note=document.getElementById('ssNote').value.trim();
+  STATE.svcLog.unshift({t:f.it.t,cat:(f.c.title||f.c.tab||''),ts:Date.now(),note});
+  if(STATE.svcLog.length>300) STATE.svcLog.length=300;
+  markDone({id:'svc-'+Date.now()},true); /* в счётчики выполненного, без отмены */
+  f.it.rec.next=addPeriod(isoToday(),f.it.rec.n,f.it.rec.unit);
+  save(); closeSvcDone(); render();
+}
+/* --- журнал обслуживания --- */
+function fmtTs(ts){ const d=new Date(ts); return d.getDate()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getFullYear()).slice(2); }
+function openSvcLog(){
+  const box=document.getElementById('lsBody');
+  box.innerHTML=STATE.svcLog.length
+    ? STATE.svcLog.map(e=>`<div class="log-row"><span class="ld">${fmtTs(e.ts)}</span> — ${esc(e.t)} <span class="lc">· ${esc(e.cat)}</span>${e.note?`<div class="ln">${esc(e.note)}</div>`:''}</div>`).join('')
+    : `<div class="empty">Журнал пуст.<br>Отмечайте цикличные дела выполненными — здесь появится история: что и когда обслужено.</div>`;
+  openSheet(document.getElementById('lsheet'));
+}
+function closeSvcLog(){ closeSheet(document.getElementById('lsheet')); }
 function quickWk(e,id){ e.stopPropagation(); if(tapSuppressed()) return; const f=findItem(id); if(!f) return; f.it.wk=!f.it.wk; save(); render(); }
 function delItem(e,id){ e.stopPropagation(); const f=findItem(id); if(!f) return; if(!confirm('Удалить: «'+f.it.t+'»?')) return; f.g.items=f.g.items.filter(x=>x.id!==id); save(); render(); }
 function duplicateTask(id){
@@ -938,6 +1058,40 @@ function closeSheet(el){
 function renderTsPri(){ document.getElementById('tsPri').innerHTML=priChips(tsPri,'tsSetPri'); }
 function tsSetPri(p){ tsPri=p; renderTsPri(); }
 function tsToggleWk(){ tsWk=!tsWk; document.getElementById('tsWk').classList.toggle('on',tsWk); }
+let tsRecOn=false;
+function tsSetRecUI(rec){
+  tsRecOn=!!rec;
+  document.getElementById('tsRec').classList.toggle('on',tsRecOn);
+  document.getElementById('tsRecCfg').style.display=tsRecOn?'':'none';
+  document.getElementById('tsRecN').value=rec?rec.n:1;
+  document.getElementById('tsRecU').value=rec?rec.unit:'m';
+  document.getElementById('tsRecD').value=rec?rec.next:isoToday();
+}
+function tsToggleRec(){
+  tsRecOn=!tsRecOn;
+  document.getElementById('tsRec').classList.toggle('on',tsRecOn);
+  document.getElementById('tsRecCfg').style.display=tsRecOn?'':'none';
+  if(tsRecOn && !document.getElementById('tsRecD').value) document.getElementById('tsRecD').value=isoToday();
+}
+function tsReadRec(){
+  if(!tsRecOn) return null;
+  const n=Math.max(1,parseInt(document.getElementById('tsRecN').value,10)||1);
+  const unit=document.getElementById('tsRecU').value||'m';
+  const next=document.getElementById('tsRecD').value||isoToday();
+  return {n,unit,next};
+}
+/* цикличная живёт в подкатегории «Цикличные» своей категории */
+function placeByRec(id){
+  const f=findItem(id); if(!f) return;
+  if(f.it.rec && !f.g.svc){
+    const sg=ensureSvcGroup(f.c);
+    f.g.items=f.g.items.filter(x=>x!==f.it); sg.items.unshift(f.it);
+    if(f.g!==sg && f.g.items && !f.g.items.length && f.g.svc){}
+  } else if(!f.it.rec && f.g.svc){
+    const ng=f.c.groups.find(x=>x.items&&!x.svc)||(f.c.groups.push({emo:'box',title:'Задачи',items:[]}),f.c.groups[f.c.groups.length-1]);
+    f.g.items=f.g.items.filter(x=>x!==f.it); ng.items.unshift(f.it);
+  }
+}
 function renderTsCat(){
   const wrap=document.getElementById('tsCatWrap');
   // селектор категории показываем всегда (перенос между категориями)
@@ -962,7 +1116,7 @@ function openTaskEdit(id){
   document.getElementById('tsBtns').classList.remove('hidden');
   document.getElementById('tsName').value=f.it.t||'';
   document.getElementById('tsNote').value=f.it.n||'';
-  renderTsPri(); document.getElementById('tsWk').classList.toggle('on',tsWk); renderTsCat();
+  renderTsPri(); document.getElementById('tsWk').classList.toggle('on',tsWk); tsSetRecUI(f.it.rec||null); renderTsCat();
   openSheet(document.getElementById('tsheet'));
 }
 function openTaskNew(catKey,gi){
@@ -971,7 +1125,7 @@ function openTaskNew(catKey,gi){
   document.getElementById('tsBtns').classList.add('hidden');
   document.getElementById('tsName').value='';
   document.getElementById('tsNote').value='';
-  renderTsPri(); document.getElementById('tsWk').classList.remove('on'); renderTsCat();
+  renderTsPri(); document.getElementById('tsWk').classList.remove('on'); tsSetRecUI(null); renderTsCat();
   openSheet(document.getElementById('tsheet'));
   setTimeout(()=>document.getElementById('tsName').focus(),80);
 }
@@ -980,18 +1134,23 @@ function saveTaskSheet(){
   const t=document.getElementById('tsName').value.trim();
   const n=document.getElementById('tsNote').value.trim();
   if(!t){ document.getElementById('tsName').focus(); return; }
+  const rec=tsReadRec();
   if(tsMode==='edit'){
     const f=findItem(tsId); if(f){ f.it.t=t; f.it.n=n; f.it.pri=tsPri; f.it.wk=tsWk;
+      if(rec) f.it.rec=rec; else delete f.it.rec;
       if(tsTargetCat && tsTargetCat!==f.c.key){ // перенос в другую категорию
         const dst=catByKey(tsTargetCat); if(dst){ f.g.items=f.g.items.filter(x=>x!==f.it); const g=dst.groups.find(x=>x.items)||dst.groups[0]||(dst.groups.push({emo:'box',title:'Задачи',items:[]}),dst.groups[dst.groups.length-1]); (g.items||(g.items=[])).unshift(f.it); }
       }
+      placeByRec(tsId);
     }
   } else {
     const dst=catByKey(tsTargetCat)||catByKey(tsCatKey); if(dst){
       let g; if(tsTargetCat===tsCatKey && dst.groups[tsGi] && dst.groups[tsGi].items) g=dst.groups[tsGi];
       else g=dst.groups.find(x=>x.items)||dst.groups[0]||(dst.groups.push({emo:'box',title:'Задачи',items:[]}),dst.groups[dst.groups.length-1]);
-      (g.items||(g.items=[])).unshift({id:nid(),t,n,done:false,pri:tsPri,wk:tsWk});
+      const nit={id:nid(),t,n,done:false,pri:tsPri,wk:tsWk}; if(rec) nit.rec=rec;
+      (g.items||(g.items=[])).unshift(nit);
       statCreated(1);
+      if(rec) placeByRec(nit.id);
     }
   }
   save(); closeTaskSheet(); render();
