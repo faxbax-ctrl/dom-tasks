@@ -1,5 +1,5 @@
 /* «Дом!» — service worker (офлайн-кэш оболочки) */
-const CACHE = 'dom-v7';
+const CACHE = 'dom-v8';
 const ASSETS = [
   './',
   './index.html',
@@ -25,6 +25,28 @@ self.addEventListener('fetch', e => {
   /* Кэшируем только свои файлы: запросы к Firebase/CDN не трогаем,
      иначе кэш растёт бесконечно, а на офлайн-ошибку API вернётся index.html */
   if (new URL(e.request.url).origin !== location.origin) return;
+
+  /* Саму страницу берём СНАЧАЛА из сети (кэш — только запасной вариант офлайн).
+     При cache-first приложение всегда отставало на один запуск от задеплоенного,
+     а забытый бамп CACHE означал, что новая версия не доедет вообще. */
+  if (e.request.mode === 'navigate') {
+    const fromCache = () => caches.match(e.request).then(hit => hit || caches.match('./index.html'));
+    /* Сеть, но не бесконечно: на медленном соединении запуск не должен висеть —
+       через 3 с отдаём кэш. */
+    const timeout = new Promise(res => setTimeout(() => res(null), 3000));
+    const net = fetch(e.request).then(r => {
+      const copy = r.clone();
+      caches.open(CACHE).then(c => c.put('./index.html', copy)).catch(() => {});
+      return r;
+    });
+    e.respondWith(
+      Promise.race([net, timeout])
+        .then(r => r || fromCache().then(hit => hit || net))
+        .catch(() => fromCache())
+    );
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
       const copy = res.clone();

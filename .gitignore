@@ -7,3 +7,5 @@ _check*.js
 # ТЗ и рабочие заметки не публикуем в репозиторий
 ТЗ-домашние-задачи.md
 dom-zadachi.md
+# локальные настройки Claude Code (сейчас их прячет только глобальный ~/.config/git/ignore)
+.claude/settings.local.json

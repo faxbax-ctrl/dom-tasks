@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Дом!</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#37478f">
@@ -13,10 +13,10 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
 :root{
-  --bg:#eaeef3; --card:#ffffff; --ink:#1c2333; --muted:#69728a; --line:#e3e8f1;
+  --bg:#eaeef3; --card:#ffffff; --ink:#1c2333; --muted:#5f6880; --line:#e3e8f1;
   --indigo:#37478f; --indigo-soft:#e8ebf8; --amber:#dd8636; --amber-soft:#fbeede; --pamber:#c06f22;
   --pri-red:#db4f3c; --pri-org:#e5983a; --pri-fast:#3f6fd6; --pri-green:#5f9a76;
-  --done:#adb4c4; --red:#c14b3f;
+  --done:#9aa2b2; --red:#c14b3f;
   --shadow:0 1px 2px rgba(28,35,60,.06),0 8px 22px rgba(28,35,60,.07);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -57,22 +57,15 @@ body.editmode .hb.edit{background:var(--indigo);border-color:var(--indigo);color
 .urg .pdot{width:8px;height:8px;border-radius:99px;background:var(--pri-red)}
 .bk{width:36px;height:36px;flex:none;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-size:19px}
 .bk .ic{font-size:20px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:3px 18px;margin-top:9px}
-.stats span{font-size:11px;color:var(--muted);font-weight:600;display:flex;justify-content:space-between;gap:8px}
-.stats b{color:var(--ink);font-weight:800}
-/* метрики — «пилюли» (вариант C): невзрачные, не отвлекают */
-.mrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.mpill{display:inline-flex;align-items:center;gap:5px;background:#eef1f6;color:var(--muted);font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px}
-.mpill b{color:var(--indigo);font-weight:800}
-.mpill.on{background:var(--indigo-soft);color:var(--indigo)}
-.mpill.on b{color:var(--indigo)}
-.mpill .ic{font-size:12px}
+.cdot{width:26px;height:26px;flex:none;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cdot::after{content:'';width:8px;height:8px;border-radius:99px;background:#9aa2b2;transition:background .2s}
+.cdot.ok::after{background:#5f9a76}
+.cdot.saving::after{background:var(--amber)}
+.cdot.wait::after{background:#9aa2b2}
+.cdot.error::after{background:var(--red);box-shadow:0 0 0 3px color-mix(in srgb,var(--red) 22%,transparent)}
 .urg.q1{background:#fbe0dd;color:var(--pri-red);border-color:color-mix(in srgb,var(--pri-red) 30%,transparent)}
 .urg.qall{background:var(--indigo-soft);color:var(--indigo);border-color:color-mix(in srgb,var(--indigo) 28%,transparent)}
 .urg.qall .ic{font-size:14px}
-.hubsearch{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;border:1px solid var(--line);background:var(--card);border-radius:11px;padding:9px 12px;color:var(--muted);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
-.hubsearch .ic{font-size:16px}
-.hubsearch:active{background:var(--bg)}
 .bar{height:6px;background:var(--line);border-radius:99px;margin-top:10px;overflow:hidden}
 .bar>i{display:block;height:100%;width:0;background:var(--indigo);border-radius:99px;transition:width .35s ease}
 .bar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
@@ -83,6 +76,8 @@ body.editmode .hb.edit{background:var(--indigo);border-color:var(--indigo);color
 .tgl.hidden{display:none}
 
 main{padding:13px 13px 20px;max-width:640px;margin:0 auto}
+/* FAB (56px) перекрывал последнюю строку списка — даём ему место, когда он показан */
+body:not(.nofab) main{padding-bottom:92px}
 
 /* ---- Hub ---- */
 .pin{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:9px;cursor:pointer;box-shadow:var(--shadow)}
@@ -102,11 +97,11 @@ main{padding:13px 13px 20px;max-width:640px;margin:0 auto}
 .favb{position:absolute;top:7px;right:7px;width:30px;height:30px;border:0;background:none;color:var(--line);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;padding:0}
 .favb.on{color:var(--amber)}
 .favb.on svg{fill:currentColor}
-body.editmode .hcard{border-style:dashed;border-color:var(--indigo)}
+#view.editmode .hcard{border-style:dashed;border-color:var(--indigo)}
 .hcard .hedit{display:none;position:absolute;bottom:9px;right:9px;color:var(--indigo);font-size:15px}
-body.editmode .hcard .hedit{display:flex}
+#view.editmode .hcard .hedit{display:flex}
 /* в режиме правки карандаш стоит внизу-справа — прячем счётчики плитки, чтобы не наплывал на красную точку */
-body.editmode .hub:not(.list) .hcard .cl{visibility:hidden}
+#view.editmode .hub:not(.list) .hcard .cl{visibility:hidden}
 .hcard.dragging{opacity:.35}
 .hcard .ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px}
 .hcard .nm{font-weight:700;font-size:13px;margin-top:9px;letter-spacing:-.2px;line-height:1.25}
@@ -127,8 +122,9 @@ body.editmode .hub:not(.list) .hcard .cl{visibility:hidden}
 .hub.list .hcard .nm{margin-top:0;flex:1;font-size:14px}
 .hub.list .hcard .mini{display:none}
 .hub.list .hcard .cl{margin-top:0;flex:none}
-.hub.list .favb{display:none}
-.hub.list .hcard .hedit{position:static;margin-left:2px}
+.hub.list .favb{position:static;width:28px;height:28px;font-size:16px;flex:none;order:4}
+.hub.list .hcard .cl{order:3}
+.hub.list .hcard .hedit{position:static;margin-left:2px;order:5}
 
 /* ---- Category page ---- */
 .intro{font-size:12.5px;color:var(--muted);line-height:1.5;padding:2px 6px 10px}
@@ -142,7 +138,7 @@ body.editmode .hub:not(.list) .hcard .cl{visibility:hidden}
 .grp.closed .chev{transform:rotate(-90deg)}
 .grp.closed .items{display:none}
 .g-acts{display:none;gap:5px;flex:none}
-body.editmode .g-acts{display:flex}
+#view.editmode .g-acts{display:flex}
 .g-acts button{width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:13px;padding:0;color:var(--muted);display:flex;align-items:center;justify-content:center}
 .g-acts button.del{color:var(--red);border-color:#e6cfc9}
 .items{padding:2px 7px 7px}
@@ -167,13 +163,13 @@ body.editmode .g-acts{display:flex}
 .iqb.wkflame.wkon{color:var(--amber)}
 .iqb.wkflame.wkon svg{fill:currentColor;stroke:none}
 .iqb.wkflame:active{background:var(--bg)}
-body.editmode .iqb{display:none}
+#view.editmode .iqb{display:none}
 .act{display:none;width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:13px;color:var(--muted);align-items:center;justify-content:center;padding:0}
 .act.del{color:var(--red);border-color:#e6cfc9}
-body.editmode .act{display:flex}
+#view.editmode .act{display:flex}
 .drag{display:none;width:28px;height:28px;flex:none;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--muted);font-size:14px;touch-action:none;cursor:grab;padding:0;user-select:none}
-body.editmode .drag{display:flex}
-body.editmode .box{opacity:.35}
+#view.editmode .drag{display:flex}
+#view.editmode .box{opacity:.35}
 .additem{display:flex;align-items:center;gap:8px;padding:9px 11px;margin:2px 7px 6px;border:1.5px dashed var(--line);border-radius:10px;cursor:pointer}
 .additem:active{background:var(--indigo-soft)}
 .additem .ic{color:var(--indigo);font-size:16px}
@@ -182,13 +178,13 @@ body.editmode .box{opacity:.35}
 .sub::before{content:'';width:14px;height:3px;background:currentColor;border-radius:2px;opacity:.5;flex:none}
 .sub .sub-tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sub-acts{display:none;gap:5px;flex:none;margin-left:auto}
-body.editmode .sub-acts{display:flex}
+#view.editmode .sub-acts{display:flex}
 .sub-acts button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:12px;padding:0;color:var(--muted);display:flex;align-items:center;justify-content:center}
 .sub-acts button.del{color:var(--red);border-color:#e6cfc9}
 .newgrp,.newsub{display:none;align-items:center;justify-content:center;gap:8px;padding:10px 12px;margin:2px 4px 12px;border:1.5px dashed;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;background:var(--card)}
 .newgrp{border-color:var(--indigo);color:var(--indigo)}
 .newsub{border-color:var(--muted);color:var(--muted)}
-body.editmode .newgrp,body.editmode .newsub{display:flex}
+#view.editmode .newgrp,#view.editmode .newsub{display:flex}
 .viewcat{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:1px solid var(--line);background:var(--card);color:var(--indigo);font-family:inherit;font-weight:700;font-size:13px;padding:10px;border-radius:12px;cursor:pointer;margin-bottom:12px}
 .loading{font-size:13px;color:var(--muted);text-align:center;padding:40px 12px}
 .empty{text-align:center;color:var(--muted);font-size:12.5px;padding:34px 22px;line-height:1.6}
@@ -379,11 +375,26 @@ body.editmode .newgrp,body.editmode .newsub{display:flex}
 .drag-ph{margin:2px 7px;border:1.5px dashed var(--indigo);border-radius:11px;background:var(--indigo-soft);pointer-events:none}
 .drag-ph.grp{margin:0 0 11px;min-height:48px}
 body.dragging{-webkit-user-select:none;user-select:none}
-body.editmode .item,body.editmode .grp,body.editmode .sub,.prof-cat{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#view.editmode .item,#view.editmode .grp,#view.editmode .sub,.prof-cat{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .item.dragging,.grp.dragging,.sub.dragging{opacity:.35}
 .ghandle{display:none;width:28px;height:28px;flex:none;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--muted);font-size:14px;touch-action:none;cursor:grab;padding:0;user-select:none}
-body.editmode .ghandle{display:flex}
+#view.editmode .ghandle{display:flex}
 body.noscroll{overflow:hidden}
+
+/* ---- тост «Отменить» ---- */
+#toast{position:fixed;left:50%;transform:translate(-50%,140%);opacity:0;bottom:calc(22px + env(safe-area-inset-bottom));z-index:95;
+  display:flex;align-items:center;gap:14px;max-width:calc(100vw - 32px);
+  background:#242b3f;color:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 10px 30px rgba(20,26,44,.35);
+  font-size:13.5px;font-weight:600;transition:transform .22s cubic-bezier(.2,.8,.2,1),opacity .22s ease;pointer-events:none}
+#toast.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+/* когда FAB на экране — поднимаем тост над ним, иначе «Отменить» уезжает под кнопку */
+body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
+#toast .tt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#toast button{border:0;background:none;color:#8fb0ff;font-family:inherit;font-weight:800;font-size:13.5px;cursor:pointer;padding:2px 4px;flex:none}
+
+/* ---- фокус с клавиатуры (доступность) ---- */
+:focus-visible{outline:2px solid var(--indigo);outline-offset:2px;border-radius:8px}
+.item:focus-visible,.hcard:focus-visible,.pin:focus-visible{outline-offset:-2px}
 
 /* ---- десктоп / MacBook ---- */
 @media(min-width:900px){
@@ -441,6 +452,9 @@ body.noscroll{overflow:hidden}
   <button class="newcat-btn" style="margin:0 0 10px" onclick="openCatEditor(null)"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span> Добавить категорию</button>
   <div id="profCats"></div>
   <div id="profStore"></div>
+  <button class="newcat-btn" style="background:#fff;color:var(--indigo);border:1px solid var(--line);margin-top:12px;box-shadow:none" onclick="exportBackup()">
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 20h16"/></svg></span> Скачать резервную копию
+  </button>
   <button class="prof-logout" onclick="doSignOut()">Выйти из аккаунта</button>
 </div>
 
@@ -476,6 +490,7 @@ body.noscroll{overflow:hidden}
     <div id="qaCatPick" style="margin-top:12px"></div>
     <div class="fld-lbl">Очередь</div><div class="pri-row" id="qaPri"></div>
     <div class="wktog" id="qaWk" onclick="qaToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">На выходные<small>Показать в общей витрине выходных</small></span><span class="toggle"></span></div>
+    <div class="rep-more" id="qaCount" style="display:none;text-align:left;padding:0 2px 8px;color:var(--indigo);font-weight:700" aria-live="polite"></div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeQuick()">Отмена</button><button class="btn-main" onclick="qaAdd()">Добавить</button></div>
   </div>
 </div>
@@ -582,6 +597,9 @@ body.noscroll{overflow:hidden}
   </div>
 </div>
 
+<!-- ===== ТОСТ (удаление с отменой) ===== -->
+<div id="toast" role="status" aria-live="polite"><span class="tt" id="toastTx"></span><button id="toastBtn" type="button">Отменить</button></div>
+
 <script>
 /* ============================================================
    «Дом!» — семейный менеджер домашних дел.
@@ -652,7 +670,6 @@ const P={
   pencil:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
   list:'<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
   x:'<path d="M18 6 6 18M6 6l12 12"/>',
-  comment:'<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.7-.7L3 21l1.4-4.2A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z"/>',
   sortimp:'<path d="M4 6h10M4 12h7M4 18h4"/><path d="M17 4v14M17 18l3-3M17 18l-3-3"/>',
   /* медицина */
   pill:'<path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><path d="m8.5 8.5 7 7"/>',
@@ -692,17 +709,13 @@ const P={
   tag:'<path d="M2.5 12.5v-8a2 2 0 0 1 2-2h8L21 11a2 2 0 0 1 0 2.8L15.8 19a2 2 0 0 1-2.8 0z"/><circle cx="7.5" cy="7.5" r="1" fill="currentColor" stroke="none"/>',
   gift:'<rect x="3" y="8" width="18" height="4"/><path d="M12 8v13"/><path d="M5 12v9h14v-9"/><path d="M12 8s-1.5-5-4.5-5C5 3 5 8 12 8zM12 8s1.5-5 4.5-5C19 3 19 8 12 8z"/>',
   /* служебные (интерфейс) */
-  copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
-  calcheck:'<rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/><path d="m8.7 15.3 2.3 2.3 4.3-4.5"/>',
   repeat:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
   history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
   search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
   archive:'<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M9.5 12h5"/>',
   grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
   arrowUp:'<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>',
-  arrowDown:'<path d="M12 5v14"/><path d="m5 12 7 7 7-7"/>',
   chart:'<path d="M4 20V4"/><path d="M4 20h16"/><rect x="7" y="12" width="3" height="5" rx=".5"/><rect x="12" y="8" width="3" height="9" rx=".5"/><rect x="17" y="5" width="3" height="12" rx=".5"/>',
-  expand:'<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>',
 };
 function ic(id,style){ return `<span class="ic"${style?` style="${style}"`:''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${P[id]||''}</svg></span>`; }
 const ICON_LIB=['roof','brick','droplet','faucet','flame','extinguisher','wrench','screwdriver','gear','drill','nut','gauge','battery','funnel','wind','fan','thermometer','radiator','plug','bolt','hammer','paint','ruler','ladder','window','door','garage','box','folder','documents','bed','sofa','wardrobe','table','chair','shelf','lamp','mirror','utensils','coffee','fridge','microwave','dishwasher','washer','iron','vacuum','shower','bath','toilet','tv','cart','broom','trash','cpu','wifi','camera','lightbulb','lock','key','phone','shield','medkit','pill','syringe','stethoscope','tooth','heartpulse','palette','car','leaf','plant','sun','umbrella','pet','baby','star','flag','book','mail','clock','pin','tag','gift','home','inbox','calendar'];
@@ -740,7 +753,15 @@ function priChips(cur,handler){ let h=''; ['','red','orange','fast','green'].for
 
 /* ---------- ДОСТУП ---------- */
 function doSignIn(){ document.getElementById('pwErr').textContent=''; if(window.AUTH) window.AUTH.signIn(); }
-function doSignOut(){ if(window.AUTH) window.AUTH.signOut(); }
+function doSignOut(){
+  /* Локальный кэш — не личный: localStorage привязан к origin, а не к аккаунту.
+     Стираем его при выходе, иначе весь семейный список остаётся на устройстве. */
+  __signingOut=true; stopCloud(); wipeLocal();
+  /* данные уже стёрты — экран входа показываем сразу, не дожидаясь onAuthStateChanged,
+     иначе при отказе signOut() пользователь остался бы на пустом приложении */
+  try{ if(window.AUTH){ const r=window.AUTH.signOut(); if(r&&r.catch) r.catch(()=>{}); } }catch(e){}
+  showLogin();
+}
 window.onSignInError=function(code){
   document.getElementById('pwErr').textContent=(code==='auth/popup-blocked')
     ? 'Разрешите всплывающие окна и нажмите «Войти» ещё раз.'
@@ -758,6 +779,7 @@ function showLogin(){
   document.getElementById('signout').style.display='none';
 }
 function showDenied(email){
+  stopCloud(); wipeLocal();
   document.getElementById('lock').classList.remove('hidden');
   document.getElementById('app').style.display='none';
   document.getElementById('lockMsg').textContent='Нет доступа'+(email?(' для '+email):'');
@@ -767,24 +789,63 @@ function showDenied(email){
 }
 window.onAuthChange=function(user){ __authedUser=user; if(user){ showApp(); } else { showLogin(); } };
 function showApp(){
+  __signingOut=false;
   document.getElementById('lock').classList.add('hidden');
   document.getElementById('app').style.display='block';
-  if(!window.__built){ window.__built=true; render(); registerSW(); startCloud(); }
-  updateAvatar();
+  if(!window.__built){ window.__built=true; registerSW(); }
+  startCloud();   /* идемпотентно: после повторного входа нужна новая подписка */
+  render();
   if(__authedUser && !getProfName()){ openProfile(true); }
 }
 function registerSW(){ if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); } }
 
 /* ---------- МОДЕЛЬ ---------- */
 const KEY="home_v1";
-let uid=1; const nid=()=> 'i'+(Date.now().toString(36))+(uid++);
+/* id = время + внутрисессионный счётчик + случайный хвост.
+   Хвост обязателен: uid сбрасывается в 1 при каждой загрузке страницы, и без него
+   два устройства, создавшие задачу в одну миллисекунду, получали ОДИНАКОВЫЙ id —
+   а удаление фильтрует по id и снесло бы обе задачи разом. */
+const rnd4=()=>Math.random().toString(36).slice(2,6);
+let uid=1;
+const nid =()=> 'i'+Date.now().toString(36)+(uid++)+rnd4();
+const ncid=()=> 'c'+Date.now().toString(36)+(uid++)+rnd4();
+const ngid=()=> 'g'+Date.now().toString(36)+(uid++)+rnd4();
+/* У подкатегории есть стабильный gid: индексы групп «плывут» при перетаскивании и
+   при вставке служебных групп, а на индексы завязаны свёрнутость и редакторы.
+   В ключах/id нет дефиса — на этом держится разбор data-gk. */
+function mkGroup(o){ o.gid=ngid(); return o; }
+function groupByGid(c,gid){ return c&&c.groups.find(g=>g.gid===gid); }
+function gidxOf(c,gid){ return c?c.groups.findIndex(g=>g.gid===gid):-1; }
 function freshState(){ return {v:1, cats:[]}; }
 function pickColor(cats){ const used=(cats||[]).map(c=>c.color); const free=CAT_COLORS.find(c=>used.indexOf(c)<0); return free||CAT_COLORS[(cats?cats.length:0)%CAT_COLORS.length]; }
 function ensureInbox(s){
   let ib=s.cats.find(c=>c.kind==='inbox');
-  if(!ib){ ib={key:'c'+Date.now().toString(36)+(uid++), kind:'inbox', icon:'inbox', color:'#c06f22', tab:'Входящие', title:'Входящие', intro:'', groups:[{emo:'inbox',title:'Входящие',items:[]}]}; s.cats.unshift(ib); }
-  else { const i=s.cats.indexOf(ib); if(i>0){ s.cats.splice(i,1); s.cats.unshift(ib); } if(!ib.groups.some(g=>g.items)) ib.groups.push({emo:'inbox',title:'Входящие',items:[]}); }
+  if(!ib){ ib={key:ncid(), kind:'inbox', icon:'inbox', color:'#c06f22', tab:'Входящие', title:'Входящие', intro:'', groups:[mkGroup({emo:'inbox',title:'Входящие',items:[]})]}; s.cats.unshift(ib); }
+  else { const i=s.cats.indexOf(ib); if(i>0){ s.cats.splice(i,1); s.cats.unshift(ib); }
+    /* именно !svc: у Входящих может появиться служебная группа «Цикличные», и она
+       не годится как приёмник быстрого ввода */
+    if(!ib.groups.some(g=>g.items&&!g.svc)) ib.groups.push(mkGroup({emo:'inbox',title:'Входящие',items:[]})); }
   if(ib.title==='Inbox'||!ib.title){ ib.title='Входящие'; ib.tab='Входящие'; }
+}
+function num(v){ const n=Number(v); return Number.isFinite(n)&&n>0?Math.round(n):0; }
+function normItems(g){ if(!g.items) return;
+  g.items.forEach(it=>{
+    /* pri валидируем, а не только доопределяем: чужое значение роняло PRI[it.pri].c,
+       а вместе с ним — весь render() (белый экран без выхода) */
+    if(!(it.pri in PRI)) it.pri='';
+    if(it.wk===undefined) it.wk=false;
+    if(it.done===undefined) it.done=false;
+    if(!it.id) it.id=nid();
+    if(it.rec && !it.rec.next) delete it.rec;
+  });
+}
+function normCat(c,all){
+  c.groups=Array.isArray(c.groups)?c.groups:[];
+  c.tab=c.tab||c.title||''; c.title=c.title||c.tab||'';
+  if(!c.key) c.key=ncid();
+  if(!c.icon) c.icon=(c.kind==='inbox')?'inbox':'box';
+  if(!c.color) c.color=(c.kind==='inbox')?'#c06f22':pickColor(all);
+  c.groups.forEach(g=>{ if(!g.gid) g.gid=ngid(); normItems(g); });
 }
 function migrate(raw){
   let s;
@@ -794,45 +855,59 @@ function migrate(raw){
   if(Array.isArray(raw)) s={v:1,cats:raw};
   else if(raw && Array.isArray(raw.cats)){ s=raw; s.v=1; }
   else s=freshState();
-  s.cats.forEach(c=>{
-    c.groups=c.groups||[]; c.tab=c.tab||c.title||''; c.title=c.title||c.tab||'';
-    if(!c.icon) c.icon=(c.kind==='inbox')?'inbox':'box';
-    if(!c.color) c.color=(c.kind==='inbox')?'#c06f22':pickColor(s.cats);
-    c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.pri===undefined)it.pri=''; if(it.wk===undefined)it.wk=false; if(it.done===undefined)it.done=false; }); });
-  });
+  s.cats.forEach(c=>normCat(c,s.cats));
   ensureInbox(s);
   /* Архив категорий: отдельный массив вне s.cats — поэтому НЕ участвует ни в
      каком подсчёте (метрики, очереди, обслуживание), пока не восстановят. */
   if(!Array.isArray(s.archive)) s.archive=[];
-  s.archive.forEach(c=>{ c.groups=(c.groups||[]); c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.pri===undefined)it.pri=''; if(it.wk===undefined)it.wk=false; if(it.done===undefined)it.done=false; }); }); });
-  if(!s.wkTitle) s.wkTitle='На выходных';
-  /* счётчики «за всё время»: при первом запуске отталкиваемся от текущего списка */
-  if(!s.stats){ let t=0,d=0; s.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ t++; if(it.done)d++; }); })); s.stats={created:t,done:d}; }
+  s.archive.forEach(c=>normCat(c,s.cats));
+  if(typeof s.wkTitle!=='string' || !s.wkTitle) s.wkTitle='На выходных';
+  /* счётчики «за всё время»: при первом запуске отталкиваемся от текущего списка.
+     Частичный объект (есть created, нет done) раньше давал NaN навсегда. */
+  if(!s.stats || typeof s.stats!=='object'){ let t=0,d=0; s.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ t++; if(it.done)d++; }); })); s.stats={created:t,done:d}; }
+  else s.stats={created:num(s.stats.created), done:num(s.stats.done)};
   if(!Array.isArray(s.doneLog)) s.doneLog=[];
   if(!Array.isArray(s.svcLog)) s.svcLog=[];
-  s.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.rec && !it.rec.next) delete it.rec; }); }));
   return s;
 }
 let STATE, MODEL=[];
 function syncModelRef(){ MODEL=STATE.cats; }
+let localUpdatedAt=0; try{ localUpdatedAt=parseInt(localStorage.getItem(KEY+"_ts")||"0",10)||0; }catch(e){}
 function load(){ try{const s=localStorage.getItem(KEY); if(s){ STATE=migrate(JSON.parse(s)); syncModelRef(); return; }}catch(e){} STATE=migrate(freshState()); syncModelRef(); }
+load();
+const myId=Math.random().toString(36).slice(2);
+
 /* Весь STATE лежит одним документом в Firestore; лимит документа — 1 МиБ.
    Берём с запасом 1 000 000 байт и предупреждаем при заполнении на 80%. */
 const STORE_LIMIT=1000000;
-let __storeWarned=false;
-function stateBytes(){ try{ return new Blob([JSON.stringify(STATE)]).size; }catch(e){ return 0; } }
+let __storeWarned=false, __lsFailed=false, __lastBytes=0, __bytesAt=0;
+function utf8Bytes(str){ try{ return new Blob([str]).size; }catch(e){ return str.length; } }
+function stateBytes(){ try{ __lastBytes=utf8Bytes(JSON.stringify(STATE)); __bytesAt=Date.now(); }catch(e){} return __lastBytes; }
+/* Точный размер считать на каждый тап незачем — это лишний проход по всему состоянию */
+function measureBytes(str){ const now=Date.now();
+  if(__lastBytes && now-__bytesAt<3000) return __lastBytes;
+  __lastBytes=utf8Bytes(str); __bytesAt=now; checkStorage(__lastBytes); return __lastBytes; }
 function checkStorage(bytes){
   if(bytes>=STORE_LIMIT*0.8 && !__storeWarned){ __storeWarned=true;
     setTimeout(()=>alert('⚠️ Облачное хранилище заполнено на '+Math.round(bytes/STORE_LIMIT*100)+'% (лимит ~1 МБ).\nУдалите старые выполненные задачи — иначе синхронизация перестанет сохранять изменения.\nТекущее заполнение видно в Профиле.'),100); }
 }
-function save(){ localUpdatedAt=Date.now();
-  let bytes=0;
-  try{ const s=JSON.stringify(STATE); bytes=new Blob([s]).size;
-    localStorage.setItem(KEY,s); localStorage.setItem(KEY+"_ts",String(localUpdatedAt)); }catch(e){}
-  checkStorage(bytes); pushCloud(); }
-load();
-let localUpdatedAt=0; try{ localUpdatedAt=parseInt(localStorage.getItem(KEY+"_ts")||"0",10)||0; }catch(e){}
-const myId=Math.random().toString(36).slice(2);
+function save(){
+  /* Монотонность обязательна. Раньше здесь стоял голый Date.now(): на устройстве с
+     отстающими часами правка получала метку МЕНЬШЕ уже принятой из облака, второе
+     устройство видело «старее моего» и молча возвращало свой снапшот обратно. */
+  localUpdatedAt=Math.max(localUpdatedAt+1, Date.now());
+  try{ const str=JSON.stringify(STATE);
+    localStorage.setItem(KEY,str); localStorage.setItem(KEY+"_ts",String(localUpdatedAt));
+    __lsFailed=false; measureBytes(str);
+  }catch(e){ __lsFailed=true; paintCloudDot(); }
+  pushCloud();
+}
+function wipeLocal(){
+  try{ localStorage.removeItem(KEY); localStorage.removeItem(KEY+"_ts"); }catch(e){}
+  STATE=migrate(freshState()); syncModelRef();
+  localUpdatedAt=0; __primed=false; __storeWarned=false; __lsFailed=false; __lastBytes=0; __bytesAt=0;
+  active=null; editmode=false; setCloud('wait');
+}
 
 function realCats(){ return STATE.cats.filter(c=>c.kind!=='inbox'); }
 function getInbox(){ return STATE.cats.find(c=>c.kind==='inbox'); }
@@ -840,55 +915,66 @@ function catByKey(k){ return STATE.cats.find(c=>c.key===k); }
 /* --- Архив категорий --- */
 function archCats(){ return STATE.archive||(STATE.archive=[]); }
 function archByKey(k){ return archCats().find(c=>c.key===k); }
+function afterCatChange(){ save(); renderAll(); }
 function archiveCategory(key){
   const c=catByKey(key); if(!c) return;
   if(c.kind==='inbox'){ alert('«Входящие» нельзя убрать в архив.'); return; }
   if(!confirm('Убрать категорию «'+(c.title||c.tab||'')+'» в архив со всеми задачами?\nОни перестанут учитываться в метриках, но останутся в поиске (галочка «в архиве»).')) return;
   STATE.cats=STATE.cats.filter(x=>x!==c); archCats().push(c);
   if(active===key) active=null;
-  save(); render(); if(profileOpen) renderProfileCats();
+  afterCatChange();
 }
 function restoreCategory(key){
   const c=archByKey(key); if(!c) return;
-  STATE.archive=archCats().filter(x=>x!==c); STATE.cats.push(c); ensureInbox(STATE);
-  save(); render(); if(profileOpen) renderProfileCats();
+  STATE.archive=archCats().filter(x=>x!==c);
+  if(catByKey(c.key)) c.key=ncid();   /* страховка от коллизии ключей после восстановления */
+  STATE.cats.push(c); ensureInbox(STATE);
+  afterCatChange();
 }
 /* Подкатегория «Задачи» — гарантированный приёмник переносов, вверху категории */
 function ensureTasksGroup(c){
   let g=c.groups.find(x=>x.items && !x.svc && !x.sub && x.title==='Задачи');
-  if(!g){ g={emo:'box',title:'Задачи',items:[]}; let idx=(c.groups[0]&&c.groups[0].svc)?1:0; c.groups.splice(idx,0,g); }
+  if(!g){ g=mkGroup({emo:'box',title:'Задачи',items:[]}); const idx=(c.groups[0]&&c.groups[0].svc)?1:0; c.groups.splice(idx,0,g); }
   return g;
 }
 function catColor(c){ return c&&c.color?c.color:'var(--indigo)'; }
 function chipStyle(col){ return `background:color-mix(in srgb, ${col} 13%, #fff);color:${col}`; }
 function eachItem(fn){ STATE.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>fn(it,g,c)); })); }
-function findItem(id){ let r=null; eachItem((it,g,c)=>{ if(it.id===id) r={it,g,c}; }); return r; }
-function weekendItems(){ const out=[]; STATE.cats.forEach(c=>{ let l=[]; c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.wk) l.push(it); }); }); if(hideDone && !editmode) l=l.filter(it=>!it.done); if(l.length) out.push({cat:c,items:(editmode?l:sortByPri(l))}); }); return out; }
+/* Ранний выход: вызывается на каждый тап, полный обход всего STATE тут не нужен */
+function findItem(id){
+  for(const c of STATE.cats) for(const g of c.groups){ if(!g.items) continue;
+    for(const it of g.items) if(it.id===id) return {it,g,c}; }
+  return null;
+}
+function weekendAll(){ const out=[]; STATE.cats.forEach(c=>{ const l=[]; c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.wk) l.push(it); }); }); if(l.length) out.push({cat:c,items:l}); }); return out; }
+function weekendItems(){ const out=[]; weekendAll().forEach(({cat,items})=>{ let l=items; if(hideDone && !editmode) l=l.filter(it=>!it.done); if(l.length) out.push({cat,items:(editmode?l:sortByPri(l))}); }); return out; }
 function sortByPri(a){ return a.slice().sort((x,y)=>{ if(!!x.done!==!!y.done) return x.done?1:-1; return PRI_ORDER[x.pri||'']-PRI_ORDER[y.pri||'']; }); }
 function catStats(c){ let t=0,d=0,red=0; c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ t++; if(it.done)d++; if(it.pri==='red'&&!it.done)red++; }); }); return {t,d,red,pct:t?Math.round(d/t*100):0}; }
-function totalStats(){ let t=0,d=0; eachItem(it=>{ t++; if(it.done)d++; }); return {t,d,pct:t?Math.round(d/t*100):0}; }
 function activeCount(){ let n=0; eachItem(it=>{ if(!it.done)n++; }); return n; }
 /* Счётчики «за всё время» + журнал выполнений (для «на прошлых выходных») */
-function statCreated(n){ STATE.stats.created+=n; }
+function statCreated(n){ STATE.stats.created=num(STATE.stats.created)+n; }
 function markDone(it,on){
-  if(on){ STATE.stats.done++; STATE.doneLog.push({id:it.id,ts:Date.now()}); if(STATE.doneLog.length>1000) STATE.doneLog=STATE.doneLog.slice(-1000); }
-  else { STATE.stats.done=Math.max(0,STATE.stats.done-1);
+  if(on){ STATE.stats.done=num(STATE.stats.done)+1; STATE.doneLog.push({id:it.id,ts:Date.now()}); if(STATE.doneLog.length>1000) STATE.doneLog=STATE.doneLog.slice(-1000); }
+  else { STATE.stats.done=Math.max(0,num(STATE.stats.done)-1);
     for(let i=STATE.doneLog.length-1;i>=0;i--){ if(STATE.doneLog[i].id===it.id){ STATE.doneLog.splice(i,1); break; } } }
 }
-function lastWeekendDone(){
+/* В субботу и воскресенье окно попадает на ИДУЩИЕ выходные — подпись меняем честно */
+function weekendRange(){
   const now=new Date(); const d0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   const dow=d0.getDay(); /* 0=вс … 6=сб */
-  const back=(dow===6)?0:(dow===0?1:dow+1); /* дней назад до ближайшей прошедшей субботы */
-  const satStart=d0.getTime()-back*86400000;
-  return STATE.doneLog.filter(e=>e.ts>=satStart && e.ts<satStart+2*86400000).length;
+  const back=(dow===6)?0:(dow===0?1:dow+1); /* дней назад до ближайшей субботы */
+  return {start:d0.getTime()-back*86400000, current:(dow===6||dow===0)};
 }
+function lastWeekendDone(){ const r=weekendRange(); return STATE.doneLog.filter(e=>e.ts>=r.start && e.ts<r.start+2*86400000).length; }
+function weekendStatLabel(){ return weekendRange().current ? 'за эти выходные' : 'за прошлые выходные'; }
 /* ---------- ЦИКЛИЧНЫЕ ЗАДАЧИ («Обслужить») ---------- */
 function toISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function isoToday(){ return toISO(new Date()); }
 function parseISO(s){ const p=(s||'').split('-'); return new Date(+p[0],(+p[1]||1)-1,+p[2]||1); }
+function validISO(s){ const d=parseISO(s); return !isNaN(d.getTime()) && /^\d{4}-\d{2}-\d{2}$/.test(s||''); }
 function fmtD(s){ const p=(s||'').split('-'); return p.length===3 ? (+p[2])+'.'+p[1]+'.'+p[0].slice(2) : ''; }
-function daysTo(s){ const n=new Date(); const t0=new Date(n.getFullYear(),n.getMonth(),n.getDate()); return Math.round((parseISO(s)-t0)/86400000); }
-function addPeriod(iso,n,unit){ const d=parseISO(iso);
+function daysTo(s){ if(!validISO(s)) return 0; const n=new Date(); const t0=new Date(n.getFullYear(),n.getMonth(),n.getDate()); return Math.round((parseISO(s)-t0)/86400000); }
+function addPeriod(iso,n,unit){ const d=parseISO(validISO(iso)?iso:isoToday());
   if(unit==='d') d.setDate(d.getDate()+n);
   else if(unit==='w') d.setDate(d.getDate()+7*n);
   else if(unit==='m') d.setMonth(d.getMonth()+n);
@@ -897,34 +983,97 @@ function addPeriod(iso,n,unit){ const d=parseISO(iso);
 function dueLabel(d){ return d<0 ? ('просрочено '+(-d)+' дн.') : d===0 ? 'сегодня' : d===1 ? 'завтра' : ('через '+d+' дн.'); }
 function recTasks(){ const out=[]; STATE.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.rec&&it.rec.next) out.push({it,c}); }); })); return out; }
 function svcDueCount(){ return recTasks().filter(r=>daysTo(r.it.rec.next)<=7).length; }
-function ensureSvcGroup(c){ let g=c.groups.find(x=>x.svc&&x.items); if(!g){ g={emo:'repeat',title:'Цикличные',items:[],svc:true}; c.groups.unshift(g); } return g; }
+function ensureSvcGroup(c){ let g=c.groups.find(x=>x.svc&&x.items); if(!g){ g=mkGroup({emo:'repeat',title:'Цикличные',items:[],svc:true}); c.groups.unshift(g); } return g; }
 function totalUrgent(){ let n=0; eachItem(it=>{ if(it.pri==='red'&&!it.done)n++; }); return n; }
-function inboxCount(){ let n=0; getInbox().groups.forEach(g=>g.items&&g.items.forEach(it=>{ if(!it.done)n++; })); return n; }
-function wkCount(){ return weekendItems().reduce((n,g)=>n+g.items.length,0); }
+function inboxCount(){ const ib=getInbox(); let n=0; if(ib) ib.groups.forEach(g=>g.items&&g.items.forEach(it=>{ if(!it.done)n++; })); return n; }
+/* Бейдж на хабе не должен зависеть от «скрыть ✓» и режима правки — как в Inbox, считаем невыполненные */
+function wkCount(){ let n=0; weekendAll().forEach(g=>g.items.forEach(it=>{ if(!it.done)n++; })); return n; }
+/* ВНИМАНИЕ: esc() — только для ТЕКСТА и значений атрибутов в кавычках.
+   Внутрь inline-обработчика (onclick="f('…')") её подставлять НЕЛЬЗЯ: HTML-парсер
+   вернёт &#39; обратно в апостроф до того, как строку разберёт JS. В обработчики
+   уходят только сгенерированные id/ключи (без кавычек и дефисов). */
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 /* ---------- ОБЛАКО ---------- */
-let __pushTimer=null;
-function pushCloud(){ if(!window.CLOUD) return; clearTimeout(__pushTimer);
-  __pushTimer=setTimeout(()=>{ try{ window.CLOUD.push({data:JSON.stringify(STATE),updatedAt:localUpdatedAt,writer:myId}); }catch(e){} }, 400); }
+let __pushTimer=null, __primeTimer=null, __cloudUnsub=null, __cloudWaiting=false, __signingOut=false;
+/* Пока не пришёл первый снапшот, не пушим: иначе после выхода/входа (локальный кэш
+   стёрт) пустое состояние успело бы затереть облако. Если метка времени в
+   localStorage есть — данные свои, можно работать офлайн сразу. */
+let __primed = localUpdatedAt>0;
+let cloudState = __primed?'ok':'wait', cloudNote='';
+function setCloud(st,note){ cloudState=st; cloudNote=note||''; paintCloudDot(); }
+function cloudLabel(){
+  if(__lsFailed) return 'Память устройства переполнена — данные не кэшируются локально.';
+  if(cloudState==='error') return 'НЕ сохранено в облако ('+(cloudNote||'ошибка')+'). Нажмите, чтобы повторить.';
+  if(cloudState==='saving') return 'Сохраняю в облако…';
+  if(cloudState==='wait') return 'Жду первую загрузку из облака…';
+  return 'Всё сохранено в облаке';
+}
+function paintCloudDot(){
+  const el=document.getElementById('cloudDot'); if(!el) return;
+  el.className='cdot '+((__lsFailed && cloudState!=='error')?'error':cloudState);
+  const t=cloudLabel(); el.title=t; el.setAttribute('aria-label',t);
+}
+function cloudDotTap(){
+  if(cloudState==='error'||__lsFailed){ alert(cloudLabel()); pushCloud(); return; }
+  if(cloudState==='wait') pushCloud(); else alert(cloudLabel());
+}
+function cloudDotBtn(){ return `<button class="cdot ${cloudState}" id="cloudDot" type="button" onclick="cloudDotTap()" aria-label="Состояние синхронизации"></button>`; }
+function pushCloud(){
+  if(!window.CLOUD){ setCloud('error','Firebase не загрузился'); return; }
+  if(!__primed){ setCloud('wait'); return; }
+  setCloud('saving');
+  clearTimeout(__pushTimer);
+  __pushTimer=setTimeout(()=>{
+    const ts=localUpdatedAt; let pr=null;
+    try{ pr=window.CLOUD.push({data:JSON.stringify(STATE),updatedAt:ts,writer:myId}); }
+    catch(e){ setCloud('error','ошибка записи'); return; }
+    /* setDoc возвращает промис. Без .catch его отказ (документ >1 МиБ, permission-denied,
+       обрыв связи) уходил в unhandled rejection и пользователь НИЧЕГО не узнавал. */
+    if(pr && pr.then) pr.then(()=>{ if(localUpdatedAt===ts && cloudState==='saving') setCloud('ok'); })
+                        .catch(e=>setCloud('error',(e&&e.code)||'ошибка записи'));
+    else setCloud('ok');
+  }, 900);
+}
+function stopCloud(){ if(__cloudUnsub){ try{ __cloudUnsub(); }catch(e){} __cloudUnsub=null; } clearTimeout(__pushTimer); clearTimeout(__primeTimer); }
 function startCloud(){
-  const go=()=>{ if(!window.CLOUD) return;
-    window.CLOUD.subscribe(d=>{
-      if(!d){ if(!localUpdatedAt) localUpdatedAt=Date.now(); pushCloud(); return; }
-      if(d.writer===myId) return;
+  const go=()=>{ if(!window.CLOUD || __cloudUnsub) return;
+    __cloudUnsub=window.CLOUD.subscribe(d=>{
+      if(__signingOut) return;
+      const first=!__primed; __primed=true;
+      if(!d){ if(!localUpdatedAt) localUpdatedAt=Date.now(); if(first){ setCloud('ok'); render(); } pushCloud(); return; }
+      if(d.writer===myId){ if(first){ setCloud('ok'); render(); } return; }
       if((d.updatedAt||0) >= localUpdatedAt){
-        let parsed; try{ parsed=JSON.parse(d.data); }catch(e){ return; }
+        let parsed; try{ parsed=JSON.parse(d.data); }catch(e){ setCloud('error','битые данные в облаке'); return; }
         STATE=migrate(parsed); syncModelRef();
         localUpdatedAt=d.updatedAt||Date.now();
-        try{ localStorage.setItem(KEY,JSON.stringify(STATE)); localStorage.setItem(KEY+"_ts",String(localUpdatedAt)); }catch(e){}
-        if(active && active!=='__wk__' && !catByKey(active)) active=null;
+        try{ localStorage.setItem(KEY,JSON.stringify(STATE)); localStorage.setItem(KEY+"_ts",String(localUpdatedAt)); __lsFailed=false; }catch(e){ __lsFailed=true; }
+        /* '__svc__' тоже виртуальный: без него снапшот выкидывал из «Обслужить» на хаб */
+        if(active && active!=='__wk__' && active!=='__svc__' && !catByKey(active)) active=null;
+        if(cloudState!=='error') setCloud('ok');
         /* Пришёл снапшот во время перетаскивания — не перестраиваем DOM под пальцем */
         if(drag){ pendingRemoteRender=true; }
-        else { render(); if(profileOpen) renderProfileCats(); }
+        else renderAll();
       } else { pushCloud(); }
-    }, (e)=>{ if(e && e.code==='permission-denied'){ showDenied(__authedUser && __authedUser.email); } });
+    }, (e)=>{
+      /* Выход из аккаунта тоже роняет подписку в permission-denied — раньше после
+         обычного «Выйти» показывался экран «Нет доступа» БЕЗ кнопки входа. */
+      if(__signingOut || !__authedUser) return;
+      if(e && e.code==='permission-denied') showDenied(__authedUser && __authedUser.email);
+      else setCloud('error',(e&&e.code)||'нет связи');
+    });
   };
-  if(window.CLOUD){ go(); } else { window.addEventListener('cloud-ready', go, {once:true}); }
+  if(window.CLOUD){ go(); } else if(!__cloudWaiting){ __cloudWaiting=true; window.addEventListener('cloud-ready', go, {once:true}); }
+  clearTimeout(__primeTimer);
+  /* офлайн на свежем устройстве: снапшота не будет — не держим экран загрузки вечно */
+  __primeTimer=setTimeout(()=>{ if(!__primed){ __primed=true; setCloud('ok'); render(); } }, 8000);
+}
+/* Один вход для «перерисовать всё, что открыто» */
+function renderAll(){
+  render();
+  if(profileOpen) renderProfileCats();
+  if(queuesOpen) renderQueuesBody();
+  if(archiveOpen) renderArchiveBody();
 }
 
 /* ---------- НАСТРОЙКИ ПОКАЗА ---------- */
@@ -943,34 +1092,52 @@ const hdrEl=document.getElementById('hdr');
 
 function render(){
   if(active && active!=='__wk__' && active!=='__svc__' && !catByKey(active)) active=null;
+  /* До первого снапшота показываем загрузку и прячем ввод: правка в этот момент
+     затёрла бы облако пустым состоянием (после выхода локальный кэш стёрт). */
+  const loading=!__primed && !!__authedUser;
+  const noFab=loading || active==='__wk__' || active==='__svc__';
+  document.getElementById('fab').classList.toggle('hidden', noFab);
+  document.body.classList.toggle('nofab', noFab);
+  if(loading){
+    hdrEl.innerHTML=`<div class="h-row"><div class="brand">${ic('home')} Дом!</div>
+      <div class="h-right">${cloudDotBtn()}${avatarBtn()}</div></div>`;
+    viewEl.classList.remove('editmode');
+    viewEl.innerHTML=`<div class="loading">Загружаю список из облака…</div>`;
+    paintCloudDot(); return;
+  }
   renderHeader();
-  document.body.classList.toggle('editmode', editmode && active!=='__svc__');
-  document.getElementById('fab').classList.toggle('hidden', active==='__wk__'||active==='__svc__');
+  const em=editmode && active!=='__svc__';
+  /* editmode держим и на body (подсветка карандаша в шапке), и на #view.
+     Раньше правила были только на body и «протекали» в bottom-sheet «Очереди»:
+     там появлялись ручки drag и крестики, а чекбоксы переставали работать. */
+  document.body.classList.toggle('editmode', em);
+  viewEl.classList.toggle('editmode', em);
   if(active===null) renderHub();
   else if(active==='__wk__') renderWeekend();
   else if(active==='__svc__') renderService();
   else renderCat(active);
+  paintCloudDot();
 }
-function avatarBtn(){ const n=getProfName().trim(); return `<button class="av" onclick="openProfile(false)">${n?esc(n[0].toUpperCase()):'👤'}</button>`; }
+function avatarBtn(){ const n=getProfName().trim(); return `<button class="av" onclick="openProfile(false)" aria-label="Профиль">${n?esc(n[0].toUpperCase()):'👤'}</button>`; }
 
 function renderHeader(){
   const urg=totalUrgent();
   if(active===null){
     hdrEl.innerHTML=`<div class="h-row"><div class="brand">${ic('home')} Дом!</div>
-      <div class="h-right"><button class="hb edit" onclick="toggleEdit()" title="Редактировать карточки">${ic('pencil')}</button>${avatarBtn()}</div></div>
+      <div class="h-right">${cloudDotBtn()}<button class="hb edit" onclick="toggleEdit()" title="Редактировать карточки" aria-label="Редактировать карточки">${ic('pencil')}</button>${avatarBtn()}</div></div>
       <div class="h-row2">
-        <button class="hb" onclick="openSearch()" title="Поиск по задачам">${ic('search')}</button>
-        <button class="hb" onclick="openReport()" title="Отчёт">${ic('chart')}</button>
+        <button class="hb" onclick="openSearch()" title="Поиск по задачам" aria-label="Поиск по задачам">${ic('search')}</button>
+        <button class="hb" onclick="openReport()" title="Отчёт" aria-label="Отчёт">${ic('chart')}</button>
         ${urg
           ? `<button class="urg q1" onclick="openQueues()" title="Очереди задач"><span class="pdot"></span>1 очередь · ${urg}</button>`
           : `<button class="urg qall" onclick="openQueues()" title="Очереди задач">${ic('sortimp')} Очереди</button>`}
-        <button class="hb" onclick="openArchive()" title="Архив категорий" style="margin-left:auto">${ic('archive')}</button>
+        <button class="hb" onclick="openArchive()" title="Архив категорий" aria-label="Архив категорий" style="margin-left:auto">${ic('archive')}</button>
       </div>`;
   } else if(active==='__wk__'){
     hdrEl.innerHTML=`<div class="h-row">
       <button class="bk" onclick="goHub()">${ic('chevL')}</button>
       <div class="catttl"><span class="ce" style="${chipStyle('#37478f')}">${ic('calendar')}</span><span class="nm">${esc(STATE.wkTitle)}</span></div>
-      <div class="h-right"><button class="hb edit" onclick="toggleEdit()" title="Править">${ic('pencil')}</button>${avatarBtn()}</div></div>
+      <div class="h-right">${cloudDotBtn()}<button class="hb edit" onclick="toggleEdit()" title="Править" aria-label="Править">${ic('pencil')}</button>${avatarBtn()}</div></div>
       <div class="bar-row" style="justify-content:flex-end"><span class="h-toggles">
         <button class="tgl ${hideDone?'on':''}" onclick="toggleHideDone()">${hideDone?'показать ✓':'скрыть ✓'}</button>
       </span></div>`;
@@ -978,7 +1145,7 @@ function renderHeader(){
     hdrEl.innerHTML=`<div class="h-row">
       <button class="bk" onclick="goHub()">${ic('chevL')}</button>
       <div class="catttl"><span class="ce" style="${chipStyle('#2f8a7e')}">${ic('repeat')}</span><span class="nm">Обслужить</span></div>
-      <div class="h-right"><button class="hb" onclick="openSvcLog()" title="Журнал обслуживания">${ic('history')}</button>${avatarBtn()}</div></div>`;
+      <div class="h-right">${cloudDotBtn()}<button class="hb" onclick="openSvcLog()" title="Журнал обслуживания" aria-label="Журнал обслуживания">${ic('history')}</button>${avatarBtn()}</div></div>`;
   } else {
     const c=catByKey(active); const s=catStats(c); const col=catColor(c);
     const isInbox=c.kind==='inbox';
@@ -986,7 +1153,7 @@ function renderHeader(){
       <button class="bk" onclick="goHub()">${ic('chevL')}</button>
       <div class="catttl"><span class="ce" style="${chipStyle(isInbox?'#c06f22':col)}">${ic(c.icon)}</span><span class="nm">${esc(c.title||c.tab)}</span></div>
       <div class="h-right">
-        <button class="hb edit" onclick="toggleEdit()" title="Править">${ic('pencil')}</button>
+        ${cloudDotBtn()}<button class="hb edit" onclick="toggleEdit()" title="Править" aria-label="Править">${ic('pencil')}</button>
         ${avatarBtn()}
       </div></div>
       <div class="bar"><i style="width:${s.pct}%"></i></div>
@@ -1000,27 +1167,27 @@ function renderHeader(){
 
 function renderHub(){
   const ib=getInbox();
-  let h=`<div class="pin inbox" onclick="openCat('${ib.key}')"><span class="ico">${ic('inbox')}</span><span class="nm">${esc(ib.title||'Входящие')}<small>Быстрый ввод, разобрать позже</small></span><span class="badge ${inboxCount()?'':'zero'}">${inboxCount()}</span></div>`;
-  h+=`<div class="pin wk" onclick="openWeekend()"><span class="ico">${ic('calendar')}</span><span class="nm">${esc(STATE.wkTitle)}<small>Отмеченные задачи со всех категорий</small></span><span class="badge ${wkCount()?'':'zero'}">${wkCount()}</span></div>`;
+  let h=`<div class="pin inbox" role="button" tabindex="0" onclick="openCat('${ib.key}')"><span class="ico">${ic('inbox')}</span><span class="nm">${esc(ib.title||'Входящие')}<small>Быстрый ввод, разобрать позже</small></span><span class="badge ${inboxCount()?'':'zero'}">${inboxCount()}</span></div>`;
+  h+=`<div class="pin wk" role="button" tabindex="0" onclick="openWeekend()"><span class="ico">${ic('calendar')}</span><span class="nm">${esc(STATE.wkTitle)}<small>Отмеченные задачи со всех категорий</small></span><span class="badge ${wkCount()?'':'zero'}">${wkCount()}</span></div>`;
   const svcDue=svcDueCount();
-  h+=`<div class="pin svc" onclick="openService()"><span class="ico" style="${chipStyle('#2f8a7e')}">${ic('repeat')}</span><span class="nm">Обслужить<small>Цикличные дела: фильтры, чистка, ТО</small></span><span class="badge ${svcDue?'':'zero'}"${svcDue?' style="background:#2f8a7e"':''}>${svcDue}</span></div>`;
+  h+=`<div class="pin svc" role="button" tabindex="0" onclick="openService()"><span class="ico" style="${chipStyle('#2f8a7e')}">${ic('repeat')}</span><span class="nm">Обслужить<small>Цикличные дела: фильтры, чистка, ТО</small></span><span class="badge ${svcDue?'':'zero'}"${svcDue?' style="background:#2f8a7e"':''}>${svcDue}</span></div>`;
   const list=hubView==='list';
   h+=`<div class="sect-l"><span>Категории</span>
     <span class="viewseg">
-      <button class="${list?'':'on'}" title="Плитками" onclick="setHubView('tiles')">${ic('grid')}</button>
-      <button class="${list?'on':''}" title="Списком" onclick="setHubView('list')">${ic('list')}</button>
+      <button class="${list?'':'on'}" title="Плитками" aria-label="Плитками" aria-pressed="${list?'false':'true'}" onclick="setHubView('tiles')">${ic('grid')}</button>
+      <button class="${list?'on':''}" title="Списком" aria-label="Списком" aria-pressed="${list?'true':'false'}" onclick="setHubView('list')">${ic('list')}</button>
     </span></div><div class="hub${list?' list':''}">`;
   const cats=realCats();
   if(!cats.length){ h+=`<div class="hub-empty">Категорий пока нет.<br>Добавьте первую — например «Кухня» или «Ремонт».</div>`; }
   cats.forEach(c=>{ const s=catStats(c);
-    h+=`<div class="hcard" data-key="${c.key}" onclick="hubCardTap('${c.key}')" onpointerdown="onHubCardDown(event,'${c.key}')"><span class="ico" style="${chipStyle(catColor(c))}">${ic(c.icon)}</span>
-      <button class="favb${c.fav?' on':''}" title="Избранное" onclick="toggleFav(event,'${c.key}')">${ic('star')}</button>
+    h+=`<div class="hcard" role="button" tabindex="0" data-key="${c.key}" onclick="hubCardTap('${c.key}')" onpointerdown="onHubCardDown(event,'${c.key}')"><span class="ico" style="${chipStyle(catColor(c))}">${ic(c.icon)}</span>
+      <button class="favb${c.fav?' on':''}" title="Избранное" aria-label="Избранное" aria-pressed="${c.fav?'true':'false'}" onclick="toggleFav(event,'${c.key}')">${ic('star')}</button>
       <div class="nm">${esc(c.title||c.tab)}</div>
       <div class="mini"><i style="width:${s.pct}%;background:${catColor(c)}"></i></div>
       <div class="cl"><span>${s.d}/${s.t}</span>${s.red?`<span class="rd"><span class="pdot"></span>${s.red}</span>`:''}</div>
       <span class="hedit">${ic('pencil')}</span></div>`;
   });
-  h+=`<div class="addcat" onclick="openCatEditor(null)"><span class="ic" style="font-size:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span> Добавить категорию</div>`;
+  h+=`<div class="addcat" role="button" tabindex="0" onclick="openCatEditor(null)"><span class="ic" style="font-size:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span> Добавить категорию</div>`;
   h+=`</div>`;
   viewEl.innerHTML=h;
 }
@@ -1030,25 +1197,28 @@ function toggleFav(e,key){ e.stopPropagation(); const c=catByKey(key); if(!c) re
   if(c.fav){ delete c.fav; }
   else { c.fav=true;
     const arr=STATE.cats; arr.splice(arr.indexOf(c),1);
+    /* идём сверху до первой НЕизбранной: сканирование с конца находило «отбившуюся»
+       звёздочку внизу списка и новая карточка уезжала туда же, а не наверх */
     let idx=1; /* сразу после Входящих */
-    for(let i=arr.length-1;i>=1;i--){ if(arr[i].fav){ idx=i+1; break; } }
+    while(idx<arr.length && arr[idx].fav) idx++;
     arr.splice(idx,0,c);
   }
-  save(); render(); }
+  save(); renderAll(); }
 
 function itemRow(it){
-  const stripe=it.pri?`<span class="pri-stripe" style="background:${PRI[it.pri].c}"></span>`:'';
+  const pd=PRI[it.pri]||PRI['']; /* защитно: битое pri роняло весь render() */
+  const stripe=(it.pri&&pd.c)?`<span class="pri-stripe" style="background:${pd.c}"></span>`:'';
   const note=it.n?`<span class="note">${esc(it.n)}</span>`:'';
   const rec=(it.rec&&it.rec.next)?`<span class="recline${daysTo(it.rec.next)<0?' late':''}">${ic('repeat')} ${fmtD(it.rec.next)} · ${dueLabel(daysTo(it.rec.next))}</span>`:'';
-  return `<div class="item${it.done?' checked':''}" data-id="${it.id}" onpointerdown="onItemPointerDown(event,'${it.id}')" onclick="itemClick(event,'${it.id}')">
+  return `<div class="item${it.done?' checked':''}" role="button" tabindex="0" data-id="${it.id}" onpointerdown="onItemPointerDown(event,'${it.id}')" onclick="itemClick(event,'${it.id}')">
     ${stripe}
-    <span class="box" onclick="boxTap(event,'${it.id}')">${ic('check')}</span>
+    <span class="box" role="checkbox" tabindex="0" aria-checked="${it.done?'true':'false'}" onclick="boxTap(event,'${it.id}')">${ic('check')}</span>
     <div class="lw"><span class="lbl">${esc(it.t)}</span>${note}${rec}</div>
     <span class="irow-btns">
-      <button class="iqb wkflame ${it.wk?'wkon':''}" title="Взять на выходные" onclick="quickWk(event,'${it.id}')">${ic('flame')}</button>
+      <button class="iqb wkflame ${it.wk?'wkon':''}" title="Взять на выходные" aria-label="Взять на выходные" aria-pressed="${it.wk?'true':'false'}" onclick="quickWk(event,'${it.id}')">${ic('flame')}</button>
     </span>
-    <button class="act del" onclick="delItem(event,'${it.id}')">${ic('x')}</button>
-    <button class="drag" onpointerdown="onHandleDown(event,'${it.id}')">≡</button>
+    <button class="act del" title="Удалить" aria-label="Удалить" onclick="delItem(event,'${it.id}')">${ic('x')}</button>
+    <button class="drag" aria-label="Перетащить" onpointerdown="onHandleDown(event,'${it.id}')">≡</button>
   </div>`;
 }
 function groupsHtml(c){
@@ -1058,36 +1228,37 @@ function groupsHtml(c){
     if(typeof g.sub==='string'){
       h+=`<div class="sub" data-gi="${gi}" style="color:${col}"><span class="sub-tx">${esc(g.sub)}</span>
         <span class="sub-acts">
-          <button onclick="openSubEditor(event,'${c.key}',${gi})">${ic('pencil')}</button>
-          <button class="del" onclick="deleteGroup(event,'${c.key}',${gi})">${ic('x')}</button>
-          <button class="ghandle" onpointerdown="onGroupHandleDown(event,'${c.key}',${gi})">≡</button>
+          <button title="Править" aria-label="Править" onclick="openSubEditor(event,'${c.key}','${g.gid}')">${ic('pencil')}</button>
+          <button class="del" title="Удалить" aria-label="Удалить" onclick="deleteGroup(event,'${c.key}','${g.gid}')">${ic('x')}</button>
+          <button class="ghandle" aria-label="Перетащить" onpointerdown="onGroupHandleDown(event,'${c.key}',${gi})">≡</button>
         </span></div>`;
       return;
     }
-    const gk=c.key+'-'+gi; const closed=openState[gk]===false?' closed':'';
+    /* Ключ свёрнутости — по стабильному gid, а не по индексу: после перетаскивания
+       подкатегорий свёрнутым оказывался соседний блок. */
+    const gk=c.key+'-'+g.gid; const closed=openState[gk]===false?' closed':'';
     const gt=g.items?g.items.length:0, gd=g.items?g.items.filter(i=>i.done).length:0;
     let disp=(g.items||[]).slice();
     if(hideDone && !editmode) disp=disp.filter(it=>!it.done);
     if(sortPri && !editmode) disp=sortByPri(disp); else disp.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
-    h+=`<div class="grp${closed}" data-gk="${gk}" data-gi="${gi}"><div class="ghead" onclick="toggleGroup('${gk}')">
+    h+=`<div class="grp${closed}" data-gk="${gk}" data-gi="${gi}"><div class="ghead" role="button" tabindex="0" aria-expanded="${closed?'false':'true'}" onclick="toggleGroup('${gk}')">
       <span class="e" style="color:${col}">${ic(g.emo||'box')}</span><span class="t">${esc(g.title)}</span>
       <span class="g-acts">
-        <button onclick="openGroupEditor(event,'${c.key}',${gi})">${ic('pencil')}</button>
-        <button class="del" onclick="deleteGroup(event,'${c.key}',${gi})">${ic('x')}</button>
-        <button class="ghandle" onpointerdown="onGroupHandleDown(event,'${c.key}',${gi})">≡</button>
+        <button title="Править" aria-label="Править" onclick="openGroupEditor(event,'${c.key}','${g.gid}')">${ic('pencil')}</button>
+        <button class="del" title="Удалить" aria-label="Удалить" onclick="deleteGroup(event,'${c.key}','${g.gid}')">${ic('x')}</button>
+        <button class="ghandle" aria-label="Перетащить" onpointerdown="onGroupHandleDown(event,'${c.key}',${gi})">≡</button>
       </span>
       <span class="c ${gt>0&&gd===gt?'full':''}">${gd}/${gt}</span><span class="chev">${ic('chevD')}</span></div><div class="items">`;
     disp.forEach(it=>h+=itemRow(it));
-    h+=`<div class="additem" onclick="openTaskNew('${c.key}',${gi})"><span class="ic" style="color:var(--indigo);font-size:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="tx">Добавить задачу</span></div></div></div>`;
+    h+=`<div class="additem" role="button" tabindex="0" onclick="openTaskNew('${c.key}','${g.gid}')"><span class="ic" style="color:var(--indigo);font-size:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="tx">Добавить задачу</span></div></div></div>`;
   });
-  h+=`<div class="newgrp" onclick="openGroupEditor(null,'${c.key}',null)">＋ Подкатегория</div>`;
-  h+=`<div class="newsub" onclick="openSubEditor(null,'${c.key}',null)">＋ Заголовок-раздел</div>`;
+  h+=`<div class="newgrp" role="button" tabindex="0" onclick="openGroupEditor(null,'${c.key}',null)">＋ Подкатегория</div>`;
+  h+=`<div class="newsub" role="button" tabindex="0" onclick="openSubEditor(null,'${c.key}',null)">＋ Заголовок-раздел</div>`;
   return h;
 }
 function renderCat(key){
   const c=catByKey(key); if(!c){ active=null; renderHub(); return; }
   viewEl.innerHTML=`<button class="viewcat" onclick="openViewCurrent()">${ic('list')} Посмотреть списком</button>`+groupsHtml(c);
-  refreshCounts();
 }
 function renderWeekend(){
   const groups=weekendItems();
@@ -1106,42 +1277,87 @@ function renderService(){
   rs.sort((a,b)=>daysTo(a.it.rec.next)-daysTo(b.it.rec.next));
   let h='';
   const near=rs.filter(r=>daysTo(r.it.rec.next)<=7);
+  const nearSet=new Set(near.map(r=>r.it.id));
   if(near.length){
     h+=`<div class="wkgrp-h">${ic('clock','color:#c1503b')} Ближайшие</div><div class="grp"><div class="items">`;
     near.forEach(r=>h+=itemRow(r.it));
     h+=`</div></div>`;
   }
-  h+=`<div class="wkgrp-h">${ic('repeat','color:#2f8a7e')} Всё обслуживание</div>`;
-  STATE.cats.forEach(c=>{
-    const l=rs.filter(r=>r.c===c);
-    if(!l.length) return;
+  /* «Всё обслуживание» не дублирует «Ближайшие»: раньше одна задача рисовалась
+     дважды с одним data-id — дубли в DOM и ловушка для drag-движка. */
+  const restByCat=STATE.cats.map(c=>({c,l:rs.filter(r=>r.c===c && !nearSet.has(r.it.id))})).filter(x=>x.l.length);
+  if(restByCat.length){
+    h+=`<div class="wkgrp-h">${ic('repeat','color:#2f8a7e')} Остальное обслуживание</div>`;
+    if(near.length) h+=`<div class="rep-more" style="text-align:left;padding:0 4px 6px">Ближайшие (${near.length}) показаны выше.</div>`;
+  }
+  restByCat.forEach(({c,l})=>{
     h+=`<div class="wkgrp-h" style="font-size:11.5px;color:var(--muted)">${ic(c.icon,'color:'+catColor(c))} ${esc(c.title||c.tab)}</div><div class="grp"><div class="items">`;
     l.forEach(r=>h+=itemRow(r.it));
     h+=`</div></div>`;
   });
   viewEl.innerHTML=h;
 }
-function refreshCounts(){ /* прогресс в шапке уже отрисован renderHeader */ }
 
 function openCat(k){ active=k; editmode=false; window.scrollTo({top:0}); render(); }
 function openWeekend(){ active='__wk__'; editmode=false; window.scrollTo({top:0}); render(); }
 function openService(){ active='__svc__'; editmode=false; window.scrollTo({top:0}); render(); }
 function goHub(){ active=null; editmode=false; window.scrollTo({top:0}); render(); }
-function toggleGroup(gk){ openState[gk]=!(openState[gk]!==false); const el=document.querySelector(`.grp[data-gk="${gk}"]`); if(el) el.classList.toggle('closed'); }
+function toggleGroup(gk){ openState[gk]=!(openState[gk]!==false);
+  const el=document.querySelector(`.grp[data-gk="${gk}"]`);
+  if(el){ el.classList.toggle('closed'); const hd=el.querySelector('.ghead'); if(hd) hd.setAttribute('aria-expanded', el.classList.contains('closed')?'false':'true'); } }
 
 let editmode=false;
 function toggleEdit(){ editmode=!editmode; render(); }
+/* Клавиатура: div с role="button" должен реагировать на Enter/Пробел (доступность) */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter' && e.key!==' ' && e.key!=='Spacebar') return;
+  const t=e.target;
+  const role=t&&t.getAttribute&&t.getAttribute('role');
+  if((role!=='button'&&role!=='checkbox') || t.tagName==='BUTTON') return;
+  e.preventDefault(); t.click();
+});
+/* ---------- ТОСТ С ОТМЕНОЙ ---------- */
+let __toastTimer=null, __undo=null;
+function showToast(text,undoFn){
+  const el=document.getElementById('toast'), btn=document.getElementById('toastBtn');
+  document.getElementById('toastTx').textContent=text;
+  __undo=undoFn||null;
+  btn.style.display=__undo?'':'none';
+  el.classList.add('show');
+  clearTimeout(__toastTimer);
+  __toastTimer=setTimeout(hideToast,5000);
+}
+function hideToast(){ document.getElementById('toast').classList.remove('show'); __undo=null; }
+document.getElementById('toastBtn').addEventListener('click',()=>{ const f=__undo; hideToast(); if(f) f(); });
 
 /* ---------- ДЕЙСТВИЯ НАД ЗАДАЧАМИ ---------- */
 let justDragged=false, suppressNextTap=false;
 function tapSuppressed(){ if(suppressNextTap){ suppressNextTap=false; return true; } return false; }
 function boxTap(e,id){ e.stopPropagation(); if(editmode||tapSuppressed()) return; const f=findItem(id); if(!f) return;
   if(f.it.rec && !f.it.done){ openSvcDone(id); return; } /* цикличная: выполнение через журнал */
-  f.it.done=!f.it.done; markDone(f.it,f.it.done); save(); render(); if(queuesOpen) renderQueuesBody(); }
+  f.it.done=!f.it.done; markDone(f.it,f.it.done); save(); renderAll(); }
+/* Единая точка удаления задачи: снимок позиции + тост «Отменить».
+   confirm() на каждую задачу тормозил разбор списка и всё равно терял данные при промахе. */
+function removeTask(id){
+  const f=findItem(id); if(!f) return false;
+  const idx=f.g.items.indexOf(f.it), snap={it:f.it, gid:f.g.gid, ckey:f.c.key, idx};
+  f.g.items.splice(idx,1);
+  save(); renderAll();
+  showToast('Удалено: '+(f.it.t||'задача'), ()=>undoRemove(snap));
+  return true;
+}
+function undoRemove(sn){
+  if(findItem(sn.it.id)) return;                       /* уже вернулась из облака */
+  const c=catByKey(sn.ckey)||getInbox(); if(!c) return;
+  /* за 5 секунд мог прийти снапшот из облака — ищем группу заново по стабильному gid */
+  const g=groupByGid(c,sn.gid)||ensureTasksGroup(c);
+  g.items.splice(Math.min(sn.idx,g.items.length),0,sn.it);
+  save(); renderAll();
+}
 /* --- выполнение цикличной задачи --- */
 let svcId=null;
 function openSvcDone(id){
-  const f=findItem(id); if(!f) return;
+  const f=findItem(id); if(!f||!f.it.rec) return;
   svcId=id;
   document.getElementById('ssTask').textContent=f.it.t||'';
   document.getElementById('ssNote').value='';
@@ -1151,13 +1367,15 @@ function openSvcDone(id){
 }
 function closeSvcDone(){ closeSheet(document.getElementById('ssheet')); }
 function svcConfirm(){
-  const f=svcId&&findItem(svcId); if(!f){ closeSvcDone(); return; }
+  const f=svcId&&findItem(svcId);
+  /* пока окно было открыто, «Повторять» могли выключить с другого устройства */
+  if(!f||!f.it.rec){ closeSvcDone(); return; }
   const note=document.getElementById('ssNote').value.trim();
   STATE.svcLog.unshift({t:f.it.t,cat:(f.c.title||f.c.tab||''),ts:Date.now(),note});
   if(STATE.svcLog.length>300) STATE.svcLog.length=300;
-  markDone({id:'svc-'+Date.now()},true); /* в счётчики выполненного, без отмены */
+  markDone({id:'svc-'+Date.now()+rnd4()},true); /* в счётчики выполненного, без отмены */
   f.it.rec.next=addPeriod(isoToday(),f.it.rec.n,f.it.rec.unit);
-  save(); closeSvcDone(); render();
+  svcId=null; save(); closeSvcDone(); renderAll();
 }
 /* --- журнал обслуживания --- */
 function fmtTs(ts){ const d=new Date(ts); return d.getDate()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getFullYear()).slice(2); }
@@ -1169,14 +1387,15 @@ function openSvcLog(){
   openSheet(document.getElementById('lsheet'));
 }
 function closeSvcLog(){ closeSheet(document.getElementById('lsheet')); }
-function quickWk(e,id){ e.stopPropagation(); if(tapSuppressed()) return; const f=findItem(id); if(!f) return; f.it.wk=!f.it.wk; save(); render(); }
-function delItem(e,id){ e.stopPropagation(); const f=findItem(id); if(!f) return; if(!confirm('Удалить: «'+f.it.t+'»?')) return; f.g.items=f.g.items.filter(x=>x.id!==id); save(); render(); }
+function quickWk(e,id){ e.stopPropagation(); if(tapSuppressed()) return; const f=findItem(id); if(!f) return;
+  f.it.wk=!f.it.wk; save(); renderAll(); }   /* renderAll: раньше строка в окне «Очереди» оставалась старой */
+function delItem(e,id){ e.stopPropagation(); removeTask(id); }
 function duplicateTask(id){
   const f=findItem(id); if(!f) return;
   const cp=JSON.parse(JSON.stringify(f.it)); cp.id=nid();
   f.g.items.splice(f.g.items.indexOf(f.it)+1,0,cp);
   statCreated(1); if(cp.done) markDone(cp,true);
-  save(); render();
+  save(); renderAll();
 }
 /* --- меню задачи по долгому нажатию --- */
 let cmId=null;
@@ -1203,15 +1422,10 @@ function cmMoveTo(key){
   const f=cmId&&findItem(cmId); const dst=catByKey(key); if(!f||!dst){ closeTaskMenu(); return; }
   f.g.items=f.g.items.filter(x=>x!==f.it);
   const g=ensureTasksGroup(dst); g.items.unshift(f.it);
-  closeTaskMenu(); save(); render();
+  closeTaskMenu(); save(); renderAll();
 }
 function cmDuplicate(){ closeTaskMenu(); if(cmId) duplicateTask(cmId); }
-function cmDelete(){
-  const f=cmId&&findItem(cmId); if(!f){ closeTaskMenu(); return; }
-  if(!confirm('Удалить задачу «'+f.it.t+'»?')) return;
-  f.g.items=f.g.items.filter(x=>x.id!==cmId);
-  closeTaskMenu(); save(); render();
-}
+function cmDelete(){ const id=cmId; closeTaskMenu(); if(id) removeTask(id); }
 /* --- окно «Очереди» (все уровни: 1…4 очередь + без очереди) --- */
 let queuesOpen=false;
 function openQueues(){ queuesOpen=true; renderQueuesBody(); openSheet(document.getElementById('usheet')); }
@@ -1235,7 +1449,7 @@ function openReport(){
   document.getElementById('rsBody').innerHTML=`
     <div class="rep-grid">
       <div class="rep-card on"><div class="rep-n">${activeCount()}</div><div class="rep-l">в работе сейчас</div></div>
-      <div class="rep-card"><div class="rep-n">${lastWeekendDone()}</div><div class="rep-l">за прошлые выходные</div></div>
+      <div class="rep-card"><div class="rep-n">${lastWeekendDone()}</div><div class="rep-l">${weekendStatLabel()}</div></div>
       <div class="rep-card"><div class="rep-n">${st.created}</div><div class="rep-l">создано за всё время</div></div>
       <div class="rep-card"><div class="rep-n">${st.done}</div><div class="rep-l">выполнено за всё время</div></div>
     </div>
@@ -1245,8 +1459,9 @@ function openReport(){
 function closeReport(){ closeSheet(document.getElementById('rsheet')); }
 
 /* --- окно «Архив категорий»: убрать в архив и достать из него --- */
-function openArchive(){ renderArchiveBody(); openSheet(document.getElementById('arsheet')); }
-function closeArchive(){ closeSheet(document.getElementById('arsheet')); }
+let archiveOpen=false;
+function openArchive(){ archiveOpen=true; renderArchiveBody(); openSheet(document.getElementById('arsheet')); }
+function closeArchive(){ archiveOpen=false; closeSheet(document.getElementById('arsheet')); }
 function renderArchiveBody(){
   const box=document.getElementById('arBody'); if(!box) return;
   const arch=archCats(), live=realCats(); let h='';
@@ -1255,24 +1470,25 @@ function renderArchiveBody(){
   else arch.forEach(c=>{ const s=catStats(c);
     h+=`<div class="ar-row"><span class="ar-emo" style="${chipStyle(catColor(c))}">${ic(c.icon)}</span>
       <span class="ar-nm">${esc(c.title||c.tab)}<small>${s.t} задач</small></span>
-      <button class="ar-b restore" title="Вернуть из архива" onclick="arRestore('${c.key}')">${ic('arrowUp')}</button>
-      <button class="ar-b del" title="Удалить навсегда" onclick="arDelete('${c.key}')">${ic('trash')}</button></div>`;
+      <button class="ar-b restore" title="Вернуть из архива" aria-label="Вернуть из архива" onclick="arRestore('${c.key}')">${ic('arrowUp')}</button>
+      <button class="ar-b del" title="Удалить навсегда" aria-label="Удалить навсегда" onclick="arDelete('${c.key}')">${ic('trash')}</button></div>`;
   });
   h+=`<div class="ar-sec">Убрать в архив</div>`;
   if(!live.length){ h+=`<div class="empty" style="padding:12px 8px">Категорий нет.</div>`; }
   else live.forEach(c=>{ const s=catStats(c);
     h+=`<div class="ar-row"><span class="ar-emo" style="${chipStyle(catColor(c))}">${ic(c.icon)}</span>
       <span class="ar-nm">${esc(c.title||c.tab)}<small>${s.t} задач</small></span>
-      <button class="ar-b" title="Убрать в архив" onclick="arArchive('${c.key}')">${ic('archive')}</button></div>`;
+      <button class="ar-b" title="Убрать в архив" aria-label="Убрать в архив" onclick="arArchive('${c.key}')">${ic('archive')}</button></div>`;
   });
   box.innerHTML=h;
 }
-function arArchive(key){ archiveCategory(key); renderArchiveBody(); }
-function arRestore(key){ restoreCategory(key); renderArchiveBody(); }
-function arDelete(key){ deleteArchived(key); renderArchiveBody(); }
+/* archiveCategory/restoreCategory/deleteArchived уже перерисовывают всё открытое (afterCatChange) */
+function arArchive(key){ archiveCategory(key); }
+function arRestore(key){ restoreCategory(key); }
+function arDelete(key){ deleteArchived(key); }
 
 /* ---------- SHEET: задача ---------- */
-let tsMode='new', tsId=null, tsCatKey=null, tsGi=null, tsPri='', tsWk=false, tsTargetCat=null;
+let tsMode='new', tsId=null, tsCatKey=null, tsGid=null, tsPri='', tsWk=false, tsTargetCat=null;
 /* Счётчик, а не флаг: поверх профиля может открыться bottom-sheet —
    его закрытие не должно разблокировать фон, пока профиль ещё открыт. */
 let scrollLocks=0;
@@ -1317,10 +1533,10 @@ function tsToggleRec(){
 }
 function tsReadRec(){
   if(!tsRecOn) return null;
-  const n=Math.max(1,parseInt(document.getElementById('tsRecN').value,10)||1);
+  const n=Math.min(365,Math.max(1,parseInt(document.getElementById('tsRecN').value,10)||1));
   const unit=document.getElementById('tsRecU').value||'m';
-  const next=document.getElementById('tsRecD').value||isoToday();
-  return {n,unit,next};
+  const d=document.getElementById('tsRecD').value;
+  return {n,unit,next:(validISO(d)?d:isoToday())};
 }
 /* цикличная живёт в подкатегории «Цикличные» своей категории */
 function placeByRec(id){
@@ -1328,19 +1544,23 @@ function placeByRec(id){
   if(f.it.rec && !f.g.svc){
     const sg=ensureSvcGroup(f.c);
     f.g.items=f.g.items.filter(x=>x!==f.it); sg.items.unshift(f.it);
-    if(f.g!==sg && f.g.items && !f.g.items.length && f.g.svc){}
   } else if(!f.it.rec && f.g.svc){
-    const ng=f.c.groups.find(x=>x.items&&!x.svc)||(f.c.groups.push({emo:'box',title:'Задачи',items:[]}),f.c.groups[f.c.groups.length-1]);
+    const ng=f.c.groups.find(x=>x.items&&!x.svc)||ensureTasksGroup(f.c);
     f.g.items=f.g.items.filter(x=>x!==f.it); ng.items.unshift(f.it);
   }
+}
+/* Один виджет «Добавить в категорию» на быстрый ввод и на новую задачу —
+   раньше это были две почти одинаковые функции, которые легко разъезжались. */
+function catPickHtml(curKey,onPick,onToggle,open){
+  const c=catByKey(curKey)||getInbox();
+  const list=alphaCats().map(x=>`<div class="cpi ${x.key===curKey?'on':''}" role="button" tabindex="0" onclick="${onPick}('${x.key}')">${ic(x.icon,'color:'+catColor(x))}${esc(x.title||x.tab)}</div>`).join('');
+  return `<button class="catpick" type="button" aria-expanded="${open?'true':'false'}" onclick="${onToggle}()"><span class="cp-lbl">Добавить в категорию</span><span class="cp-cur">${ic(c.icon,'color:'+catColor(c))}<span class="nmx">${esc(c.title||c.tab)}</span>${ic('chevD')}</span></button><div class="catpick-list" style="display:${open?'':'none'}">${list}</div>`;
 }
 let tsPickOn=false;
 function renderTsCat(){
   const wrap=document.getElementById('tsCatWrap');
   if(tsMode==='edit'){ wrap.innerHTML=''; return; } // в правке перенос — кнопкой «Перенести» вверху
-  const c=catByKey(tsTargetCat)||getInbox();
-  const list=alphaCats().map(x=>`<div class="cpi ${x.key===tsTargetCat?'on':''}" onclick="tsSetCat('${x.key}')">${ic(x.icon,'color:'+catColor(x))}${esc(x.title||x.tab)}</div>`).join('');
-  wrap.innerHTML=`<button class="catpick" onclick="tsTogglePick()"><span class="cp-lbl">Добавить в категорию</span><span class="cp-cur">${ic(c.icon,'color:'+catColor(c))}<span class="nmx">${esc(c.title||c.tab)}</span>${ic('chevD')}</span></button><div class="catpick-list" id="tsPickList" style="display:${tsPickOn?'':'none'}">${list}</div>`;
+  wrap.innerHTML=catPickHtml(tsTargetCat,'tsSetCat','tsTogglePick',tsPickOn);
 }
 function tsTogglePick(){ tsPickOn=!tsPickOn; renderTsCat(); }
 /* --- «Перенести»: выпадающий список категорий по алфавиту --- */
@@ -1351,7 +1571,7 @@ function toggleMovePanel(e){
   if(p.classList.contains('show')){ p.classList.remove('show'); return; }
   p.innerHTML=alphaCats().map(c=>{
     const cur=c.key===tsTargetCat;
-    return `<div class="mv-item${cur?' cur':''}" onclick="mvPick('${c.key}')">${ic(c.icon,'color:'+catColor(c))}${esc(c.title||c.tab)}${cur?' ✓':''}</div>`;
+    return `<div class="mv-item${cur?' cur':''}" role="button" tabindex="0" onclick="mvPick('${c.key}')">${ic(c.icon,'color:'+catColor(c))}${esc(c.title||c.tab)}${cur?' ✓':''}</div>`;
   }).join('');
   p.classList.add('show');
 }
@@ -1385,8 +1605,9 @@ function openTaskEdit(id){
   renderTsPri(); document.getElementById('tsWk').classList.toggle('on',tsWk); tsSetRecUI(f.it.rec||null); renderTsCat();
   openSheet(document.getElementById('tsheet'));
 }
-function openTaskNew(catKey,gi){
-  tsMode='new'; tsCatKey=catKey; tsGi=gi; tsId=null; tsPri=''; tsWk=false; tsTargetCat=catKey; tsPickOn=false;
+function openTaskNew(catKey,gid){
+  /* gid, а не индекс: пока окно открыто, снапшот из облака мог переставить группы */
+  tsMode='new'; tsCatKey=catKey; tsGid=gid; tsId=null; tsPri=''; tsWk=false; tsTargetCat=catKey; tsPickOn=false;
   document.getElementById('tsTitle').textContent='Новая задача';
   document.getElementById('tsBtns').classList.add('hidden');
   hideMoveUI();
@@ -1412,22 +1633,20 @@ function saveTaskSheet(){
     }
   } else {
     const dst=catByKey(tsTargetCat)||catByKey(tsCatKey); if(dst){
-      let g; if(tsTargetCat===tsCatKey && dst.groups[tsGi] && dst.groups[tsGi].items) g=dst.groups[tsGi];
-      else g=ensureTasksGroup(dst);
+      let g=null;
+      if(tsTargetCat===tsCatKey && tsGid){ const gg=groupByGid(dst,tsGid); if(gg && gg.items) g=gg; }
+      if(!g) g=ensureTasksGroup(dst);
       const nit={id:nid(),t,n,done:false,pri:tsPri,wk:tsWk}; if(rec) nit.rec=rec;
       (g.items||(g.items=[])).unshift(nit);
       statCreated(1);
       if(rec) placeByRec(nit.id);
     }
   }
-  save(); closeTaskSheet(); render();
+  save(); closeTaskSheet(); renderAll();
 }
 function deleteTaskFromSheet(){
   if(tsMode!=='edit'||!tsId) return;
-  const f=findItem(tsId); if(!f) return;
-  if(!confirm('Удалить задачу «'+f.it.t+'»?')) return;
-  f.g.items=f.g.items.filter(x=>x!==f.it);
-  save(); closeTaskSheet(); render();
+  const id=tsId; closeTaskSheet(); removeTask(id);   /* удаление с отменой через тост */
 }
 function duplicateFromSheet(){
   if(tsMode!=='edit'||!tsId) return;
@@ -1437,38 +1656,41 @@ function duplicateFromSheet(){
 /* ---------- SHEET: быстрый ввод (FAB) ---------- */
 let qaPri='', qaWk=false, qaCat=null;
 function openQuick(){
-  qaPri=''; qaWk=false;
-  qaCat = (active && active!=='__wk__' && catByKey(active)) ? active : getInbox().key;
+  qaPri=''; qaWk=false; qaAdded=0;
+  qaCat = (active && catByKey(active)) ? active : getInbox().key;
   document.getElementById('qaInput').value='';
-  qaPickOn=false; renderQaPick(); document.getElementById('qaPri').innerHTML=priChips(qaPri,'qaSetPri'); document.getElementById('qaWk').classList.remove('on');
+  qaPickOn=false; renderQaPick(); renderQaCount(); document.getElementById('qaPri').innerHTML=priChips(qaPri,'qaSetPri'); document.getElementById('qaWk').classList.remove('on');
   openSheet(document.getElementById('qsheet'));
   setTimeout(()=>document.getElementById('qaInput').focus(),80);
 }
 let qaPickOn=false;
 function renderQaPick(){
   const box=document.getElementById('qaCatPick'); if(!box) return;
-  const c=catByKey(qaCat)||getInbox();
-  const list=alphaCats().map(x=>`<div class="cpi ${x.key===qaCat?'on':''}" onclick="qaSetCat('${x.key}')">${ic(x.icon,'color:'+catColor(x))}${esc(x.title||x.tab)}</div>`).join('');
-  box.innerHTML=`<button class="catpick" onclick="qaTogglePick()"><span class="cp-lbl">Добавить в категорию</span><span class="cp-cur">${ic(c.icon,'color:'+catColor(c))}<span class="nmx">${esc(c.title||c.tab)}</span>${ic('chevD')}</span></button><div class="catpick-list" id="qaPickList" style="display:${qaPickOn?'':'none'}">${list}</div>`;
+  box.innerHTML=catPickHtml(qaCat,'qaSetCat','qaTogglePick',qaPickOn);
 }
 function qaTogglePick(){ qaPickOn=!qaPickOn; renderQaPick(); }
 function qaSetCat(k){ qaCat=k; qaPickOn=false; renderQaPick(); }
 function qaSetPri(p){ qaPri=p; document.getElementById('qaPri').innerHTML=priChips(qaPri,'qaSetPri'); }
 function qaToggleWk(){ qaWk=!qaWk; document.getElementById('qaWk').classList.toggle('on',qaWk); }
 function closeQuick(){ closeSheet(document.getElementById('qsheet')); }
+let qaAdded=0;
 function qaAdd(){
   const t=document.getElementById('qaInput').value.trim();
   if(!t){ document.getElementById('qaInput').focus(); return; }
   const c=catByKey(qaCat)||getInbox();
-  const g=(c.kind==='inbox') ? (c.groups.find(x=>x.items)||c.groups[0]) : ensureTasksGroup(c);
+  /* !svc обязательно: у «Входящих» может быть служебная группа «Цикличные», и она
+     стоит первой — быстрый ввод молча складывал задачи туда. */
+  const g=(c.kind==='inbox') ? (c.groups.find(x=>x.items&&!x.svc)||c.groups.find(x=>x.items)||ensureTasksGroup(c)) : ensureTasksGroup(c);
   (g.items||(g.items=[])).unshift({id:nid(),t,n:'',done:false,pri:qaPri,wk:qaWk});
-  statCreated(1);
+  statCreated(1); qaAdded++;
   save();
-  // не закрываем — даём накидать ещё; очищаем поле
+  // не закрываем — даём накидать ещё; очищаем поле и показываем, сколько уже добавлено
   document.getElementById('qaInput').value=''; document.getElementById('qaInput').focus();
-  render();
-  // обновим бейдж/счётчик в открытом окне — просто оставим окно, пользователь закроет сам
+  renderQaCount();
+  renderAll();
 }
+function renderQaCount(){ const el=document.getElementById('qaCount'); if(!el) return;
+  el.textContent=qaAdded?('Добавлено: '+qaAdded):''; el.style.display=qaAdded?'':'none'; }
 
 /* ---------- SHEET: посмотреть списком ---------- */
 function openViewCurrent(){ if(active && active!=='__wk__') openViewSheet(active); }
@@ -1488,49 +1710,64 @@ function openViewSheet(key){
 function closeViewSheet(){ closeSheet(document.getElementById('vsheet')); }
 
 /* ---------- SHEET: поиск по задачам ---------- */
+let fsLast='';
+const SEARCH_CAP=100;
+/* «ё» и «е» пользователи набирают вперемешку — приводим к одному виду */
+function norm(x){ return String(x||'').toLowerCase().replace(/ё/g,'е'); }
 function openSearch(){
-  document.getElementById('fsInput').value='';
-  document.getElementById('fsDone').checked=false;
-  document.getElementById('fsArch').checked=false;
+  document.getElementById('fsInput').value=fsLast;   /* предыдущий запрос под рукой */
   renderSearch();
   openSheet(document.getElementById('fsheet'));
   setTimeout(()=>document.getElementById('fsInput').focus(),80);
 }
 function closeSearch(){ closeSheet(document.getElementById('fsheet')); }
 function renderSearch(){
-  const q=document.getElementById('fsInput').value.trim().toLowerCase();
+  const raw=document.getElementById('fsInput').value.trim();
+  fsLast=raw;
+  const q=norm(raw);
   const incDone=document.getElementById('fsDone').checked;
   const incArch=document.getElementById('fsArch').checked;
   const box=document.getElementById('fsBody'); if(!box) return;
-  if(!q){ box.innerHTML=`<div class="empty" style="padding:22px 12px">Введите слово — ищу по заголовкам и комментариям.</div>`; return; }
+  if(!q){ box.innerHTML=`<div class="empty" style="padding:22px 12px">Введите слово — ищу по заголовкам, комментариям и названиям категорий.</div>`; return; }
   const res=[];
-  const scan=(cats,arch)=>cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{
-    if(it.done && !incDone) return;
-    if((((it.t||'')+' '+(it.n||'')).toLowerCase()).indexOf(q)>=0) res.push({it,c,arch});
-  }); }));
+  const scan=(cats,arch)=>cats.forEach(c=>{
+    const cn=norm((c.title||'')+' '+(c.tab||''));
+    c.groups.forEach(g=>{ if(!g.items) return;
+      const gn=norm(g.title||'');
+      g.items.forEach(it=>{
+        if(it.done && !incDone) return;
+        /* ищем и по названию категории/подкатегории — так чаще всего и ищут */
+        if(norm((it.t||'')+' '+(it.n||'')).indexOf(q)>=0 || cn.indexOf(q)>=0 || gn.indexOf(q)>=0) res.push({it,c,arch});
+      });
+    });
+  });
   scan(STATE.cats,false);
   if(incArch) scan(archCats(),true);
   if(!res.length){ box.innerHTML=`<div class="empty" style="padding:22px 12px">Ничего не найдено.</div>`; return; }
-  box.innerHTML=res.map(r=>`<div class="vi" onclick="searchOpen('${r.it.id}',${r.arch?1:0})" style="cursor:pointer">
+  /* без ограничения запрос из одной буквы отрисовывал вообще все задачи */
+  const shown=res.slice(0,SEARCH_CAP);
+  let h=shown.map(r=>`<div class="vi" role="button" tabindex="0" onclick="searchOpen('${r.it.id}',${r.arch?1:0})" style="cursor:pointer">
     <span class="mk" style="color:${r.it.done?'var(--indigo)':'var(--line)'}">${r.it.done?'✓':'○'}</span>
     <span><span>${esc(r.it.t)}</span><span class="vn">${ic(r.c.icon,'color:'+catColor(r.c))} ${esc(r.c.title||r.c.tab)}${r.arch?' · в архиве':''}</span></span></div>`).join('');
+  if(res.length>shown.length) h+=`<div class="rep-more">Показаны первые ${shown.length} из ${res.length} — уточните запрос.</div>`;
+  box.innerHTML=h;
 }
 function searchOpen(id,arch){
-  if(arch){ alert('Задача в архивной категории. Восстановите категорию из архива (в профиле), чтобы её открыть.'); return; }
+  if(arch){ alert('Задача в архивной категории. Верните категорию из архива (иконка архива в шапке или профиль), чтобы её открыть.'); return; }
   closeSearch(); setTimeout(()=>openTaskEdit(id),140);
 }
 
 /* ---------- SHEET: редактор категории / подкатегории / заголовка ---------- */
-let esMode='cat', esCatKey=null, esGi=null, esNew=false, esIcon='box', esColor=CAT_COLORS[0];
-function buildIconGrid(){ document.getElementById('iconGrid').innerHTML=ICON_LIB.map(id=>`<button type="button" class="ipg ${id===esIcon?'on':''}" title="${ICON_NAMES[id]||id}" onclick="setEIcon('${id}')">${ic(id)}</button>`).join(''); }
+let esMode='cat', esCatKey=null, esGid=null, esNew=false, esIcon='box', esColor=CAT_COLORS[0];
+function buildIconGrid(){ document.getElementById('iconGrid').innerHTML=ICON_LIB.map(id=>`<button type="button" class="ipg ${id===esIcon?'on':''}" title="${ICON_NAMES[id]||id}" aria-label="${ICON_NAMES[id]||id}" aria-pressed="${id===esIcon?'true':'false'}" onclick="setEIcon('${id}')">${ic(id)}</button>`).join(''); }
 function setEIcon(id){ esIcon=id; buildIconGrid(); }
 function suggestIcon(){ const s=iconSuggestList(document.getElementById('eName').value); document.getElementById('iconSug').innerHTML=s.map(id=>`<button type="button" class="ips" onclick="setEIcon('${id}')">${ic(id)}</button>`).join(''); }
-function buildColorRow(){ document.getElementById('colorRow').innerHTML=CAT_COLORS.map(col=>`<button type="button" class="col-sw ${col===esColor?'on':''}" style="background:${col}" onclick="setEColor('${col}')"></button>`).join(''); }
+function buildColorRow(){ document.getElementById('colorRow').innerHTML=CAT_COLORS.map(col=>`<button type="button" class="col-sw ${col===esColor?'on':''}" style="background:${col}" aria-label="Цвет ${col}" aria-pressed="${col===esColor?'true':'false'}" onclick="setEColor('${col}')"></button>`).join(''); }
 function setEColor(col){ esColor=col; buildColorRow(); }
 function showIconBlock(on){ document.getElementById('esIconBlock').style.display=on?'':'none'; }
 function showColorBlock(on){ document.getElementById('esColorBlock').style.display=on?'':'none'; }
 function openCatEditor(catKey){
-  esMode='cat'; esNew=!catKey; esCatKey=catKey||null; esGi=null;
+  esMode='cat'; esNew=!catKey; esCatKey=catKey||null; esGid=null;
   const c=catKey?catByKey(catKey):null;
   esIcon=c?(c.icon||'box'):'box'; esColor=c?(c.color||CAT_COLORS[0]):pickColor(STATE.cats);
   document.getElementById('esTitle').textContent=catKey?'Категория':'Новая категория';
@@ -1540,10 +1777,10 @@ function openCatEditor(catKey){
   buildIconGrid(); buildColorRow(); suggestIcon();
   openSheet(document.getElementById('esheet'));
 }
-function openGroupEditor(e,catKey,gi){
+function openGroupEditor(e,catKey,gid){
   if(e&&e.stopPropagation) e.stopPropagation();
-  esMode='group'; esNew=(gi===null||gi===undefined); esCatKey=catKey; esGi=esNew?null:gi;
-  const c=catByKey(catKey); const g=(!esNew&&c)?c.groups[gi]:null;
+  esMode='group'; esNew=(gid===null||gid===undefined); esCatKey=catKey; esGid=esNew?null:gid;
+  const c=catByKey(catKey); const g=(!esNew&&c)?groupByGid(c,gid):null;
   esIcon=g?(g.emo||'box'):'box';
   document.getElementById('esTitle').textContent=esNew?'Новая подкатегория':'Подкатегория';
   document.getElementById('eNameLbl').textContent='Название подкатегории';
@@ -1552,10 +1789,10 @@ function openGroupEditor(e,catKey,gi){
   buildIconGrid(); suggestIcon();
   openSheet(document.getElementById('esheet'));
 }
-function openSubEditor(e,catKey,gi){
+function openSubEditor(e,catKey,gid){
   if(e&&e.stopPropagation) e.stopPropagation();
-  esMode='sub'; esNew=(gi===null||gi===undefined); esCatKey=catKey; esGi=esNew?null:gi;
-  const c=catByKey(catKey); const g=(!esNew&&c)?c.groups[gi]:null;
+  esMode='sub'; esNew=(gid===null||gid===undefined); esCatKey=catKey; esGid=esNew?null:gid;
+  const c=catByKey(catKey); const g=(!esNew&&c)?groupByGid(c,gid):null;
   document.getElementById('esTitle').textContent=esNew?'Новый заголовок-раздел':'Заголовок-раздел';
   document.getElementById('eNameLbl').textContent='Текст заголовка';
   document.getElementById('eName').value=g?(g.sub||''):'';
@@ -1569,33 +1806,35 @@ function saveESheet(){
   if(esMode==='wk'){
     STATE.wkTitle=name.slice(0,30);
   } else if(esMode==='cat'){
-    if(esNew){ const key='c'+Date.now().toString(36)+(uid++);
-      STATE.cats.push({key, icon:esIcon, color:esColor, tab:name.slice(0,14), title:name, intro:'', groups:[{emo:'box',title:'Задачи',items:[]}]}); active=key; editmode=false;
+    if(esNew){ const key=ncid();
+      STATE.cats.push({key, icon:esIcon, color:esColor, tab:name.slice(0,14), title:name, intro:'', groups:[mkGroup({emo:'box',title:'Задачи',items:[]})]}); active=key; editmode=false;
     } else { const c=catByKey(esCatKey); if(c){ c.icon=esIcon; c.color=esColor; c.tab=name.slice(0,14); c.title=name; } }
   } else if(esMode==='sub'){
     const c=catByKey(esCatKey);
-    if(c){ if(esNew){ c.groups.push({sub:name}); } else if(c.groups[esGi]){ c.groups[esGi].sub=name; } }
+    if(c){ if(esNew){ c.groups.push(mkGroup({sub:name})); } else { const g=groupByGid(c,esGid); if(g) g.sub=name; } }
   } else {
     const c=catByKey(esCatKey);
-    if(c){ if(esNew){ c.groups.push({emo:esIcon,title:name,items:[]}); } else if(c.groups[esGi]){ c.groups[esGi].emo=esIcon; c.groups[esGi].title=name; } }
+    if(c){ if(esNew){ c.groups.push(mkGroup({emo:esIcon,title:name,items:[]})); } else { const g=groupByGid(c,esGid); if(g){ g.emo=esIcon; g.title=name; } } }
   }
-  save(); closeESheet(); render(); if(profileOpen) renderProfileCats();
+  save(); closeESheet(); renderAll();
 }
 function deleteCategory(catKey){
   const c=catByKey(catKey); if(!c) return;
   if(c.kind==='inbox'){ alert('Inbox нельзя удалить — это приёмник быстрого ввода.'); return; }
-  if(!confirm('Удалить категорию «'+(c.title||c.tab||'')+'» со всеми задачами?')) return;
+  const s=catStats(c);
+  if(!confirm('Удалить категорию «'+(c.title||c.tab||'')+'» со всеми задачами ('+s.t+')?\nЭто НЕЛЬЗЯ отменить. Чтобы сохранить задачи — уберите категорию в архив.')) return;
   STATE.cats=STATE.cats.filter(x=>x!==c);
   if(active===catKey) active=null;
-  save(); render(); if(profileOpen) renderProfileCats();
+  afterCatChange();
 }
-function deleteGroup(e,catKey,gi){
+function deleteGroup(e,catKey,gid){
   if(e&&e.stopPropagation) e.stopPropagation();
-  const c=catByKey(catKey); if(!c||!c.groups[gi]) return;
-  const g=c.groups[gi];
-  const msg=(typeof g.sub==='string')?('Удалить заголовок-раздел «'+(g.sub||'')+'»?'):('Удалить подкатегорию «'+(g.title||'')+'» со всеми задачами?');
+  const c=catByKey(catKey); if(!c) return;
+  const i=gidxOf(c,gid); if(i<0) return;
+  const g=c.groups[i];
+  const msg=(typeof g.sub==='string')?('Удалить заголовок-раздел «'+(g.sub||'')+'»?'):('Удалить подкатегорию «'+(g.title||'')+'» со всеми задачами ('+((g.items||[]).length)+')?');
   if(!confirm(msg)) return;
-  c.groups.splice(gi,1); save(); render();
+  c.groups.splice(i,1); save(); renderAll();
 }
 
 /* ---------- ПРОФИЛЬ ---------- */
@@ -1603,7 +1842,6 @@ let profileOpen=false;
 function profUid(){ return (__authedUser&&__authedUser.uid)||'anon'; }
 function getProfName(){ try{ return localStorage.getItem('prof_'+profUid())||''; }catch(e){ return ''; } }
 function setProfNameStore(v){ try{ localStorage.setItem('prof_'+profUid(), v); }catch(e){} }
-function updateAvatar(){ renderHeader(); }
 function openProfile(welcome){
   if(!profileOpen){ profileOpen=true; lockScroll(true); }
   const nm=getProfName() || (welcome && __authedUser && __authedUser.displayName ? __authedUser.displayName : '');
@@ -1620,10 +1858,12 @@ function renderStorage(){
   const el=document.getElementById('profStore'); if(!el) return;
   const used=stateBytes(); const pct=Math.min(100, Math.round(used/STORE_LIMIT*100));
   const warn=pct>=80;
+  const bad=(cloudState==='error')||__lsFailed;
   el.innerHTML=`<div class="prof-sec">Облачное хранилище</div>
     <div class="prof-store"><div class="tc-bar"><i style="width:${Math.max(pct,2)}%${warn?';background:var(--red)':''}"></i></div>
     <div class="tc-lbl">${Math.round(used/1024)} КБ из ~977 КБ (${pct}%) — лимит облачного документа</div>
-    ${warn?'<div class="tc-lbl" style="color:var(--red);font-weight:700">⚠️ Больше 80% — удалите старые выполненные задачи</div>':''}</div>`;
+    ${warn?'<div class="tc-lbl" style="color:var(--red);font-weight:700">⚠️ Больше 80% — удалите старые выполненные задачи</div>':''}
+    <div class="tc-lbl"${bad?' style="color:var(--red);font-weight:700"':''}>${esc(cloudLabel())}</div></div>`;
 }
 function saveProfName(){ setProfNameStore(document.getElementById('profName').value.trim()); }
 function renderProfileCats(){
@@ -1631,12 +1871,12 @@ function renderProfileCats(){
   let h=STATE.cats.map(c=>{
     const isInbox=c.kind==='inbox';
     return `<div class="prof-cat" data-key="${c.key}">
-      ${isInbox?`<span class="lockbadge" title="Всегда первый">${ic('lock')}</span>`:`<button class="ghandle" onpointerdown="onCatHandleDown(event,'${c.key}')">≡</button>`}
+      ${isInbox?`<span class="lockbadge" title="Всегда первый">${ic('lock')}</span>`:`<button class="ghandle" aria-label="Перетащить" onpointerdown="onCatHandleDown(event,'${c.key}')">≡</button>`}
       <span class="pc-emo" style="${chipStyle(isInbox?'#c06f22':catColor(c))}">${ic(c.icon)}</span>
       <span class="pc-name">${esc(c.title||c.tab||'Категория')}</span>
-      <button onclick="openCatEditor('${c.key}')">${ic('pencil')}</button>
-      ${isInbox?'':`<button title="В архив" onclick="archiveCategory('${c.key}')">${ic('archive')}</button>`}
-      ${isInbox?'':`<button class="del" onclick="deleteCategory('${c.key}')">${ic('x')}</button>`}
+      <button title="Править" aria-label="Править категорию" onclick="openCatEditor('${c.key}')">${ic('pencil')}</button>
+      ${isInbox?'':`<button title="В архив" aria-label="Убрать в архив" onclick="archiveCategory('${c.key}')">${ic('archive')}</button>`}
+      ${isInbox?'':`<button class="del" title="Удалить навсегда" aria-label="Удалить категорию навсегда" onclick="deleteCategory('${c.key}')">${ic('x')}</button>`}
     </div>`;
   });
   /* «На выходных» — виртуальный раздел, но название можно менять */
@@ -1644,7 +1884,7 @@ function renderProfileCats(){
       <span class="lockbadge" title="Витрина выходных">${ic('lock')}</span>
       <span class="pc-emo" style="${chipStyle('#37478f')}">${ic('calendar')}</span>
       <span class="pc-name">${esc(STATE.wkTitle)}</span>
-      <button onclick="openWkEditor()">${ic('pencil')}</button>
+      <button title="Переименовать" aria-label="Переименовать раздел выходных" onclick="openWkEditor()">${ic('pencil')}</button>
     </div>`);
   const arch=archCats();
   if(arch.length){
@@ -1663,12 +1903,26 @@ function renderProfileCats(){
 }
 function deleteArchived(key){
   const c=archByKey(key); if(!c) return;
-  if(!confirm('Удалить категорию «'+(c.title||c.tab||'')+'» из архива НАВСЕГДА со всеми задачами?')) return;
+  const s=catStats(c);
+  if(!confirm('Удалить категорию «'+(c.title||c.tab||'')+'» из архива НАВСЕГДА со всеми задачами ('+s.t+')?')) return;
   STATE.archive=archCats().filter(x=>x!==c);
-  save(); if(profileOpen) renderProfileCats();
+  afterCatChange();
+}
+/* Резервная копия: LWW-синхронизация, один документ и безвозвратное удаление
+   категории — дешёвая страховка на случай «что-то пошло не так». */
+function exportBackup(){
+  try{
+    const data=JSON.stringify(STATE,null,1);
+    const d=new Date(); const stamp=toISO(d)+'-'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0');
+    const blob=new Blob([data],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='dom-backup-'+stamp+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);
+  }catch(e){ alert('Не удалось создать файл копии: '+(e&&e.message||e)); }
 }
 function openWkEditor(){
-  esMode='wk'; esNew=false; esCatKey=null; esGi=null;
+  esMode='wk'; esNew=false; esCatKey=null; esGid=null;
   document.getElementById('esTitle').textContent='Раздел выходных';
   document.getElementById('eNameLbl').textContent='Название раздела';
   document.getElementById('eName').value=STATE.wkTitle;
@@ -1696,8 +1950,16 @@ function blockTouchScroll(e){ e.preventDefault(); }
 function attachDrag(){
   window.addEventListener('pointermove',onDragMove,{passive:false});
   window.addEventListener('touchmove',blockTouchScroll,{passive:false});
-  window.addEventListener('pointerup',onDragUp,{once:true});
-  window.addEventListener('pointercancel',onDragUp,{once:true});
+  window.addEventListener('pointerup',onDragUp);
+  window.addEventListener('pointercancel',onDragUp);
+}
+/* {once:true} снимал только сработавший слушатель: после каждого драга,
+   завершённого pointerup, на window навсегда оставался «висячий» pointercancel. */
+function detachDrag(){
+  window.removeEventListener('pointermove',onDragMove);
+  window.removeEventListener('touchmove',blockTouchScroll);
+  window.removeEventListener('pointerup',onDragUp);
+  window.removeEventListener('pointercancel',onDragUp);
 }
 function autoScroll(y){ const m=80; let cont=null; if(drag&&drag.kind==='cat') cont=document.getElementById('profile');
   if(cont){ if(y<m+70) cont.scrollBy(0,-14); else if(y>window.innerHeight-m) cont.scrollBy(0,14); }
@@ -1711,11 +1973,11 @@ function onDragMove(e){ if(!drag) return; e.preventDefault(); dragPt={x:e.client
     else if(drag.kind==='cat') catDragOver(dragPt.x,dragPt.y);
     else if(drag.kind==='hub') hubDragOver(dragPt.x,dragPt.y);
   }); }
-function onDragUp(){ window.removeEventListener('pointermove',onDragMove); window.removeEventListener('touchmove',blockTouchScroll); document.body.classList.remove('dragging');
+function onDragUp(){ detachDrag(); document.body.classList.remove('dragging');
   if(!drag) return; const d=drag; drag=null;
   if(d.clone) d.clone.remove(); if(d.ph) d.ph.remove(); if(d.el) d.el.style.display='';
   if(d.kind==='item') applyItemDrop(d); else if(d.kind==='group') applyGroupDrop(d); else if(d.kind==='cat') applyCatDrop(d); else if(d.kind==='hub') applyHubDrop(d);
-  if(pendingRemoteRender){ pendingRemoteRender=false; render(); if(profileOpen) renderProfileCats(); }
+  if(pendingRemoteRender){ pendingRemoteRender=false; renderAll(); }
   justDragged=true; setTimeout(()=>{ justDragged=false; },350);
 }
 /* Палец над самим плейсхолдером: elementFromPoint проваливается сквозь него
@@ -1753,11 +2015,14 @@ function beginDragCommon(){ document.body.classList.add('dragging'); clearSel();
 /* задачи */
 function onItemPointerDown(e,id){
   if(e.target.closest('button')||e.target.closest('.box')||e.target.closest('.drag')) return;
-  if(editmode){ startLongPress(e,()=>beginItemDrag(id,lastPt.x,lastPt.y)); }
+  const row=e.target.closest('.item');
+  if(editmode){ startLongPress(e,()=>beginItemDrag(id,lastPt.x,lastPt.y,row)); }
   else { startLongPress(e,()=>openTaskMenu(id),500); }
 }
-function onHandleDown(e,id){ e.preventDefault(); e.stopPropagation(); beginItemDrag(id,e.clientX,e.clientY); }
-function beginItemDrag(id,x,y){ const el=document.querySelector('.item[data-id="'+id+'"]'); if(!el) return;
+function onHandleDown(e,id){ e.preventDefault(); e.stopPropagation(); beginItemDrag(id,e.clientX,e.clientY,e.target.closest('.item')); }
+/* Берём элемент прямо из события. Поиск по data-id был ловушкой: одна и та же
+   задача может быть отрисована в нескольких местах (витрины, окно «Очереди»). */
+function beginItemDrag(id,x,y,el){ if(!el) el=document.querySelector('.item[data-id="'+id+'"]'); if(!el) return;
   const r=el.getBoundingClientRect(); const clone=mkClone(el,r); document.body.appendChild(clone);
   const ph=document.createElement('div'); ph.className='drag-ph'; ph.style.height=r.height+'px'; el.parentNode.insertBefore(ph,el); el.style.display='none';
   beginDragCommon(); drag={kind:'item',id,el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
@@ -1775,6 +2040,9 @@ function itemDragOver(x,y){
     const box=grp.querySelector('.items'); if(!box) return;
     /* «в конец группы» — только если палец ниже последней видимой задачи (или группа пуста),
        иначе заголовок/зазоры группы утаскивали плейсхолдер вниз и он дребезжал */
+    /* В витринах «Выходные»/«Очереди» у .grp нет data-gk — там нет одной группы-приёмника.
+       Раньше плейсхолдер всё равно показывался, а бросок молча откатывался. */
+    if(!grp.dataset.gk) return;
     const items=[...box.querySelectorAll('.item')].filter(n=>n!==drag.el && n.style.display!=='none');
     const last=items[items.length-1];
     if(last && y<=last.getBoundingClientRect().bottom) return;
@@ -1782,10 +2050,11 @@ function itemDragOver(x,y){
     drag.target={groupGk:grp.dataset.gk};
   }
 }
-function applyItemDrop(d){ const src=findItem(d.id); if(!src){ render(); return; } const from=src.g.items; const origIdx=from.indexOf(src.it); from.splice(origIdx,1); const t=d.target;
-  if(t&&t.refId!=null){ const rf=findItem(t.refId); if(rf){ const arr=rf.g.items; let i=arr.indexOf(rf.it); if(t.after)i++; arr.splice(i,0,src.it); save(); render(); return; } }
-  if(t&&t.groupGk!=null){ const [ck,gi]=t.groupGk.split('-'); const c=catByKey(ck); const g=c&&c.groups[parseInt(gi,10)]; if(g){ (g.items||(g.items=[])).push(src.it); save(); render(); return; } }
-  from.splice(origIdx,0,src.it); render(); /* цели нет — вернуть на исходное место, ничего не менять */ }
+function applyItemDrop(d){ const src=findItem(d.id); if(!src){ renderAll(); return; } const from=src.g.items; const origIdx=from.indexOf(src.it); from.splice(origIdx,1); const t=d.target;
+  if(t&&t.refId!=null){ const rf=findItem(t.refId); if(rf){ const arr=rf.g.items; let i=arr.indexOf(rf.it); if(t.after)i++; arr.splice(i,0,src.it); save(); renderAll(); return; } }
+  if(t&&t.groupGk!=null){ const i=t.groupGk.indexOf('-'); const ck=t.groupGk.slice(0,i), gid=t.groupGk.slice(i+1);
+    const c=catByKey(ck); const g=groupByGid(c,gid); if(g){ (g.items||(g.items=[])).push(src.it); save(); renderAll(); return; } }
+  from.splice(origIdx,0,src.it); renderAll(); /* цели нет — вернуть на исходное место, ничего не менять */ }
 /* подкатегории / заголовки */
 function onGroupHandleDown(e,catKey,gi){ e.preventDefault(); e.stopPropagation(); const el=e.target.closest('.grp,.sub'); beginGroupDrag(catKey,gi,el,e.clientX,e.clientY); }
 function beginGroupDrag(catKey,gi,el,x,y){ const c=catByKey(catKey); if(!c||!el) return;
@@ -1795,9 +2064,9 @@ function beginGroupDrag(catKey,gi,el,x,y){ const c=catByKey(catKey); if(!c||!el)
 function groupDragOver(x,y){ if(overPh(x,y)) return; const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
   const over=el.closest('.grp')||el.closest('.sub');
   if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.gi!=null){ const rect=over.getBoundingClientRect(); const after=midAfter(rect,y); if(after===null) return; placePh(over,after?over.nextSibling:over); drag.target={refObj:drag.c.groups[parseInt(over.dataset.gi,10)],after}; } }
-function applyGroupDrop(d){ const arr=d.c.groups; const si=arr.indexOf(d.srcObj); if(si<0){ render(); return; } arr.splice(si,1); const t=d.target;
+function applyGroupDrop(d){ const arr=d.c.groups; const si=arr.indexOf(d.srcObj); if(si<0){ renderAll(); return; } arr.splice(si,1); const t=d.target;
   if(t&&t.refObj){ let i=arr.indexOf(t.refObj); if(i<0)i=arr.length; else if(t.after)i++; arr.splice(i,0,d.srcObj); } else arr.splice(Math.min(si,arr.length),0,d.srcObj);
-  save(); render(); }
+  save(); renderAll(); }
 /* категории (в профиле) */
 function onCatHandleDown(e,key){ e.preventDefault(); e.stopPropagation(); const el=e.target.closest('.prof-cat'); beginCatDrag(key,el,e.clientX,e.clientY); }
 function beginCatDrag(key,el,x,y){ if(!el) return; const r=el.getBoundingClientRect(); const clone=mkClone(el,r); document.body.appendChild(clone);
@@ -1806,16 +2075,24 @@ function beginCatDrag(key,el,x,y){ if(!el) return; const r=el.getBoundingClientR
 function catDragOver(x,y){ if(overPh(x,y)) return; const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
   const over=el.closest('.prof-cat');
   if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.key&&drag.container.contains(over)){ const tc=catByKey(over.dataset.key); if(tc&&tc.kind==='inbox') return; const rect=over.getBoundingClientRect(); const after=midAfter(rect,y); if(after===null) return; placePh(over,after?over.nextSibling:over); drag.target={refObj:tc,after}; } }
-function applyCatDrop(d){ const arr=STATE.cats; const si=arr.indexOf(d.srcObj); if(si<0){ render(); renderProfileCats(); return; } arr.splice(si,1); const t=d.target;
-  if(t&&t.refObj){ let i=arr.indexOf(t.refObj); if(i<0)i=arr.length; else if(t.after)i++; if(i===0)i=1; arr.splice(i,0,d.srcObj); } else arr.splice(Math.min(si,arr.length),0,d.srcObj);
-  ensureInbox(STATE); save(); render(); renderProfileCats(); }
+/* Перестановка категории — одна логика и для профиля, и для плиток хаба */
+function reorderCat(d){
+  const arr=STATE.cats; const si=arr.indexOf(d.srcObj);
+  if(si<0){ renderAll(); return; }
+  arr.splice(si,1); const t=d.target;
+  if(t&&t.refObj){ let i=arr.indexOf(t.refObj); if(i<0)i=arr.length; else if(t.after)i++; if(i===0)i=1; arr.splice(i,0,d.srcObj); }
+  else arr.splice(Math.min(si,arr.length),0,d.srcObj);
+  ensureInbox(STATE); save(); renderAll();
+}
+function applyCatDrop(d){ reorderCat(d); }
 /* карточки на главном экране (режим редактирования) */
 function onHubCardDown(e,key){
   if(!editmode) return;
   if(e.target.closest('button')) return;
-  startLongPress(e,()=>beginHubDrag(key,lastPt.x,lastPt.y));
+  const card=e.target.closest('.hcard');
+  startLongPress(e,()=>beginHubDrag(key,lastPt.x,lastPt.y,card));
 }
-function beginHubDrag(key,x,y){ const el=document.querySelector('.hcard[data-key="'+key+'"]'); if(!el) return;
+function beginHubDrag(key,x,y,el){ if(!el) el=document.querySelector('.hcard[data-key="'+key+'"]'); if(!el) return;
   const r=el.getBoundingClientRect(); const clone=mkClone(el,r); document.body.appendChild(clone);
   const ph=document.createElement('div'); ph.className='drag-ph'; ph.style.height=r.height+'px'; ph.style.margin='0'; el.parentNode.insertBefore(ph,el); el.style.display='none';
   beginDragCommon(); drag={kind:'hub',srcObj:catByKey(key),container:el.parentNode,el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
@@ -1829,15 +2106,13 @@ function hubDragOver(x,y){ if(overPh(x,y)) return; const el=document.elementFrom
     const after=x>cx;
     placePh(over,after?over.nextSibling:over); drag.target={refObj:catByKey(over.dataset.key),after};
   } }
-function applyHubDrop(d){ const arr=STATE.cats; const si=arr.indexOf(d.srcObj); if(si<0){ render(); return; } arr.splice(si,1); const t=d.target;
-  if(t&&t.refObj){ let i=arr.indexOf(t.refObj); if(i<0)i=arr.length; else if(t.after)i++; if(i===0)i=1; arr.splice(i,0,d.srcObj); } else arr.splice(Math.min(si,arr.length),0,d.srcObj);
-  ensureInbox(STATE); save(); render(); }
+function applyHubDrop(d){ reorderCat(d); }
 </script>
 
 <!-- ===== Firebase: вход + облачная синхронизация ===== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyDob_HdG-ihclIacDESG3sdISugCXAC43U",
@@ -1860,9 +2135,10 @@ function applyHubDrop(d){ const arr=STATE.cats; const si=arr.indexOf(d.srcObj); 
     };
     window.CLOUD = {
       push: (payload) => setDoc(ref, payload),
+      /* возвращаем unsubscribe: при выходе из аккаунта подписку надо снять, иначе её
+         permission-denied показывал экран «Нет доступа» без кнопки входа */
       subscribe: (cb, errCb) => onSnapshot(ref, snap => cb(snap.exists() ? snap.data() : null), (e) => { if(errCb) errCb(e); })
     };
-    getRedirectResult(auth).catch(()=>{});
     onAuthStateChanged(auth, (user) => { if (window.onAuthChange) window.onAuthChange(user || null); });
     window.dispatchEvent(new Event('cloud-ready'));
   } catch(e) { /* нет сети / модуль не загрузился */ }
