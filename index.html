@@ -47,6 +47,7 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(9px + 
 .catttl .ce{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
 .catttl .nm{font-weight:800;font-size:17px;letter-spacing:-.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .h-right{display:flex;align-items:center;gap:10px}
+.h-row2{display:flex;align-items:center;gap:8px;margin-top:9px}
 .hb{width:36px;height:36px;flex:none;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-size:19px}
 .hb .ic{font-size:20px}
 .hb:active{background:var(--bg)}
@@ -104,6 +105,8 @@ main{padding:13px 13px 20px;max-width:640px;margin:0 auto}
 body.editmode .hcard{border-style:dashed;border-color:var(--indigo)}
 .hcard .hedit{display:none;position:absolute;bottom:9px;right:9px;color:var(--indigo);font-size:15px}
 body.editmode .hcard .hedit{display:flex}
+/* в режиме правки карандаш стоит внизу-справа — прячем счётчики плитки, чтобы не наплывал на красную точку */
+body.editmode .hub:not(.list) .hcard .cl{visibility:hidden}
 .hcard.dragging{opacity:.35}
 .hcard .ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px}
 .hcard .nm{font-weight:700;font-size:13px;margin-top:9px;letter-spacing:-.2px;line-height:1.25}
@@ -238,7 +241,9 @@ body.editmode .newgrp,body.editmode .newsub{display:flex}
 .sheet-back.hidden{display:none}
 .sheet-card{width:100%;max-width:640px;background:var(--card);border-radius:20px 20px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(20,26,44,.18);transform:translateY(100%);transition:transform .24s cubic-bezier(.2,.8,.2,1);max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .sheet-back.show .sheet-card{transform:none}
-.grip{width:40px;height:5px;background:var(--line);border-radius:99px;margin:6px auto 12px}
+.grip{width:40px;height:5px;background:var(--line);border-radius:99px;margin:0 auto 10px;padding:8px 24px;background-clip:content-box;box-sizing:content-box;cursor:pointer}
+.grip:active{background-color:var(--muted);background-clip:content-box}
+.sheet-card.full{max-width:100%!important;width:100%;max-height:100vh;height:100vh;border-radius:0}
 .sheet-card h3{margin:0 0 14px;font-size:18px;font-weight:800;letter-spacing:-.2px}
 .ts-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px}
 .ts-head h3{margin:0}
@@ -286,8 +291,27 @@ body.editmode .newgrp,body.editmode .newsub{display:flex}
 .qa-input:focus{outline:none}
 .qa-input::placeholder{color:var(--muted)}
 .fs-opts{display:flex;gap:18px;margin:11px 2px 6px}
+.fs-body{max-height:50vh;overflow-y:auto;overscroll-behavior:contain}
+.sheet-card.full .fs-body{max-height:none}
 .fs-ck{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
 .fs-ck input{width:17px;height:17px;accent-color:var(--indigo)}
+/* отчёт */
+.rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.rep-card{background:var(--bg);border-radius:14px;padding:14px 15px}
+.rep-card.on{background:var(--indigo-soft)}
+.rep-n{font-size:26px;font-weight:800;color:var(--indigo);line-height:1}
+.rep-l{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:5px}
+.rep-more{font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:2px 0 4px}
+/* архив */
+.ar-sec{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:14px 2px 8px}
+.ar-sec:first-child{margin-top:2px}
+.ar-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin-bottom:8px}
+.ar-emo{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.ar-nm{flex:1;font-weight:700;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ar-nm small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+.ar-b{width:34px;height:34px;flex:none;border:1px solid var(--line);background:#fff;border-radius:9px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-size:16px}
+.ar-b.restore{color:var(--indigo);border-color:var(--indigo)}
+.ar-b.del{color:var(--red);border-color:#e6cfc9}
 .pri-row{display:flex;gap:5px;margin-bottom:12px}
 .pchip{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 3px;cursor:pointer;font-family:inherit;font-size:10.5px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:4px;transition:.12s}
 .pchip .pg{width:17px;height:17px;display:flex;align-items:center;justify-content:center}
@@ -364,7 +388,7 @@ body.noscroll{overflow:hidden}
 /* ---- десктоп / MacBook ---- */
 @media(min-width:900px){
   main{max-width:760px}
-  header .h-row,header .bar,header .bar-row,header .stats{max-width:760px;margin-left:auto;margin-right:auto}
+  header .h-row,header .h-row2,header .bar,header .bar-row,header .stats{max-width:760px;margin-left:auto;margin-right:auto}
   header .bar{margin-top:10px}
   .hub{grid-template-columns:repeat(3,1fr)}
   .fab{right:calc(50% - 380px + 16px)}
@@ -503,6 +527,22 @@ body.noscroll{overflow:hidden}
   </div>
 </div>
 
+<!-- ===== SHEET: отчёт (метрики) ===== -->
+<div id="rsheet" class="sheet-back hidden" onclick="if(event.target===this) closeReport()">
+  <div class="sheet-card"><div class="grip"></div>
+    <div class="ts-head"><h3>Отчёт</h3><button class="ts-del" style="color:var(--muted)" onclick="closeReport()">Закрыть</button></div>
+    <div id="rsBody"></div>
+  </div>
+</div>
+
+<!-- ===== SHEET: архив категорий ===== -->
+<div id="arsheet" class="sheet-back hidden" onclick="if(event.target===this) closeArchive()">
+  <div class="sheet-card"><div class="grip"></div>
+    <div class="ts-head"><h3>Архив категорий</h3><button class="ts-del" style="color:var(--muted)" onclick="closeArchive()">Закрыть</button></div>
+    <div id="arBody"></div>
+  </div>
+</div>
+
 <!-- ===== SHEET: меню задачи (долгое нажатие) ===== -->
 <div id="cmenu" class="sheet-back hidden" onclick="if(event.target===this) closeTaskMenu()">
   <div class="sheet-card"><div class="grip"></div>
@@ -530,7 +570,7 @@ body.noscroll{overflow:hidden}
       <label class="fs-ck"><input type="checkbox" id="fsDone" onchange="renderSearch()"> в выполненных</label>
       <label class="fs-ck"><input type="checkbox" id="fsArch" onchange="renderSearch()"> в архиве</label>
     </div>
-    <div id="fsBody" class="vlist"></div>
+    <div id="fsBody" class="vlist fs-body"></div>
   </div>
 </div>
 
@@ -661,6 +701,8 @@ const P={
   grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
   arrowUp:'<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>',
   arrowDown:'<path d="M12 5v14"/><path d="m5 12 7 7 7-7"/>',
+  chart:'<path d="M4 20V4"/><path d="M4 20h16"/><rect x="7" y="12" width="3" height="5" rx=".5"/><rect x="12" y="8" width="3" height="9" rx=".5"/><rect x="17" y="5" width="3" height="12" rx=".5"/>',
+  expand:'<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>',
 };
 function ic(id,style){ return `<span class="ic"${style?` style="${style}"`:''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${P[id]||''}</svg></span>`; }
 const ICON_LIB=['roof','brick','droplet','faucet','flame','extinguisher','wrench','screwdriver','gear','drill','nut','gauge','battery','funnel','wind','fan','thermometer','radiator','plug','bolt','hammer','paint','ruler','ladder','window','door','garage','box','folder','documents','bed','sofa','wardrobe','table','chair','shelf','lamp','mirror','utensils','coffee','fridge','microwave','dishwasher','washer','iron','vacuum','shower','bath','toilet','tv','cart','broom','trash','cpu','wifi','camera','lightbulb','lock','key','phone','shield','medkit','pill','syringe','stethoscope','tooth','heartpulse','palette','car','leaf','plant','sun','umbrella','pet','baby','star','flag','book','mail','clock','pin','tag','gift','home','inbox','calendar'];
@@ -914,17 +956,16 @@ function avatarBtn(){ const n=getProfName().trim(); return `<button class="av" o
 function renderHeader(){
   const urg=totalUrgent();
   if(active===null){
-    const st=STATE.stats;
     hdrEl.innerHTML=`<div class="h-row"><div class="brand">${ic('home')} Дом!</div>
-      <div class="h-right">${urg
-        ? `<button class="urg q1" onclick="openQueues()" title="Очереди задач"><span class="pdot"></span>1 очередь · ${urg}</button>`
-        : `<button class="urg qall" onclick="openQueues()" title="Очереди задач">${ic('sortimp')} Очереди</button>`}<button class="hb edit" onclick="toggleEdit()" title="Редактировать карточки">${ic('pencil')}</button>${avatarBtn()}</div></div>
-      <div class="mrow">
-        <span class="mpill on">${ic('bolt')} <b>${activeCount()}</b> в работе</span>
-        <span class="mpill">создано <b>${st.created}</b> · выполнено <b>${st.done}</b></span>
-        <span class="mpill">${ic('flame')} <b>${lastWeekendDone()}</b> за выходные</span>
-      </div>
-      <button class="hubsearch" onclick="openSearch()">${ic('search')} <span>Поиск по задачам…</span></button>`;
+      <div class="h-right"><button class="hb edit" onclick="toggleEdit()" title="Редактировать карточки">${ic('pencil')}</button>${avatarBtn()}</div></div>
+      <div class="h-row2">
+        <button class="hb" onclick="openSearch()" title="Поиск по задачам">${ic('search')}</button>
+        <button class="hb" onclick="openReport()" title="Отчёт">${ic('chart')}</button>
+        ${urg
+          ? `<button class="urg q1" onclick="openQueues()" title="Очереди задач"><span class="pdot"></span>1 очередь · ${urg}</button>`
+          : `<button class="urg qall" onclick="openQueues()" title="Очереди задач">${ic('sortimp')} Очереди</button>`}
+        <button class="hb" onclick="openArchive()" title="Архив категорий" style="margin-left:auto">${ic('archive')}</button>
+      </div>`;
   } else if(active==='__wk__'){
     hdrEl.innerHTML=`<div class="h-row">
       <button class="bk" onclick="goHub()">${ic('chevL')}</button>
@@ -1188,6 +1229,48 @@ function renderQueuesBody(){
   box.innerHTML=any?h:`<div class="empty">${ic('check')}<br>Активных задач нет — всё под контролем.</div>`;
 }
 
+/* --- окно «Отчёт» (метрики) --- */
+function openReport(){
+  const st=STATE.stats;
+  document.getElementById('rsBody').innerHTML=`
+    <div class="rep-grid">
+      <div class="rep-card on"><div class="rep-n">${activeCount()}</div><div class="rep-l">в работе сейчас</div></div>
+      <div class="rep-card"><div class="rep-n">${lastWeekendDone()}</div><div class="rep-l">за прошлые выходные</div></div>
+      <div class="rep-card"><div class="rep-n">${st.created}</div><div class="rep-l">создано за всё время</div></div>
+      <div class="rep-card"><div class="rep-n">${st.done}</div><div class="rep-l">выполнено за всё время</div></div>
+    </div>
+    <div class="rep-more">Категорий: ${realCats().length}${archCats().length?` · в архиве ${archCats().length}`:''}</div>`;
+  openSheet(document.getElementById('rsheet'));
+}
+function closeReport(){ closeSheet(document.getElementById('rsheet')); }
+
+/* --- окно «Архив категорий»: убрать в архив и достать из него --- */
+function openArchive(){ renderArchiveBody(); openSheet(document.getElementById('arsheet')); }
+function closeArchive(){ closeSheet(document.getElementById('arsheet')); }
+function renderArchiveBody(){
+  const box=document.getElementById('arBody'); if(!box) return;
+  const arch=archCats(), live=realCats(); let h='';
+  h+=`<div class="ar-sec">В архиве${arch.length?' · '+arch.length:''}</div>`;
+  if(!arch.length){ h+=`<div class="empty" style="padding:12px 8px">Архив пуст. Ниже можно убрать сюда любую категорию — задачи из архива нигде не считаются, но остаются в поиске (галочка «в архиве»).</div>`; }
+  else arch.forEach(c=>{ const s=catStats(c);
+    h+=`<div class="ar-row"><span class="ar-emo" style="${chipStyle(catColor(c))}">${ic(c.icon)}</span>
+      <span class="ar-nm">${esc(c.title||c.tab)}<small>${s.t} задач</small></span>
+      <button class="ar-b restore" title="Вернуть из архива" onclick="arRestore('${c.key}')">${ic('arrowUp')}</button>
+      <button class="ar-b del" title="Удалить навсегда" onclick="arDelete('${c.key}')">${ic('trash')}</button></div>`;
+  });
+  h+=`<div class="ar-sec">Убрать в архив</div>`;
+  if(!live.length){ h+=`<div class="empty" style="padding:12px 8px">Категорий нет.</div>`; }
+  else live.forEach(c=>{ const s=catStats(c);
+    h+=`<div class="ar-row"><span class="ar-emo" style="${chipStyle(catColor(c))}">${ic(c.icon)}</span>
+      <span class="ar-nm">${esc(c.title||c.tab)}<small>${s.t} задач</small></span>
+      <button class="ar-b" title="Убрать в архив" onclick="arArchive('${c.key}')">${ic('archive')}</button></div>`;
+  });
+  box.innerHTML=h;
+}
+function arArchive(key){ archiveCategory(key); renderArchiveBody(); }
+function arRestore(key){ restoreCategory(key); renderArchiveBody(); }
+function arDelete(key){ deleteArchived(key); renderArchiveBody(); }
+
 /* ---------- SHEET: задача ---------- */
 let tsMode='new', tsId=null, tsCatKey=null, tsGi=null, tsPri='', tsWk=false, tsTargetCat=null;
 /* Счётчик, а не флаг: поверх профиля может открыться bottom-sheet —
@@ -1202,9 +1285,13 @@ function resetScrollLocks(){ scrollLocks=0; document.body.classList.remove('nosc
    защита от двойного открытия/закрытия, чтобы счётчик не разъезжался. */
 function openSheet(el){
   if(el.dataset.open==='1') return; el.dataset.open='1';
+  const card=el.querySelector('.sheet-card'); if(card) card.classList.remove('full'); /* всегда открываем в обычном размере */
   el.classList.remove('hidden'); lockScroll(true);
   requestAnimationFrame(()=>el.classList.add('show'));
 }
+/* Тап по «грипу» (полоска вверху окна) разворачивает окно на весь экран и обратно — как в Todoist */
+function toggleSheetFull(grip){ const card=grip.closest('.sheet-card'); if(card) card.classList.toggle('full'); }
+document.addEventListener('click',e=>{ if(e.target&&e.target.classList&&e.target.classList.contains('grip')) toggleSheetFull(e.target); });
 function closeSheet(el){
   if(el.dataset.open!=='1') return; el.dataset.open='';
   el.classList.remove('show'); lockScroll(false);
