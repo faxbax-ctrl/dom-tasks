@@ -1,5 +1,5 @@
 /* «Дом!» — service worker (офлайн-кэш оболочки) */
-const CACHE = 'dom-v9';
+const CACHE = 'dom-v10';
 const ASSETS = [
   './',
   './index.html',

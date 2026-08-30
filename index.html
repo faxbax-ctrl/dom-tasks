@@ -2141,7 +2141,10 @@ function renderAcct(){
 /* Один шаблон на все переключатели профиля: [подпись + пояснение] + сегмент из кнопок.
    opts = [[значение, подпись], …], cur — текущее значение, fn — имя функции-обработчика. */
 function setSeg(title,note,opts,cur,fn){
-  const btns=opts.map(o=>`<button type="button" class="${o[0]===cur?'on':''}" aria-pressed="${o[0]===cur?'true':'false'}" onclick="${fn}(${JSON.stringify(o[0])})">${o[1]}</button>`).join('');
+  /* Значение в inline-обработчик — в ОДИНАРНЫХ кавычках: JSON.stringify давал двойные,
+     они обрывали атрибут onclick="..." и кнопка молча переставала работать (так сломалась тема). */
+  const arg=v=>typeof v==='string' ? `'${v}'` : String(v);
+  const btns=opts.map(o=>`<button type="button" class="${o[0]===cur?'on':''}" aria-pressed="${o[0]===cur?'true':'false'}" onclick="${fn}(${arg(o[0])})">${o[1]}</button>`).join('');
   return `<div class="setrow"><span class="sl">${title}<small>${note}</small></span><span class="segsw">${btns}</span></div>`;
 }
 function renderProfSettings(){
