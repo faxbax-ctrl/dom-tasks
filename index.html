@@ -2,7 +2,9 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- user-scalable=no + maximum-scale: сведение двумя пальцами больше не масштабирует
+     страницу (правка 1.5). Для iOS этого мало — в JS ещё глушим gesturestart/двойной тап. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Дом!</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#37478f">
@@ -45,8 +47,11 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
+/* touch-action:manipulation убирает зум по двойному тапу (и задержку 300 мс);
+   pinch-zoom глушится в JS через gesturestart — Safari игнорирует user-scalable=no. */
+html{touch-action:manipulation}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);
-  padding-bottom:calc(20px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+  padding-bottom:calc(20px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased;touch-action:manipulation}
 svg{display:block}
 .ic{display:inline-flex;align-items:center;justify-content:center;color:currentColor}
 .ic svg{width:1em;height:1em;stroke-width:1.8}
@@ -117,7 +122,8 @@ main{padding:13px 13px 20px;max-width:640px;margin:0 auto}
 body:not(.nofab) main{padding-bottom:92px}
 
 /* ---- Hub ---- */
-.pin{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:9px;cursor:pointer;box-shadow:var(--shadow)}
+.pin{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:9px;cursor:pointer;box-shadow:var(--shadow);
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .pin .ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;font-size:20px}
 .pin.inbox .ico{background:var(--amber-soft);color:var(--pamber)}
 .pin.wk .ico{background:var(--indigo-soft);color:var(--indigo-tx)}
@@ -130,7 +136,8 @@ body:not(.nofab) main{padding-bottom:92px}
 .sect-l{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:15px 4px 9px;display:flex;justify-content:space-between;align-items:center}
 .sect-l .mng{font-weight:700;color:var(--indigo-tx);cursor:pointer;text-transform:none;letter-spacing:0;font-size:11.5px}
 .hub{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.hcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;box-shadow:var(--shadow);position:relative}
+.hcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;box-shadow:var(--shadow);position:relative;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .favb{position:absolute;top:7px;right:7px;width:30px;height:30px;border:0;background:none;color:var(--line);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;padding:0}
 .favb.on{color:var(--amber)}
 .favb.on svg{fill:currentColor}
@@ -158,14 +165,16 @@ body:not(.nofab) main{padding-bottom:92px}
 .hub.list .hcard .ico{width:34px;height:34px;font-size:19px;flex:none}
 .hub.list .hcard .nm{margin-top:0;flex:1;font-size:14px}
 .hub.list .hcard .mini{display:none}
-.hub.list .hcard .cl{margin-top:0;flex:none}
 .hub.list .favb{position:static;width:28px;height:28px;font-size:16px;flex:none;order:4}
-.hub.list .hcard .cl{order:3}
+/* В списке .cl лежит рядом с названием, а не под ним: justify-content:space-between
+   схлопывал две надписи в нулевую ширину и цифры наезжали друг на друга (правка 1.5). */
+.hub.list .hcard .cl{order:3;margin-top:0;flex:0 0 auto;justify-content:flex-end;gap:9px;white-space:nowrap;max-width:46%;overflow:hidden}
+.hub.list .hcard .cl>span:first-child{overflow:hidden;text-overflow:ellipsis}
 
 /* ---- Category page ---- */
 .intro{font-size:12.5px;color:var(--muted);line-height:1.5;padding:2px 6px 10px}
 .grp{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:11px;overflow:hidden;box-shadow:var(--shadow)}
-.ghead{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;user-select:none}
+.ghead{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .ghead .e{font-size:16px;width:20px;display:flex;justify-content:center;flex:none}
 .ghead .t{font-weight:700;font-size:13.5px;flex:1;letter-spacing:-.2px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ghead .c{font-size:11px;color:var(--muted);font-weight:700;background:var(--bg);padding:2px 8px;border-radius:99px;flex:none}
@@ -179,6 +188,9 @@ body:not(.nofab) main{padding-bottom:92px}
 .g-acts button.del{color:var(--red);border-color:color-mix(in srgb,var(--red) 30%,var(--line))}
 .items{padding:2px 7px 7px}
 .item{display:flex;align-items:flex-start;gap:9px;padding:9px 8px 9px 11px;border-radius:10px;cursor:pointer;position:relative;transition:background .12s;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* Долгое нажатие на iOS/Android рисовало синюю полосу выделения поверх заголовка
+   задачи и подписи плитки — гасим выделение у всего, что реагирует на long-press. */
+.item *,.hcard *,.pin *,.ghead *,.sub *{-webkit-user-select:none;user-select:none}
 .item:active{background:var(--bg)}
 .pri-stripe{position:absolute;left:2px;top:9px;bottom:9px;width:3px;border-radius:99px}
 .box{flex:none;width:22px;height:22px;border:2px solid var(--line);border-radius:6px;margin-top:1px;display:flex;align-items:center;justify-content:center;background:var(--card);color:#fff;font-size:13px;transition:all .15s}
@@ -188,7 +200,9 @@ body:not(.nofab) main{padding-bottom:92px}
 .lw{flex:1;min-width:0;padding-top:1px}
 .lbl{font-size:14px;line-height:1.3;display:block}
 .item.checked .lbl{color:var(--done);text-decoration:line-through;text-decoration-color:var(--done)}
-.note{font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* pre-line: описание теперь бывает списком, и переносы строк в превью нужны —
+   иначе «• гайка • лента фум» слипались в одну строку (правка 1.5). */
+.note{font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px;line-height:1.35;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .item.checked .note{color:var(--done);text-decoration:none}
 .irow-btns{display:flex;gap:1px;flex:none}
 .iqb{width:28px;height:28px;border:0;background:none;border-radius:7px;font-size:15px;color:var(--muted);cursor:pointer;opacity:.5;display:flex;align-items:center;justify-content:center;padding:0}
@@ -205,6 +219,9 @@ body:not(.nofab) main{padding-bottom:92px}
 #view.editmode .act{display:flex}
 .drag{display:none;width:28px;height:28px;flex:none;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:7px;background:var(--card);color:var(--muted);font-size:14px;touch-action:none;cursor:grab;padding:0;user-select:none}
 #view.editmode .drag{display:flex}
+/* В витрине «Выходные» у .grp нет data-gk: это сборный список из разных категорий,
+   порядок в нём не хранится. Ручку там не показываем — тащить всё равно некуда. */
+#view.editmode .grp:not([data-gk]) .drag{display:none}
 #view.editmode .box{opacity:.35}
 .additem{display:flex;align-items:center;gap:8px;padding:9px 11px;margin:2px 7px 6px;border:1.5px dashed var(--line);border-radius:10px;cursor:pointer}
 .additem:active{background:var(--indigo-soft)}
@@ -230,7 +247,9 @@ body:not(.nofab) main{padding-bottom:92px}
 .wkgrp-h .ic{font-size:16px}
 
 /* ---- FAB ---- */
-.fab{position:fixed;right:calc(16px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:var(--indigo);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(55,71,143,.45),0 2px 6px rgba(20,26,44,.3);cursor:pointer;z-index:40;border:0;transition:transform .12s}
+/* --vvb — сколько пикселей нижней части окна сейчас перекрыто (панель Safari,
+   клавиатура). Без него при свайпе вниз FAB «отлипал» и уезжал за край (правка 1.5). */
+.fab{position:fixed;right:calc(16px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom) + var(--vvb,0px));width:56px;height:56px;border-radius:50%;background:var(--indigo);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(55,71,143,.45),0 2px 6px rgba(20,26,44,.3);cursor:pointer;z-index:40;border:0;transition:transform .12s}
 .fab .ic{font-size:27px}
 .fab:active{transform:scale(.92)}
 .fab.hidden{display:none}
@@ -297,18 +316,30 @@ body:not(.nofab) main{padding-bottom:92px}
 .prof-logout{margin-top:24px;width:100%;border:1px solid color-mix(in srgb,var(--red) 30%,var(--line));background:var(--card);color:var(--red);font-family:inherit;font-weight:700;font-size:15px;padding:14px;border-radius:12px;cursor:pointer}
 
 /* ---- Sheets ---- */
-.sheet-back{position:fixed;inset:0;z-index:90;background:rgba(20,26,44,.4);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .2s ease}
+/* Окна открываются ИЗ ЦЕНТРА экрана на всех размерах (правка 1.5): у нижнего края
+   на длинных телефонах кнопки уезжали под жест «домой», а карточка занимала
+   почти весь экран. Разворот на весь экран (.full) снимает отступы подложки. */
+.sheet-back{position:fixed;inset:0;z-index:90;background:rgba(20,26,44,.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s ease;
+  padding:calc(14px + env(safe-area-inset-top)) 10px calc(14px + env(safe-area-inset-bottom))}
 .sheet-back.show{opacity:1}
 .sheet-back.hidden{display:none}
-.sheet-card{width:100%;max-width:640px;background:var(--card);border-radius:20px 20px 0 0;padding:8px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(20,26,44,.18);transform:translateY(100%);transition:transform .24s cubic-bezier(.2,.8,.2,1);max-height:92vh;max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.sheet-back.fullback{padding:0}
+.sheet-card{width:100%;max-width:560px;background:var(--card);border-radius:20px;padding:8px 18px 18px;box-shadow:0 18px 50px rgba(20,26,44,.28);transform:translateY(14px) scale(.985);transition:transform .22s cubic-bezier(.2,.8,.2,1);max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .sheet-back.show .sheet-card{transform:none}
+/* Окно с «шапка / прокрутка / кнопки»: тянется только .sheet-scroll, кнопки «ОК»
+   и «Сохранить» ВСЕГДА видны. Раньше карточка категории (иконки + цвета) прокручивалась
+   целиком и «Сохранить» оказывалась за нижним краем экрана (правка 1.5). */
+.sheet-card.split{display:flex;flex-direction:column;overflow:hidden}
+.sheet-card.split>*{flex-shrink:0}
+.sheet-card.split>.sheet-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:0 -18px;padding:0 18px}
+.sheet-card.split>.sheet-acts{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .grip{width:40px;height:5px;background:var(--line);border-radius:99px;margin:0 auto 10px;padding:8px 24px;background-clip:content-box;box-sizing:content-box;cursor:pointer}
 .grip:active{background-color:var(--muted);background-clip:content-box}
 /* Разворот на весь экран. 100vh на iPhone больше видимой области (адресная строка/жесты) —
    низ окна уезжал за экран. dvh считает реально видимую высоту; safe-area держит вырез и «домашнюю» полоску. */
 .sheet-card.full{max-width:100%!important;width:100%;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;border-radius:0;
   padding-top:calc(8px + env(safe-area-inset-top));padding-bottom:calc(18px + env(safe-area-inset-bottom));
-  display:flex;flex-direction:column}
+  display:flex;flex-direction:column;overflow:hidden}
 /* В развёрнутом окне тянется и прокручивается ТОЛЬКО список (.sheet-scroll),
    а поле поиска, заголовок и кнопки остаются на месте. Без этого длинная выдача
    уезжала ниже экрана и часть строк было не достать. */
@@ -322,7 +353,7 @@ body:not(.nofab) main{padding-bottom:92px}
 .ts-btns{display:flex;gap:8px;position:relative}
 .ts-btns.hidden{display:none}
 /* выпадающий список «Перенести» */
-.mv-panel{position:absolute;right:0;top:42px;z-index:6;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(20,26,44,.18);max-height:250px;overflow-y:auto;overscroll-behavior:contain;min-width:220px;padding:6px;display:none}
+.mv-panel{position:absolute;right:0;top:42px;z-index:6;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(20,26,44,.18);max-height:min(250px,42vh);overflow-y:auto;overscroll-behavior:contain;min-width:220px;padding:6px;display:none}
 .mv-panel.show{display:block}
 .mv-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:var(--ink)}
 .mv-item:active{background:var(--bg)}
@@ -362,7 +393,7 @@ body:not(.nofab) main{padding-bottom:92px}
 .qa-input::placeholder{color:var(--muted)}
 .fs-opts{display:flex;gap:18px;margin:11px 2px 6px}
 .fs-body{max-height:50vh;overflow-y:auto;overscroll-behavior:contain}
-.sheet-card.full .fs-body{max-height:none}
+.sheet-card.full .fs-body,.sheet-card.split .fs-body{max-height:none}
 .fs-ck{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
 .fs-ck input{width:17px;height:17px;accent-color:var(--indigo-tx)}
 /* отчёт */
@@ -427,9 +458,12 @@ body:not(.nofab) main{padding-bottom:92px}
 .btn-main{flex:2;border:0;background:var(--indigo);color:#fff;font-family:inherit;font-weight:700;font-size:15px;padding:13px;border-radius:12px;cursor:pointer}
 .btn-main.full{flex:1;width:100%}
 /* icon picker */
-.es-acts{display:flex;gap:8px;margin-bottom:14px}
-.es-b{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-family:inherit;font-weight:700;font-size:13px;padding:12px 8px;border-radius:11px;cursor:pointer}
-.es-b .ic{font-size:17px}
+/* Архив/удаление — компактными иконками слева и НАД полями: под кнопкой «Сохранить»
+   в них промахивались, а «Отмена» в confirm закрывала всю карточку (правка 1.5). */
+.es-acts{display:flex;gap:8px;margin:0 0 14px;justify-content:flex-start}
+.es-b{flex:none;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--card);color:var(--muted);font-family:inherit;font-weight:700;font-size:13px;padding:0;border-radius:11px;cursor:pointer}
+.es-b .ic{font-size:19px}
+.es-b:active{background:var(--bg)}
 .es-b.del{color:var(--red);border-color:color-mix(in srgb,var(--red) 30%,var(--line))}
 .ip-note{font-size:11.5px;color:var(--muted);background:var(--indigo-soft);border-radius:10px;padding:9px 11px;margin-bottom:12px;line-height:1.45}
 .ip-sug{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
@@ -449,7 +483,7 @@ body:not(.nofab) main{padding-bottom:92px}
 .vlist .vi{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:14px;line-height:1.35;border-bottom:1px solid var(--line)}
 .vlist .vi .mk{flex:none;width:18px;font-weight:800;display:flex;justify-content:center;padding-top:1px}
 .vlist .vi.off{color:var(--muted)}
-.vlist .vi .vn{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px}
+.vlist .vi .vn{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px;white-space:pre-line}
 
 /* ---- drag ---- */
 .drag-clone{position:fixed;z-index:200;pointer-events:none;box-shadow:0 12px 30px rgba(20,26,44,.24);background:var(--card);border:1.5px solid var(--indigo);border-radius:11px;margin:0;padding:9px 10px;opacity:.97}
@@ -463,19 +497,46 @@ body.dragging{-webkit-user-select:none;user-select:none}
 body.noscroll{overflow:hidden}
 
 /* ---- тост «Отменить» ---- */
-#toast{position:fixed;left:50%;transform:translate(-50%,140%);opacity:0;bottom:calc(22px + env(safe-area-inset-bottom));z-index:95;
+#toast{position:fixed;left:50%;transform:translate(-50%,140%);opacity:0;bottom:calc(22px + env(safe-area-inset-bottom) + var(--vvb,0px));z-index:95;
   display:flex;align-items:center;gap:14px;max-width:calc(100vw - 32px);
   background:var(--toast);color:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 10px 30px rgba(20,26,44,.35);
   font-size:13.5px;font-weight:600;transition:transform .22s cubic-bezier(.2,.8,.2,1),opacity .22s ease;pointer-events:none}
 #toast.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}
 /* когда FAB на экране — поднимаем тост над ним, иначе «Отменить» уезжает под кнопку */
-body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
+body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--vvb,0px))}
 #toast .tt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #toast button{border:0;background:none;color:#8fb0ff;font-family:inherit;font-weight:800;font-size:13.5px;cursor:pointer;padding:2px 4px;flex:none}
 
 /* ---- фокус с клавиатуры (доступность) ---- */
 :focus-visible{outline:2px solid var(--indigo);outline-offset:2px;border-radius:8px}
 .item:focus-visible,.hcard:focus-visible,.pin:focus-visible{outline-offset:-2px}
+
+/* ---- редактор описания (списки как в Todoist) ---- */
+.fld-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.fld-head>span{font-size:12px;font-weight:700;color:var(--muted)}
+.expandb{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--card);color:var(--indigo-tx);font-family:inherit;font-weight:700;font-size:11.5px;padding:5px 9px;border-radius:99px;cursor:pointer}
+.expandb .ic{font-size:14px}
+.expandb:active{background:var(--bg)}
+.note-hint{font-size:11px;color:var(--muted);line-height:1.45;margin:-6px 0 12px;padding:0 2px}
+.note-hint b{color:var(--indigo-tx);font-weight:800}
+.note-tools{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.note-tools button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-family:inherit;font-weight:700;font-size:12px;padding:7px 11px;border-radius:9px;cursor:pointer}
+.note-tools button:active{background:var(--bg)}
+.note-tools button .ic{font-size:14px}
+#nsText{width:100%;flex:1 1 auto;min-height:180px;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:13px;font-family:inherit;font-size:16px;line-height:1.5;color:var(--ink);resize:none}
+#nsText:focus{outline:none;border-color:var(--indigo-tx)}
+
+/* ---- «На выходных»: плитки по категориям / сплошной список по срочности ---- */
+.wk-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 10px}
+.wk-bar .lb{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.wkflat .item{padding-left:13px}
+.wkflat .catn{display:block;font-size:10.5px;color:var(--muted);font-weight:600;margin-top:2px}
+.wkflat .pri-h{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;margin:14px 4px 7px}
+.wkflat .pri-h:first-child{margin-top:2px}
+
+/* ---- подкатегория → категория ---- */
+.g2-note{font-size:12.5px;color:var(--muted);line-height:1.5;background:var(--indigo-soft);border-radius:12px;padding:11px 13px;margin-bottom:12px}
+.g2-note b{color:var(--indigo-tx)}
 
 /* ---- десктоп / MacBook ---- */
 @media(min-width:900px){
@@ -490,9 +551,8 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
   .item:hover{background:var(--bg)}
   .cm-btn:hover,.btn-ghost:hover{border-color:var(--indigo-tx);color:var(--indigo-tx)}
   .favb:hover{color:var(--amber)}
-  /* окна по центру экрана, а не у нижнего края */
-  .sheet-back{align-items:center}
-  .sheet-card{border-radius:18px;max-width:560px;max-height:86vh;max-height:86dvh;padding-bottom:18px}
+  /* окна центрируются на всех размерах (см. .sheet-back выше) — тут только ширина */
+  .sheet-card{max-width:560px}
   /* «на весь экран» на десктопе: высота во весь экран, ширина ограничена — иначе поля растягиваются на весь монитор */
   .sheet-card.full{border-radius:0;max-width:820px!important}
 }
@@ -551,7 +611,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
 
 <!-- ===== SHEET: задача ===== -->
 <div id="tsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeTaskSheet)">
-  <div class="sheet-card"><div class="grip"></div>
+  <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3 id="tsTitle">Задача</h3><span class="ts-btns" id="tsBtns">
       <button class="tsb" onclick="toggleMovePanel(event)" title="Перенести в категорию"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M9 13h6"/><path d="m12.5 10.5 2.5 2.5-2.5 2.5"/></svg></span></button>
       <div class="mv-panel" id="mvPanel"></div>
@@ -559,36 +619,54 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
       <button class="tsb del" onclick="deleteTaskFromSheet()" title="Удалить задачу"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5h17"/><path d="M8.5 6.5V4.5a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v2"/><path d="M6 6.5 7 20a1.8 1.8 0 0 0 1.8 1.6h6.4A1.8 1.8 0 0 0 17 20l1-13.5"/></svg></span></button>
     </span></div>
     <div class="mv-note" id="mvNote"></div>
+    <div class="sheet-scroll">
     <label class="fld"><span>Заголовок</span><input id="tsName" type="text" placeholder="Что сделать" autocomplete="off" enterkeyhint="done"></label>
-    <label class="fld"><span>Комментарий</span><textarea id="tsNote" placeholder="Детали, количество, напоминание…"></textarea></label>
+    <div class="fld">
+      <div class="fld-head"><span>Описание</span>
+        <button type="button" class="expandb" onclick="openNoteEditor()" title="Развернуть на весь экран"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7.5 7.5"/><path d="M3 21l7.5-7.5"/></svg></span>Развернуть</button>
+      </div>
+      <textarea id="tsNote" placeholder="Детали, количество, напоминание…&#10;&#10;Наберите «- » и нажмите Enter — получится список" onkeydown="noteKey(event)" oninput="noteInput(event)"></textarea>
+    </div>
+    <div class="note-hint">Списки: наберите <b>-</b> и пробел — строка станет пунктом <b>•</b>, Enter продолжит список. <b>1.</b> — нумерованный, <b>[]</b> — галочка. Пустой пункт + Enter выходит из списка.</div>
     <div class="fld-lbl">Очередь</div><div class="pri-row" id="tsPri"></div>
     <div class="wktog" id="tsWk" onclick="tsToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">На выходные<small>Показать в общей витрине выходных</small></span><span class="toggle"></span></div>
     <div class="wktog" id="tsRec" onclick="tsToggleRec()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span><span class="wl">Повторять<small>Цикличная задача — попадёт в «Обслужить»</small></span><span class="toggle"></span></div>
     <div id="tsRecCfg" style="display:none">
       <div class="rec-row">каждые <input id="tsRecN" type="number" min="1" max="365" value="1" inputmode="numeric"> <select id="tsRecU"><option value="d">дней</option><option value="w">недель</option><option value="m" selected>месяцев</option><option value="y">лет</option></select></div>
+      <div class="fld-lbl">Отсчёт следующего срока</div>
+      <div class="setrow" style="margin-bottom:10px"><span class="sl">Считать период<small id="tsRecModeNote"></small></span>
+        <span class="segsw" id="tsRecMode"></span></div>
       <label class="fld"><span>Следующий срок</span><input id="tsRecD" type="date"></label>
     </div>
     <div id="tsCatWrap"></div>
+    </div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeTaskSheet()">Отмена</button><button class="btn-main" onclick="saveTaskSheet()">ОК</button></div>
   </div>
 </div>
 
 <!-- ===== SHEET: быстрый ввод (FAB) ===== -->
 <div id="qsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeQuick)">
-  <div class="sheet-card"><div class="grip"></div>
+  <div class="sheet-card split"><div class="grip"></div>
     <h3>Новая задача</h3>
     <input id="qaInput" class="qa-input" type="text" placeholder="Что нужно сделать?" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();event.target.blur();}">
-    <div id="qaCatPick" style="margin-top:12px"></div>
+    <div class="sheet-scroll" style="margin:12px -18px 0">
+    <div id="qaCatPick"></div>
     <div class="fld-lbl">Очередь</div><div class="pri-row" id="qaPri"></div>
     <div class="wktog" id="qaWk" onclick="qaToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">На выходные<small>Показать в общей витрине выходных</small></span><span class="toggle"></span></div>
+    </div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeQuick()">Отмена</button><button class="btn-main" onclick="qaAdd()">Добавить</button></div>
   </div>
 </div>
 
 <!-- ===== SHEET: категория / подкатегория / заголовок ===== -->
 <div id="esheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeESheet)">
-  <div class="sheet-card"><div class="grip"></div>
-    <h3 id="esTitle">Категория</h3>
+  <div class="sheet-card split"><div class="grip"></div>
+    <div class="ts-head"><h3 id="esTitle">Категория</h3>
+      <span class="es-acts" id="esCatActs" style="display:none">
+        <button type="button" class="es-b" onclick="esArchive()" title="Убрать в архив" aria-label="Убрать в архив"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4.5" rx="1"/><path d="M5 8.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5"/><path d="M10 12h4"/></svg></span></button>
+        <button type="button" class="es-b del" onclick="esDelete()" title="Удалить категорию" aria-label="Удалить категорию"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9.5 7V5h5v2"/><path d="M6.5 7 7.5 20h9L17.5 7"/></svg></span></button>
+      </span></div>
+    <div class="sheet-scroll">
     <label class="fld"><span id="eNameLbl">Название</span><input id="eName" type="text" placeholder="Например, Кухня" autocomplete="off" enterkeyhint="done" oninput="suggestIcon()"></label>
     <div id="esIconBlock">
       <div class="fld-lbl">Иконка</div>
@@ -600,12 +678,6 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
       <div class="fld-lbl">Цвет категории</div>
       <div class="col-row" id="colorRow"></div>
     </div>
-    <div id="esCatActs" style="display:none">
-      <div class="fld-lbl">Категория целиком</div>
-      <div class="es-acts">
-        <button type="button" class="es-b" onclick="esArchive()"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4.5" rx="1"/><path d="M5 8.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5"/><path d="M10 12h4"/></svg></span>Убрать в архив</button>
-        <button type="button" class="es-b del" onclick="esDelete()"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9.5 7V5h5v2"/><path d="M6.5 7 7.5 20h9L17.5 7"/></svg></span>Удалить категорию</button>
-      </div>
     </div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeESheet()">Отмена</button><button class="btn-main" onclick="saveESheet()">Сохранить</button></div>
   </div>
@@ -625,7 +697,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
 
 <!-- ===== SHEET: журнал обслуживания ===== -->
 <div id="lsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeSvcLog)">
-  <div class="sheet-card"><div class="grip"></div>
+  <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3>Журнал обслуживания</h3><button class="ts-del" style="color:var(--muted)" onclick="closeSvcLog()">Закрыть</button></div>
     <div class="sheet-scroll" id="lsBody"></div>
   </div>
@@ -633,7 +705,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
 
 <!-- ===== SHEET: очереди задач ===== -->
 <div id="usheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeQueues)">
-  <div class="sheet-card"><div class="grip"></div>
+  <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3><span class="pdot" style="display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--pri-red);margin-right:7px"></span>Очереди</h3><button class="ts-del" style="color:var(--muted)" onclick="closeQueues()">Закрыть</button></div>
     <button class="qsort" id="usSort" type="button" onclick="toggleQSort()"></button>
     <div class="sheet-scroll" id="usBody"></div>
@@ -642,7 +714,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
 
 <!-- ===== SHEET: отчёт (метрики) ===== -->
 <div id="rsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeReport)">
-  <div class="sheet-card"><div class="grip"></div>
+  <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3>Отчёт</h3><button class="ts-del" style="color:var(--muted)" onclick="closeReport()">Закрыть</button></div>
     <div class="sheet-scroll" id="rsBody"></div>
   </div>
@@ -650,7 +722,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
 
 <!-- ===== SHEET: архив категорий ===== -->
 <div id="arsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeArchive)">
-  <div class="sheet-card"><div class="grip"></div>
+  <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3>Архив категорий</h3><button class="ts-del" style="color:var(--muted)" onclick="closeArchive()">Закрыть</button></div>
     <div class="sheet-scroll" id="arBody"></div>
   </div>
@@ -684,7 +756,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
 
 <!-- ===== SHEET: поиск по задачам ===== -->
 <div id="fsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeSearch)">
-  <div class="sheet-card"><div class="grip"></div>
+  <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3>Поиск</h3><button class="ts-del" style="color:var(--muted)" onclick="closeSearch()">Закрыть</button></div>
     <input id="fsInput" class="qa-input" type="text" placeholder="Что ищем?" autocomplete="off" enterkeyhint="search" oninput="renderSearch()">
     <div class="fs-opts">
@@ -697,9 +769,36 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
 
 <!-- ===== SHEET: посмотреть списком ===== -->
 <div id="vsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeViewSheet)">
-  <div class="sheet-card"><div class="grip"></div>
+  <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3 id="vsTitle">Список</h3><button class="ts-del" style="color:var(--muted)" onclick="closeViewSheet()">Закрыть</button></div>
     <div class="vlist sheet-scroll" id="vsBody"></div>
+  </div>
+</div>
+
+<!-- ===== SHEET: описание на весь экран ===== -->
+<div id="nsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeNoteEditor)">
+  <div class="sheet-card split"><div class="grip"></div>
+    <div class="ts-head"><h3>Описание</h3><button class="ts-del" style="color:var(--muted)" onclick="closeNoteEditor()">Отмена</button></div>
+    <div class="note-tools">
+      <button type="button" onclick="noteWrap('• ')" title="Маркированный список">• Список</button>
+      <button type="button" onclick="noteWrap('1. ')" title="Нумерованный список">1. Нумерация</button>
+      <button type="button" onclick="noteWrap('☐ ')" title="Галочки">☐ Галочки</button>
+      <button type="button" onclick="noteWrap('')" title="Убрать маркер">Без маркера</button>
+    </div>
+    <textarea id="nsText" placeholder="Пишите свободно. «- » + Enter превращает строку в пункт списка." onkeydown="noteKey(event)" oninput="noteInput(event)"></textarea>
+    <div class="sheet-acts"><button class="btn-ghost" onclick="closeNoteEditor()">Отмена</button><button class="btn-main" onclick="saveNoteEditor()">Сохранить</button></div>
+  </div>
+</div>
+
+<!-- ===== SHEET: подкатегория → категория ===== -->
+<div id="g2sheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeG2C)">
+  <div class="sheet-card"><div class="grip"></div>
+    <h3>Создать категорию</h3>
+    <div class="cm-title" id="g2Title"></div>
+    <div class="g2-note" id="g2Note"></div>
+    <button class="cm-btn" onclick="g2Go(1)"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>Перенести в категорию</button>
+    <button class="cm-btn" onclick="g2Go(0)"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>Копировать, подкатегорию оставить</button>
+    <button class="cm-btn" style="justify-content:center;color:var(--muted)" onclick="closeG2C()">Отмена</button>
   </div>
 </div>
 
@@ -961,6 +1060,10 @@ function normItems(g){ if(!g.items) return;
     if(!it.id) it.id=nid();
     if(!num(it.ct)) it.ct=ctFromId(it.id);
     if(it.rec && !it.rec.next) delete it.rec;
+    /* rec.mode — от чего считать следующий срок: 'done' (от нажатия галочки, как было
+       раньше) или 'fixed' (жёсткое расписание от прошлого срока). Умолчание — 'done',
+       чтобы у существующих задач поведение не поменялось. */
+    if(it.rec && it.rec.mode!=='fixed') it.rec.mode='done';
   });
 }
 function normCat(c,all){
@@ -1044,13 +1147,16 @@ function catByKey(k){ return STATE.cats.find(c=>c.key===k); }
 function archCats(){ return STATE.archive||(STATE.archive=[]); }
 function archByKey(k){ return archCats().find(c=>c.key===k); }
 function afterCatChange(){ save(); renderAll(); }
+/* Возвращает true, если действие выполнено (нужно вызывающему коду: карточку
+   категории закрываем только после согласия в confirm). */
 function archiveCategory(key){
-  const c=catByKey(key); if(!c) return;
-  if(c.kind==='inbox'){ alert('«Входящие» нельзя убрать в архив.'); return; }
-  if(!confirm('Убрать категорию «'+(c.title||c.tab||'')+'» в архив со всеми задачами?\nОни перестанут учитываться в метриках, но останутся в поиске (галочка «в архиве»).')) return;
+  const c=catByKey(key); if(!c) return false;
+  if(c.kind==='inbox'){ alert('«Входящие» нельзя убрать в архив.'); return false; }
+  if(!confirm('Убрать категорию «'+(c.title||c.tab||'')+'» в архив со всеми задачами?\nОни перестанут учитываться в метриках, но останутся в поиске (галочка «в архиве»).')) return false;
   STATE.cats=STATE.cats.filter(x=>x!==c); archCats().push(c);
   if(active===key) active=null;
   afterCatChange();
+  return true;
 }
 function restoreCategory(key){
   const c=archByKey(key); if(!c) return;
@@ -1135,6 +1241,23 @@ function addPeriod(iso,n,unit){ const d=parseISO(validISO(iso)?iso:isoToday());
   else d.setFullYear(d.getFullYear()+n);
   return toISO(d); }
 function dueLabel(d){ return d<0 ? ('просрочено '+(-d)+' дн.') : d===0 ? 'сегодня' : d===1 ? 'завтра' : ('через '+d+' дн.'); }
+/* Следующий срок цикличной задачи после отметки «выполнено».
+   mode='done'  — период отсчитывается ОТ МОМЕНТА нажатия галочки (умолчание):
+                  пока старая не выполнена, новая не появится, и сдвиг накапливается.
+   mode='fixed' — жёсткое расписание: период от прошлого планового срока, независимо
+                  от того, когда задачу реально обслужили. Пропущенные циклы
+                  прокручиваем вперёд, чтобы дата не осталась в прошлом. */
+function nextRecDate(rec){
+  const n=Math.min(365,Math.max(1,num(rec&&rec.n)||1)), unit=(rec&&rec.unit)||'m';
+  if(!rec || rec.mode!=='fixed' || !validISO(rec.next)) return addPeriod(isoToday(),n,unit);
+  let d=addPeriod(rec.next,n,unit);
+  /* Прокручиваем пропущенные циклы вперёд. Потолок нужен от зацикливания;
+     если не сошлось (период в днях, а дата из глубокого прошлого) — честно
+     отсчитываем от сегодня, чтобы срок ТОЧНО не остался в прошлом. */
+  let i=0;
+  while(daysTo(d)<0 && i++<2000) d=addPeriod(d,n,unit);
+  return daysTo(d)<0 ? addPeriod(isoToday(),n,unit) : d;
+}
 function recTasks(){ const out=[]; STATE.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.rec&&it.rec.next) out.push({it,c}); }); })); return out; }
 function svcDueCount(){ return recTasks().filter(r=>daysTo(r.it.rec.next)<=7).length; }
 function ensureSvcGroup(c){ let g=c.groups.find(x=>x.svc&&x.items); if(!g){ g=mkGroup({emo:'repeat',title:'Цикличные',items:[],svc:true}); c.groups.unshift(g); } return g; }
@@ -1256,6 +1379,10 @@ function renderAll(){
 let hideDone=false; try{ hideDone=localStorage.getItem('hide_done')==='1'; }catch(e){}
 let sortPri=true; try{ sortPri=localStorage.getItem('sort_pri')!=='0'; }catch(e){}
 let hubView='tiles'; try{ if(localStorage.getItem('hub_view')==='list') hubView='list'; }catch(e){}
+/* Витрина выходных: 'cats' — по категориям (как было), 'list' — сплошной список
+   срочных дел, ранжированный по очереди (правка 1.5). Настройка устройства. */
+let wkView='cats'; try{ if(localStorage.getItem('wk_view')==='list') wkView='list'; }catch(e){}
+function setWkView(v){ wkView=(v==='list')?'list':'cats'; try{ localStorage.setItem('wk_view',wkView); }catch(e){} render(); }
 /* Куда попадают новые задачи: сверху списка (по умолчанию) или снизу. Настройка в профиле. */
 let newTop=true; try{ newTop=localStorage.getItem('new_top')!=='0'; }catch(e){}
 /* Порядок в окне «Очереди»: новые сверху (по умолчанию) или старые сверху */
@@ -1366,6 +1493,7 @@ function renderHeader(){
       <div class="bar"><i style="width:${s.pct}%"></i></div>
       <div class="bar-row"><span class="bar-lbl">${s.d} из ${s.t} · ${s.pct}%</span>
         <span class="h-toggles">
+          <button class="tgl" onclick="openSearch()" title="Поиск по задачам" aria-label="Поиск по задачам">${ic('search')}</button>
           <button class="tgl ${sortPri?'on':''}" onclick="toggleSortPri()">${ic('sortimp')} очередь</button>
           <button class="tgl ${hideDone?'on':''} ${s.d?'':'hidden'}" onclick="toggleHideDone()">${hideDone?'показать ✓':'скрыть ✓'}</button>
         </span></div>`;
@@ -1412,7 +1540,8 @@ function toggleFav(e,key){ e.stopPropagation(); const c=catByKey(key); if(!c) re
   }
   save(); renderAll(); }
 
-function itemRow(it){
+/* sub — необязательная подпись под заголовком (в витрине выходных это категория) */
+function itemRow(it,sub){
   const pd=PRI[it.pri]||PRI['']; /* защитно: битое pri роняло весь render() */
   const stripe=(it.pri&&pd.c)?`<span class="pri-stripe" style="background:${pd.c}"></span>`:'';
   const note=it.n?`<span class="note">${esc(it.n)}</span>`:'';
@@ -1420,7 +1549,7 @@ function itemRow(it){
   return `<div class="item${it.done?' checked':''}" role="button" tabindex="0" data-id="${it.id}" onpointerdown="onItemPointerDown(event,'${it.id}')" onclick="itemClick(event,'${it.id}')">
     ${stripe}
     <span class="box" role="checkbox" tabindex="0" aria-checked="${it.done?'true':'false'}" onclick="boxTap(event,'${it.id}')">${ic('check')}</span>
-    <div class="lw"><span class="lbl">${esc(it.t)}</span>${note}${rec}</div>
+    <div class="lw"><span class="lbl">${esc(it.t)}</span>${note}${rec}${sub||''}</div>
     <span class="irow-btns">
       <button class="iqb wkflame ${it.wk?'wkon':''}" title="Взять на выходные" aria-label="Взять на выходные" aria-pressed="${it.wk?'true':'false'}" onclick="quickWk(event,'${it.id}')">${ic('flame')}</button>
     </span>
@@ -1452,6 +1581,7 @@ function groupsHtml(c){
       <span class="e" style="color:${col}">${ic(g.emo||'box')}</span><span class="t">${esc(g.title)}</span>
       <span class="g-acts">
         <button title="Править" aria-label="Править" onclick="openGroupEditor(event,'${c.key}','${g.gid}')">${ic('pencil')}</button>
+        ${g.svc?'':`<button title="Сделать категорией" aria-label="Сделать из подкатегории категорию" onclick="openG2C(event,'${c.key}','${g.gid}')">${ic('grid')}</button>`}
         <button class="del" title="Удалить" aria-label="Удалить" onclick="deleteGroup(event,'${c.key}','${g.gid}')">${ic('x')}</button>
         <button class="ghandle" aria-label="Перетащить" onpointerdown="onGroupHandleDown(event,'${c.key}',${gi})">≡</button>
       </span>
@@ -1465,17 +1595,54 @@ function groupsHtml(c){
 }
 function renderCat(key){
   const c=catByKey(key); if(!c){ active=null; renderHub(); return; }
-  viewEl.innerHTML=`<button class="viewcat" onclick="openViewCurrent()">${ic('list')} Посмотреть списком</button>`+groupsHtml(c);
+  /* В режиме правки верхняя кнопка открывает карточку категории — название, иконку
+     и цвет теперь можно менять, не уходя на главный экран (правка 1.5). */
+  const top = editmode
+    ? `<button class="viewcat" style="border-color:var(--amber);color:var(--pamber)" onclick="openCatEditor('${c.key}')">${ic('pencil')} Название, иконка и цвет категории</button>`
+    : `<button class="viewcat" onclick="openViewCurrent()">${ic('list')} Посмотреть списком</button>`;
+  viewEl.innerHTML=top+groupsHtml(c);
+}
+function wkSeg(){
+  const list=wkView==='list';
+  return `<div class="wk-bar"><span class="lb">${list?'По срочности':'По категориям'}</span>
+    <span class="viewseg">
+      <button class="${list?'':'on'}" title="По категориям" aria-label="По категориям" aria-pressed="${list?'false':'true'}" onclick="setWkView('cats')">${ic('grid')}</button>
+      <button class="${list?'on':''}" title="Списком по срочности" aria-label="Списком по срочности" aria-pressed="${list?'true':'false'}" onclick="setWkView('list')">${ic('list')}</button>
+    </span></div>`;
 }
 function renderWeekend(){
   const groups=weekendItems();
   if(!groups.length){ viewEl.innerHTML=`<div class="empty">${ic('flame')}<br>Пока ничего не запланировано на выходные.<br>Отмечайте задачи огоньком в любой категории.</div>`; return; }
-  let h='';
-  groups.forEach(({cat,items})=>{
-    h+=`<div class="wkgrp-h">${ic(cat.icon,'color:'+catColor(cat))} ${esc(cat.title||cat.tab)}</div><div class="grp"><div class="items">`;
-    items.forEach(it=>h+=itemRow(it));
-    h+=`</div></div>`;
-  });
+  let h=wkSeg();
+  if(wkView==='list'){
+    /* Сплошной список срочных дел: сначала 1 очередь, потом 2…4 и «без очереди».
+       Категория задачи уходит подписью под заголовок — иначе теряется контекст. */
+    const flat=[];
+    groups.forEach(({cat,items})=>items.forEach(it=>flat.push({it,cat})));
+    h+=`<div class="wkflat">`;
+    let any=false;
+    ['red','orange','fast','green',''].forEach(pr=>{
+      const l=flat.filter(x=>(x.it.pri||'')===pr && !x.it.done);
+      if(!l.length) return; any=true;
+      h+=`<div class="pri-h" style="color:${pr?PRI[pr].c:'var(--muted)'}">${priGlyph(pr)} ${PRI[pr].lbl} · ${l.length}</div><div class="grp"><div class="items">`;
+      l.forEach(x=>h+=itemRow(x.it,`<span class="catn">${ic(x.cat.icon,'color:'+catColor(x.cat)+';font-size:12px')} ${esc(x.cat.title||x.cat.tab)}</span>`));
+      h+=`</div></div>`;
+    });
+    const done=flat.filter(x=>x.it.done);
+    if(done.length){ any=true;
+      h+=`<div class="pri-h" style="color:var(--done)">${ic('check')} Выполнено · ${done.length}</div><div class="grp"><div class="items">`;
+      done.forEach(x=>h+=itemRow(x.it,`<span class="catn">${ic(x.cat.icon,'color:'+catColor(x.cat)+';font-size:12px')} ${esc(x.cat.title||x.cat.tab)}</span>`));
+      h+=`</div></div>`;
+    }
+    if(!any) h+=`<div class="empty">${ic('check')}<br>Всё сделано.</div>`;
+    h+=`</div>`;
+  } else {
+    groups.forEach(({cat,items})=>{
+      h+=`<div class="wkgrp-h">${ic(cat.icon,'color:'+catColor(cat))} ${esc(cat.title||cat.tab)}</div><div class="grp"><div class="items">`;
+      items.forEach(it=>h+=itemRow(it));
+      h+=`</div></div>`;
+    });
+  }
   viewEl.innerHTML=h;
 }
 function renderService(){
@@ -1548,7 +1715,13 @@ document.getElementById('toastBtn').addEventListener('click',()=>{ const f=__und
 /* ---------- ДЕЙСТВИЯ НАД ЗАДАЧАМИ ---------- */
 let justDragged=false, suppressNextTap=false;
 function tapSuppressed(){ if(suppressNextTap){ suppressNextTap=false; return true; } return false; }
-function boxTap(e,id){ e.stopPropagation(); if(editmode||tapSuppressed()) return; const f=findItem(id); if(!f) return;
+/* Правка — свойство ВИТРИНЫ (#view), а не всего приложения. Глобальный `editmode`
+   спрашивать нельзя: одна и та же задача рисуется и в #view, и в окнах «Очереди» /
+   «Выходные», где ручек и крестиков нет. Раньше при включённой правке на хабе
+   в окне «Очереди» переставали работать чекбоксы и открытие задачи — ровно та же
+   протечка, из-за которой CSS-правила в своё время перенесли с body на #view. */
+function rowInEdit(el){ return !!(el && el.closest && el.closest('#view.editmode')); }
+function boxTap(e,id){ e.stopPropagation(); if(tapSuppressed()||rowInEdit(e.target)) return; const f=findItem(id); if(!f) return;
   if(f.it.rec && !f.it.done){ openSvcDone(id); return; } /* цикличная: выполнение через журнал */
   f.it.done=!f.it.done; markDone(f.it,f.it.done); save(); renderAll(); }
 /* Единая точка удаления задачи: снимок позиции + тост «Отменить».
@@ -1577,7 +1750,7 @@ function openSvcDone(id){
   document.getElementById('ssTask').textContent=f.it.t||'';
   document.getElementById('ssNote').value='';
   document.getElementById('ssNext').textContent='Задача пересоздастся автоматически: следующий срок — '
-    +fmtD(addPeriod(isoToday(),f.it.rec.n,f.it.rec.unit))+'.';
+    +fmtD(nextRecDate(f.it.rec))+(f.it.rec.mode==='fixed'?' (по расписанию).':' (от сегодняшней отметки).');
   openSheet(document.getElementById('ssheet'));
 }
 function closeSvcDone(){ closeSheet(document.getElementById('ssheet')); }
@@ -1589,7 +1762,7 @@ function svcConfirm(){
   STATE.svcLog.unshift({t:f.it.t,cat:(f.c.title||f.c.tab||''),ts:Date.now(),note});
   if(STATE.svcLog.length>300) STATE.svcLog.length=300;
   markDone({id:'svc-'+Date.now()+rnd4()},true); /* в счётчики выполненного, без отмены */
-  f.it.rec.next=addPeriod(isoToday(),f.it.rec.n,f.it.rec.unit);
+  f.it.rec.next=nextRecDate(f.it.rec);
   svcId=null; save(); closeSvcDone(); renderAll();
 }
 /* --- журнал обслуживания --- */
@@ -1653,6 +1826,7 @@ function openCatMenu(key){
   document.getElementById('ctmTitle').textContent=(c.title||c.tab||'Категория');
   const isInbox=c.kind==='inbox';
   document.getElementById('ctmActions').innerHTML=
+    `<button class="cm-btn" onclick="ctmRename()">${ic('pencil')}Переименовать</button>`+
     `<button class="cm-btn" onclick="ctmDuplicate()">${ic('copy')}Дублировать</button>`+
     (isInbox?'':`<button class="cm-btn" onclick="ctmArchive()">${ic('archive')}Убрать в архив</button>`)+
     (isInbox?'':`<button class="cm-btn del" onclick="ctmDelete()">${ic('trash')}Удалить категорию</button>`)+
@@ -1661,6 +1835,7 @@ function openCatMenu(key){
   openSheet(document.getElementById('catmenu'));
 }
 function closeCatMenu(){ closeSheet(document.getElementById('catmenu')); }
+function ctmRename(){ const k=ctmKey; closeCatMenu(); if(k) setTimeout(()=>openCatEditor(k),140); }
 function ctmDuplicate(){ const k=ctmKey; closeCatMenu(); if(k) duplicateCategory(k); }
 function ctmArchive(){ const k=ctmKey; closeCatMenu(); if(k) archiveCategory(k); }   /* внутри — подтверждение */
 function ctmDelete(){ const k=ctmKey; closeCatMenu(); if(k) deleteCategory(k); }     /* внутри — подтверждение */
@@ -1772,11 +1947,16 @@ function sheetBack(e,el,fn){ if(e.target!==el || __bdDown!==el) return; fn(); }
 function openSheet(el){
   if(el.dataset.open==='1') return; el.dataset.open='1';
   const card=el.querySelector('.sheet-card'); if(card) card.classList.remove('full'); /* всегда открываем в обычном размере */
+  el.classList.remove('fullback');
   el.classList.remove('hidden'); lockScroll(true);
   requestAnimationFrame(()=>el.classList.add('show'));
 }
 /* Тап по «грипу» (полоска вверху окна) разворачивает окно на весь экран и обратно — как в Todoist */
-function toggleSheetFull(grip){ const card=grip.closest('.sheet-card'); if(card) card.classList.toggle('full'); }
+/* .fullback снимает отступы подложки: окна центрируются с полями, а развёрнутое
+   окно должно занимать экран целиком, включая эти поля. */
+function toggleSheetFull(grip){ const card=grip.closest('.sheet-card'); if(!card) return;
+  const on=card.classList.toggle('full');
+  const back=card.closest('.sheet-back'); if(back) back.classList.toggle('fullback',on); }
 document.addEventListener('click',e=>{ if(e.target&&e.target.classList&&e.target.classList.contains('grip')) toggleSheetFull(e.target); });
 function closeSheet(el){
   if(el.dataset.open!=='1') return; el.dataset.open='';
@@ -1787,6 +1967,16 @@ function renderTsPri(){ document.getElementById('tsPri').innerHTML=priChips(tsPr
 function tsSetPri(p){ tsPri=p; renderTsPri(); }
 function tsToggleWk(){ tsWk=!tsWk; document.getElementById('tsWk').classList.toggle('on',tsWk); }
 let tsRecOn=false;
+let tsRecMode='done';
+function renderTsRecMode(){
+  const box=document.getElementById('tsRecMode'); if(!box) return;
+  const b=(v,l)=>`<button type="button" class="${tsRecMode===v?'on':''}" aria-pressed="${tsRecMode===v?'true':'false'}" onclick="tsSetRecMode('${v}')">${l}</button>`;
+  box.innerHTML=b('done','От выполнения')+b('fixed','По расписанию');
+  document.getElementById('tsRecModeNote').textContent = tsRecMode==='fixed'
+    ? 'Срок сдвигается от прошлой плановой даты — задача приходит по календарю, даже если обслужили позже.'
+    : 'Срок считается от момента, когда нажали галочку. Новая не появится, пока не выполнена старая.';
+}
+function tsSetRecMode(v){ tsRecMode=(v==='fixed')?'fixed':'done'; renderTsRecMode(); }
 function tsSetRecUI(rec){
   tsRecOn=!!rec;
   document.getElementById('tsRec').classList.toggle('on',tsRecOn);
@@ -1794,6 +1984,8 @@ function tsSetRecUI(rec){
   document.getElementById('tsRecN').value=rec?rec.n:1;
   document.getElementById('tsRecU').value=rec?rec.unit:'m';
   document.getElementById('tsRecD').value=rec?rec.next:isoToday();
+  tsRecMode=(rec&&rec.mode==='fixed')?'fixed':'done';
+  renderTsRecMode();
 }
 function tsToggleRec(){
   tsRecOn=!tsRecOn;
@@ -1806,7 +1998,7 @@ function tsReadRec(){
   const n=Math.min(365,Math.max(1,parseInt(document.getElementById('tsRecN').value,10)||1));
   const unit=document.getElementById('tsRecU').value||'m';
   const d=document.getElementById('tsRecD').value;
-  return {n,unit,next:(validISO(d)?d:isoToday())};
+  return {n,unit,mode:tsRecMode,next:(validISO(d)?d:isoToday())};
 }
 /* цикличная живёт в подкатегории «Цикличные» своей категории */
 function placeByRec(id){
@@ -1859,7 +2051,7 @@ function tsSetCat(k){ tsTargetCat=k; tsPickOn=false; renderTsCat(); }
    где раньше срабатывал только клик прямо по тексту. В режиме правки клик не открывает. */
 function itemClick(e,id){
   if(e.target.closest('button')||e.target.closest('.box')||e.target.closest('.drag')) return;
-  if(editmode) return;
+  if(rowInEdit(e.target)) return;   /* в правке тап по строке ничего не открывает */
   openTaskEdit(id);
 }
 function openTaskEdit(id){
@@ -1923,6 +2115,80 @@ function duplicateFromSheet(){
   closeTaskSheet(); duplicateTask(tsId);
 }
 
+
+/* ---------- ОПИСАНИЕ ЗАДАЧИ: списки как в Todoist ---------- */
+/* Текст остаётся ОБЫЧНЫМ текстом (никакого HTML в данных): маркеры — это символы
+   «• », «☐ », «1. ». Так описание одинаково читается в поиске, в списке и в бэкапе,
+   а схема STATE не меняется. */
+const LIST_RE=/^([ \t]*)(•[ ]|☐[ ]|☑[ ]|(\d+)([.)])[ ])/;
+/* setSelectionRange на элементе в фокусе сам подматывает textarea к каретке —
+   отдельное событие для этого не нужно (и лишние слушатели не будят). */
+function setNoteValue(ta,v,caret){
+  ta.value=v;
+  try{ ta.setSelectionRange(caret,caret); }catch(e){}
+}
+/* «- » / «* » / «[] » в начале строки превращаются в маркер сразу при наборе */
+function noteInput(e){
+  const ta=e.target, p=ta.selectionStart;
+  if(p!==ta.selectionEnd) return;
+  const head=ta.value.slice(0,p);
+  /* Заменяем ТОЛЬКО то, что реально набрали: длину берём из самого совпадения,
+     а начало строки проверяем отдельно — так «а-б » в середине строки не трогаем. */
+  const swap=(re,mark)=>{
+    const m=re.exec(head); if(!m) return false;
+    if(!/(^|\n)[ \t]*$/.test(head.slice(0,head.length-m[0].length))) return false;
+    const cut=p-m[0].length;
+    setNoteValue(ta, ta.value.slice(0,cut)+mark+ta.value.slice(p), cut+mark.length);
+    return true;
+  };
+  if(swap(/[-*] $/,'• ')) return;
+  swap(/\[ ?\] $/,'☐ ');
+}
+/* Enter внутри списка продолжает список; Enter на пустом пункте — выходит из него */
+function noteKey(e){
+  if(e.key!=='Enter'||e.shiftKey||e.altKey||e.ctrlKey||e.metaKey||e.isComposing) return;
+  const ta=e.target, v=ta.value, p=ta.selectionStart;
+  if(p!==ta.selectionEnd) return;
+  const ls=v.lastIndexOf('\n',p-1)+1;
+  const m=LIST_RE.exec(v.slice(ls,p));
+  if(!m) return;
+  e.preventDefault();
+  if(!v.slice(ls+m[0].length,p).trim()){        /* пустой пункт — выходим из списка */
+    setNoteValue(ta, v.slice(0,ls)+v.slice(p), ls); return;
+  }
+  const pref=m[3] ? (m[1]+(parseInt(m[3],10)+1)+m[4]+' ') : (m[1]+m[2]);
+  const ins='\n'+pref;
+  setNoteValue(ta, v.slice(0,p)+ins+v.slice(p), p+ins.length);
+}
+/* Кнопки панели в развёрнутом окне: маркер ставится/снимается у выделенных строк */
+function noteWrap(mark){
+  const ta=document.getElementById('nsText'); if(!ta) return;
+  const v=ta.value;
+  const a=v.lastIndexOf('\n',Math.max(0,ta.selectionStart-1))+1;
+  let b=v.indexOf('\n',ta.selectionEnd); if(b<0) b=v.length;
+  const lines=v.slice(a,b).split('\n');
+  let k=0;
+  const out=lines.map(l=>{
+    const mm=LIST_RE.exec(l); const body=mm?l.slice(mm[0].length):l.replace(/^[ \t]+/,'');
+    if(!mark) return body;
+    if(!body.trim() && lines.length>1) return body;
+    k++; return (mark==='1. ') ? (k+'. '+body) : (mark+body);
+  }).join('\n');
+  setNoteValue(ta, v.slice(0,a)+out+v.slice(b), a+out.length);
+  ta.focus();
+}
+function openNoteEditor(){
+  const ta=document.getElementById('nsText');
+  ta.value=document.getElementById('tsNote').value;
+  openSheet(document.getElementById('nsheet'));
+  /* сразу разворачиваем на весь экран — ради этого окно и открывают */
+  const card=document.querySelector('#nsheet .sheet-card');
+  if(card){ card.classList.add('full'); document.getElementById('nsheet').classList.add('fullback'); }
+  setTimeout(()=>{ ta.focus(); const n=ta.value.length; try{ ta.setSelectionRange(n,n); }catch(e){} },90);
+}
+function saveNoteEditor(){ document.getElementById('tsNote').value=document.getElementById('nsText').value; closeNoteEditor(); }
+function closeNoteEditor(){ closeSheet(document.getElementById('nsheet')); }
+
 /* ---------- SHEET: быстрый ввод (FAB) ---------- */
 let qaPri='', qaWk=false, qaCat=null;
 function openQuick(){
@@ -1982,7 +2248,10 @@ const SEARCH_CAP=100;
 /* «ё» и «е» пользователи набирают вперемешку — приводим к одному виду */
 function norm(x){ return String(x||'').toLowerCase().replace(/ё/g,'е'); }
 function openSearch(){
-  document.getElementById('fsInput').value=fsLast;   /* предыдущий запрос под рукой */
+  /* Каждый поиск начинается с чистой строки: прошлый запрос приходилось стирать
+     вручную, и это раздражало сильнее, чем помогало (правка 1.5). */
+  document.getElementById('fsInput').value='';
+  fsLast='';
   renderSearch();
   openSheet(document.getElementById('fsheet'));
   setTimeout(()=>document.getElementById('fsInput').focus(),80);
@@ -2072,13 +2341,16 @@ function openSubEditor(e,catKey,gid){
 }
 function closeESheet(){ closeSheet(document.getElementById('esheet')); }
 /* Действия над категорией из её же карточки (правка 15) */
+/* Сначала подтверждение, и только если пользователь согласился — закрываем карточку.
+   Раньше окно закрывалось ДО confirm: нажал «Отмена» — а карточка уже пропала,
+   вместе с несохранёнными правками названия (правка 1.5). */
 function esArchive(){
   const key=esCatKey; if(!key) return;
-  closeESheet(); archiveCategory(key);   /* подтверждение внутри archiveCategory */
+  if(archiveCategory(key)) closeESheet();
 }
 function esDelete(){
   const key=esCatKey; if(!key) return;
-  closeESheet(); deleteCategory(key);   /* внутри — подтверждение */
+  if(deleteCategory(key)) closeESheet();
 }
 function saveESheet(){
   const name=document.getElementById('eName').value.trim();
@@ -2100,13 +2372,14 @@ function saveESheet(){
   save(); closeESheet(); renderAll();
 }
 function deleteCategory(catKey){
-  const c=catByKey(catKey); if(!c) return;
-  if(c.kind==='inbox'){ alert('Inbox нельзя удалить — это приёмник быстрого ввода.'); return; }
+  const c=catByKey(catKey); if(!c) return false;
+  if(c.kind==='inbox'){ alert('Inbox нельзя удалить — это приёмник быстрого ввода.'); return false; }
   const s=catStats(c);
-  if(!confirm('Удалить категорию «'+(c.title||c.tab||'')+'» со всеми задачами ('+s.t+')?\nЭто НЕЛЬЗЯ отменить. Чтобы сохранить задачи — уберите категорию в архив.')) return;
+  if(!confirm('Удалить категорию «'+(c.title||c.tab||'')+'» со всеми задачами ('+s.t+')?\nЭто НЕЛЬЗЯ отменить. Чтобы сохранить задачи — уберите категорию в архив.')) return false;
   STATE.cats=STATE.cats.filter(x=>x!==c);
   if(active===catKey) active=null;
   afterCatChange();
+  return true;
 }
 function deleteGroup(e,catKey,gid){
   if(e&&e.stopPropagation) e.stopPropagation();
@@ -2116,6 +2389,44 @@ function deleteGroup(e,catKey,gid){
   const msg=(typeof g.sub==='string')?('Удалить заголовок-раздел «'+(g.sub||'')+'»?'):('Удалить подкатегорию «'+(g.title||'')+'» со всеми задачами ('+((g.items||[]).length)+')?');
   if(!confirm(msg)) return;
   c.groups.splice(i,1); save(); renderAll();
+}
+
+
+/* ---------- ПОДКАТЕГОРИЯ → КАТЕГОРИЯ ---------- */
+/* Кнопка есть в режиме правки внутри категории, рядом с «править» и «удалить».
+   Спрашиваем явно: перенести (подкатегория исчезает) или скопировать (остаётся). */
+let g2Cat=null, g2Gid=null;
+function openG2C(e,catKey,gid){
+  if(e&&e.stopPropagation) e.stopPropagation();
+  const c=catByKey(catKey), g=c&&groupByGid(c,gid);
+  if(!c||!g||!g.items){ return; }
+  g2Cat=catKey; g2Gid=gid;
+  const n=g.items.length;
+  document.getElementById('g2Title').textContent=(g.title||'Подкатегория')+' · '+n+' '+plural(n,'задача','задачи','задач');
+  document.getElementById('g2Note').innerHTML='Сделать из подкатегории <b>отдельную категорию</b> на главном экране?<br>«Перенести» — подкатегория пропадёт из «'+esc(c.title||c.tab||'')+'». «Копировать» — останется на месте, а задачи продублируются.';
+  openSheet(document.getElementById('g2sheet'));
+}
+function closeG2C(){ closeSheet(document.getElementById('g2sheet')); }
+function g2Go(move){ const ck=g2Cat, gid=g2Gid; closeG2C(); groupToCategory(ck,gid,!!move); }
+function groupToCategory(catKey,gid,move){
+  const c=catByKey(catKey); if(!c) return;
+  const g=groupByGid(c,gid); if(!g||!g.items||g.svc) return;
+  const title=(g.title||'Категория').slice(0,60);
+  /* Перенос отдаёт те же объекты задач (их id уникальны и из старой категории они
+     уходят). Копия получает НОВЫЕ id — иначе две категории делили бы идентификаторы
+     и удаление задачи в одной сносило бы её во второй (та же грабля, что у копии категории). */
+  const items = move ? g.items.slice() : JSON.parse(JSON.stringify(g.items));
+  if(!move) items.forEach(it=>{ it.id=nid(); it.ct=Date.now(); });
+  /* Сама подкатегория становится приёмником (inb) новой категории: без inb-группы
+     migrate() создал бы рядом пустой «Inbox», а это лишний блок. */
+  const ng=mkGroup({emo:g.emo||'box', title, items, inb:true});
+  const nc={key:ncid(), icon:g.emo||'box', color:pickColor(STATE.cats), tab:title.slice(0,14), title, intro:'', groups:[ng]};
+  STATE.cats.push(nc);
+  if(move){ c.groups=c.groups.filter(x=>x!==g); ensureInboxGroup(c); }
+  else { let d=0; items.forEach(it=>{ if(it.done)d++; });
+    statCreated(items.length); STATE.stats.done=num(STATE.stats.done)+d; }
+  afterCatChange();
+  showToast((move?'Перенесено в новую категорию: ':'Скопировано в новую категорию: ')+title);
 }
 
 /* ---------- ПРОФИЛЬ ---------- */
@@ -2233,13 +2544,40 @@ function openWkEditor(){
   openSheet(document.getElementById('esheet'));
 }
 
+/* ---------- ЖЕСТЫ И ВИДИМАЯ ЧАСТЬ ЭКРАНА ---------- */
+/* Сведение двумя пальцами не должно масштабировать приложение: Safari игнорирует
+   user-scalable=no, поэтому гасим родные жесты зума руками. touch-action:manipulation
+   в CSS убирает зум по двойному тапу, здесь — жест двумя пальцами. */
+/* Только gesture*-события Safari. Глобальный НЕпассивный touchmove сюда вешать
+   нельзя: он снимает быструю прокрутку со всей страницы, а на Android зум и так
+   выключен мета-тегом (там user-scalable=no работает). */
+['gesturestart','gesturechange','gestureend'].forEach(ev=>
+  document.addEventListener(ev, e=>{ e.preventDefault(); }, {passive:false}));
+/* Зум по двойному тапу глушит touch-action:manipulation в CSS. Глобальный
+   preventDefault на dblclick сюда добавлять НЕЛЬЗЯ: он ломает выделение слова
+   двойным щелчком в полях ввода на десктопе. */
+/* Панель Safari и клавиатура «съедают» низ окна, а position:fixed продолжает считать
+   от innerHeight — кнопка «+» при свайпе вниз отлипала и уезжала за край.
+   --vvb = сколько пикселей низа сейчас не видно; на него подняты FAB и тост. */
+(function(){
+  const vv=window.visualViewport; if(!vv) return;
+  let raf=false;
+  const upd=()=>{ raf=false;
+    const off=Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    document.documentElement.style.setProperty('--vvb', off+'px'); };
+  const on=()=>{ if(raf) return; raf=true; requestAnimationFrame(upd); };
+  vv.addEventListener('resize',on); vv.addEventListener('scroll',on); on();
+})();
+
 /* ============ ПЕРЕТАСКИВАНИЕ (движок из «Соберись!») ============ */
 function haptic(){ try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){} }
 function clearSel(){ try{ const s=window.getSelection&&window.getSelection(); if(s&&s.removeAllRanges) s.removeAllRanges(); }catch(e){} }
 let drag=null, lastPt={x:0,y:0}, dragRaf=false, dragPt={x:0,y:0}, pendingRemoteRender=false;
 function startLongPress(e,onFire,delay){
   const sx=e.clientX, sy=e.clientY; lastPt={x:sx,y:sy};
-  const timer=setTimeout(()=>{ cleanup(); haptic(); onFire(); },delay||230);
+  /* clearSel: без него долгое нажатие оставляло синюю подсветку выделения
+     на заголовке задачи и на подписи плитки (правка 1.5) */
+  const timer=setTimeout(()=>{ cleanup(); clearSel(); haptic(); onFire(); },delay||230);
   const mv=(ev)=>{ lastPt={x:ev.clientX,y:ev.clientY}; if(Math.abs(ev.clientX-sx)>8||Math.abs(ev.clientY-sy)>8){ clearTimeout(timer); cleanup(); } };
   const up=()=>{ clearTimeout(timer); cleanup(); };
   function cleanup(){ window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',up); }
@@ -2319,7 +2657,9 @@ function beginDragCommon(){ document.body.classList.add('dragging'); clearSel();
 function onItemPointerDown(e,id){
   if(e.target.closest('button')||e.target.closest('.box')||e.target.closest('.drag')) return;
   const row=e.target.closest('.item');
-  if(editmode){ startLongPress(e,()=>beginItemDrag(id,lastPt.x,lastPt.y,row)); }
+  /* Тащим только там, где правка реально включена (#view.editmode). В окнах
+     «Очереди»/«Выходные» долгое нажатие открывает меню задачи, как и должно. */
+  if(rowInEdit(row)){ startLongPress(e,()=>beginItemDrag(id,lastPt.x,lastPt.y,row)); }
   else { startLongPress(e,()=>openTaskMenu(id),500); }
 }
 function onHandleDown(e,id){ e.preventDefault(); e.stopPropagation(); beginItemDrag(id,e.clientX,e.clientY,e.target.closest('.item')); }
@@ -2334,6 +2674,10 @@ function itemDragOver(x,y){
   const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
   const over=el.closest('.item');
   if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.style.display!=='none'){
+    /* Только внутри настоящей подкатегории (.grp[data-gk]). В витринах «Выходные»
+       и «Очереди» соседняя строка — задача ИЗ ДРУГОЙ категории, и «перестановка»
+       молча переносила бы задачу туда. Для групп такая проверка уже была ниже. */
+    if(!over.closest('.grp[data-gk]')) return;
     const rect=over.getBoundingClientRect(); const after=midAfter(rect,y);
     if(after===null) return;
     placePh(over,after?over.nextSibling:over); drag.target={refId:over.dataset.id,after}; return;
