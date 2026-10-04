@@ -1,5 +1,10 @@
 /* «Дом!» — service worker (офлайн-кэш оболочки) */
-const CACHE = 'dom-v11';
+const CACHE = 'dom-v12';
+/* Firebase SDK — отдельный кэш: адреса с версией никогда не меняются, поэтому он
+   переживает бампы CACHE и не перекачивается при каждом деплое. Сменили версию
+   SDK в index.html — поменяйте и это имя (старый кэш удалится в activate). */
+const LIB = 'dom-lib-fb-10.12.0';
+const LIB_PREFIX = 'https://www.gstatic.com/firebasejs/10.12.0/';
 const ASSETS = [
   './',
   './index.html',
@@ -10,47 +15,77 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  /* cache:'reload' — мимо HTTP-кэша браузера: GitHub Pages отдаёт max-age=600,
+     и без этого новый SW мог положить в кэш ПРОШЛУЮ версию страницы */
+  e.waitUntil(caches.open(CACHE)
+    .then(c => c.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== LIB).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
+/* Сообщаем открытым окнам, что в кэше уже лежит новая версия страницы —
+   они перезапустятся сами, когда это никому не помешает (applyUpdate в index.html) */
+async function notifyUpdated() {
+  const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  list.forEach(c => c.postMessage({ type: 'page-updated' }));
+}
+
+/* Свежая страница из сети. Кладём в кэш только успешный ответ (раньше разовый
+   404/500 от GitHub Pages становился офлайн-версией приложения) и собираем
+   «чистый» Response: ответ после редиректа нельзя отдавать на навигацию. */
+async function fetchPage(url, oldText) {
+  const r = await fetch(url, { cache: 'no-cache', credentials: 'same-origin' });
+  if (!r.ok) return null;
+  const text = await r.text();
+  const fresh = () => new Response(text, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+  const c = await caches.open(CACHE);
+  await c.put('./index.html', fresh());
+  if (oldText != null && oldText !== text) await notifyUpdated();
+  return fresh();
+}
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  /* Кэшируем только свои файлы: запросы к Firebase/CDN не трогаем,
-     иначе кэш растёт бесконечно, а на офлайн-ошибку API вернётся index.html */
-  if (new URL(e.request.url).origin !== location.origin) return;
+  const url = e.request.url;
 
-  /* Саму страницу берём СНАЧАЛА из сети (кэш — только запасной вариант офлайн).
-     При cache-first приложение всегда отставало на один запуск от задеплоенного,
-     а забытый бамп CACHE означал, что новая версия не доедет вообще. */
+  /* Firebase SDK с gstatic: cache-first. Без него каждый запуск на телефоне мог заново
+     тянуть ~700 КБ скриптов, а офлайн приложение не стартовало вовсе. */
+  if (url.startsWith(LIB_PREFIX)) {
+    e.respondWith(caches.open(LIB).then(c => c.match(e.request).then(hit => hit || fetch(e.request).then(res => {
+      if (res.ok) c.put(e.request, res.clone()).catch(() => {});
+      return res;
+    }))));
+    return;
+  }
+
+  /* Остальное чужое (Firestore, Google) не трогаем: иначе кэш растёт бесконечно,
+     а на офлайн-ошибку API вернётся index.html */
+  if (new URL(url).origin !== location.origin) return;
+
+  /* Страница: СРАЗУ из кэша (никакого ожидания сети на запуске), а свежая версия
+     качается в фоне. Отличается — кэш обновлён и окно получит 'page-updated'.
+     Раньше было network-first с таймаутом 3 с: на слабой связи каждый запуск
+     начинался с ожидания. Первый визит (кэша нет) — из сети. */
   if (e.request.mode === 'navigate') {
-    const fromCache = () => caches.match(e.request).then(hit => hit || caches.match('./index.html'));
-    /* Сеть, но не бесконечно: на медленном соединении запуск не должен висеть —
-       через 3 с отдаём кэш. */
-    const timeout = new Promise(res => setTimeout(() => res(null), 3000));
-    const net = fetch(e.request).then(r => {
-      const copy = r.clone();
-      caches.open(CACHE).then(c => c.put('./index.html', copy)).catch(() => {});
-      return r;
-    });
-    e.respondWith(
-      Promise.race([net, timeout])
-        .then(r => r || fromCache().then(hit => hit || net))
-        .catch(() => fromCache())
-    );
+    const cached = caches.open(CACHE).then(c => c.match('./index.html'));
+    const update = cached
+      .then(hit => hit ? hit.clone().text() : null)
+      .then(oldText => fetchPage(url, oldText))
+      .catch(() => null);
+    e.waitUntil(update);
+    e.respondWith(cached.then(hit => hit || update.then(r => r || fetch(e.request))));
     return;
   }
 
   e.respondWith(
     caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {}); }
       return res;
     }).catch(() => caches.match('./index.html')))
   );

@@ -16,7 +16,19 @@
   var dark = t==='dark' || (t==='system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   document.documentElement.setAttribute('data-theme', dark?'dark':'light');
 }catch(e){} })();
+/* Мгновенный старт: если на устройстве уже был вход и есть кэш списка — экран входа
+   не показываем вовсе, приложение рисуется из кэша, не дожидаясь Firebase
+   (на iPhone его инициализация тянет скрытый iframe Google и занимает секунды). */
+(function(){ try{
+  if(localStorage.getItem('auth_hint') && localStorage.getItem('home_v1_ts')) document.documentElement.classList.add('boot');
+}catch(e){} })();
 </script>
+<!-- Firebase грузим параллельно с разбором страницы, а не после него -->
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js">
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://abkhazia-checklist.firebaseapp.com">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -58,7 +70,7 @@ svg{display:block}
 
 /* ---- Lock ---- */
 #lock{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px}
-#lock.hidden{display:none}
+#lock.hidden,html.boot #lock{display:none}
 #lock .logo{width:64px;height:64px;color:var(--indigo-tx)}
 #lock h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.3px}
 #lock p{margin:0;font-size:13px;color:var(--muted);text-align:center;max-width:280px;line-height:1.5}
@@ -977,7 +989,15 @@ window.onSignInError=function(code){
     : 'Не удалось войти. Нажмите «Войти» ещё раз.';
 };
 let __authedUser=null;
+/* Подсказка «здесь уже входили»: uid + имя для аватара. По ней приложение стартует
+   из кэша сразу, а настоящий ответ Firebase приходит позже (onAuthChange).
+   Стирается вместе с кэшем при выходе и при «Нет доступа» (wipeLocal). */
+const AUTH_HINT='auth_hint';
+let __optimistic=false;
+function readAuthHint(){ try{ const h=JSON.parse(localStorage.getItem(AUTH_HINT)||'null'); return (h&&h.uid)?h:null; }catch(e){ return null; } }
+function writeAuthHint(u){ try{ localStorage.setItem(AUTH_HINT, JSON.stringify({uid:u.uid, displayName:u.displayName||'', email:u.email||'', photoURL:u.photoURL||''})); }catch(e){} }
 function showLogin(){
+  document.documentElement.classList.remove('boot');
   document.getElementById('lock').classList.remove('hidden');
   document.getElementById('app').style.display='none';
   ['profile'].forEach(id=>document.getElementById(id).classList.add('hidden'));
@@ -989,6 +1009,7 @@ function showLogin(){
 }
 function showDenied(email){
   stopCloud(); wipeLocal();
+  document.documentElement.classList.remove('boot');
   document.getElementById('lock').classList.remove('hidden');
   document.getElementById('app').style.display='none';
   document.getElementById('lockMsg').textContent='Нет доступа'+(email?(' для '+email):'');
@@ -996,17 +1017,64 @@ function showDenied(email){
   document.getElementById('gsi').style.display='none';
   document.getElementById('signout').style.display='block';
 }
-window.onAuthChange=function(user){ __authedUser=user; if(user){ showApp(); } else { showLogin(); } };
+window.onAuthChange=function(user){
+  const wasOptimistic=__optimistic; __optimistic=false;
+  if(user){
+    writeAuthHint(user);
+    const same=wasOptimistic && __authedUser && __authedUser.uid===user.uid;
+    __authedUser=user;
+    /* приложение уже на экране (старт из кэша) — подписка уже идёт, перерисовывать нечего */
+    if(same){ if(profileOpen) renderAcct(); return; }
+    showApp();
+  } else {
+    /* сессии больше нет (или её не было): подписку, начатую на старте из кэша, снимаем —
+       иначе после нового входа startCloud() счёл бы её живой */
+    __authedUser=null;
+    if(wasOptimistic) stopCloud();
+    showLogin();
+  }
+};
 function showApp(){
   __signingOut=false;
   document.getElementById('lock').classList.add('hidden');
   document.getElementById('app').style.display='block';
-  if(!window.__built){ window.__built=true; registerSW(); }
-  startCloud();   /* идемпотентно: после повторного входа нужна новая подписка */
+  startCloud();  /* идемпотентно: после повторного входа нужна новая подписка */
   render();
   if(__authedUser && !seenWelcome()){ markWelcome(); openProfile(true); }
 }
-function registerSW(){ if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); } }
+/* ---------- ОБНОВЛЕНИЕ ПРИЛОЖЕНИЯ ---------- */
+/* sw.js отдаёт страницу из кэша сразу, а свежую качает в фоне. Если она отличается —
+   присылает 'page-updated', и мы перезапускаемся САМИ, без кнопок:
+   — в первые секунды после открытия, если пользователь ещё ничего не открыл;
+   — иначе в момент, когда приложение свернули (ничего не мелькает).
+   Открытое окно, фокус в поле, драг — не трогаем: там может быть несохранённый ввод. */
+const __bootAt=Date.now();
+let __updReady=false;
+function appIdle(){
+  const a=document.activeElement;
+  return scrollLocks===0 && !drag && !hmOpen && !(a && (a.tagName==='INPUT'||a.tagName==='TEXTAREA'));
+}
+function applyUpdate(){
+  if(!__updReady || !appIdle()) return false;
+  /* страховка от цикла перезагрузок (например, CDN отдаёт попеременно две версии) */
+  try{ const last=+sessionStorage.getItem('upd_at')||0; if(Date.now()-last<60000) return false;
+    sessionStorage.setItem('upd_at',String(Date.now()));
+    if(active) sessionStorage.setItem('upd_active',active); }catch(e){}
+  flushPush();
+  location.reload();
+  return true;
+}
+function registerSW(){
+  if(!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.addEventListener('message',e=>{
+    if(!e.data || e.data.type!=='page-updated') return;
+    __updReady=true;
+    /* свёрнуто уже сейчас (открыли и сразу ушли) — следующего «свернули» может не быть */
+    if(document.visibilityState==='hidden' || Date.now()-__bootAt<15000) applyUpdate();
+  });
+  try{ navigator.serviceWorker.startMessages(); }catch(e){}
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
 /* «Профиль при первом входе» показываем один раз на устройство+аккаунт */
 function profUid(){ return (__authedUser&&__authedUser.uid)||'anon'; }
 function seenWelcome(){ try{ return localStorage.getItem('seen_'+profUid())==='1'; }catch(e){ return true; } }
@@ -1074,6 +1142,7 @@ function normCat(c,all){
   if(!c.color) c.color=(c.kind==='inbox')?'#c06f22':pickColor(all);
   c.groups.forEach(g=>{ if(!g.gid) g.gid=ngid(); normItems(g); });
 }
+function lsFlag(k){ try{ return localStorage.getItem(k)!=='0'; }catch(e){ return true; } }
 function migrate(raw){
   let s;
   /* ВАЖНО: сохраняем ВЕСЬ объект (stats, wkTitle, doneLog, svcLog, archive),
@@ -1099,10 +1168,20 @@ function migrate(raw){
   else s.stats={created:num(s.stats.created), done:num(s.stats.done)};
   if(!Array.isArray(s.doneLog)) s.doneLog=[];
   if(!Array.isArray(s.svcLog)) s.svcLog=[];
+  /* Настройки, которые меняют ПОРЯДОК задач в данных, — общие для всех устройств
+     (правка 1.6). «Очередь» сортирует сами массивы g.items: когда она жила в
+     localStorage, телефон с включённой «очередью» пересортировывал список, а комп с
+     выключенной получал это и терял ручной порядок. Первое значение берём из
+     настройки этого устройства, дальше — из облака. */
+  if(!s.prefs || typeof s.prefs!=='object') s.prefs={sortPri:lsFlag('sort_pri'), newTop:lsFlag('new_top')};
+  s.prefs.sortPri = s.prefs.sortPri!==false; s.prefs.newTop = s.prefs.newTop!==false;
   return s;
 }
 let STATE, MODEL=[];
-function syncModelRef(){ MODEL=STATE.cats; }
+/* sortPri/newTop — зеркало STATE.prefs. Объявлены через var без значения: syncModelRef()
+   зовётся уже в load(), раньше, чем дошла бы очередь до let-объявления (TDZ). */
+var sortPri, newTop;
+function syncModelRef(){ MODEL=STATE.cats; sortPri=STATE.prefs.sortPri; newTop=STATE.prefs.newTop; }
 let localUpdatedAt=0; try{ localUpdatedAt=parseInt(localStorage.getItem(KEY+"_ts")||"0",10)||0; }catch(e){}
 function load(){ try{const s=localStorage.getItem(KEY); if(s){ STATE=migrate(JSON.parse(s)); syncModelRef(); return; }}catch(e){} STATE=migrate(freshState()); syncModelRef(); }
 load();
@@ -1131,10 +1210,11 @@ function save(){
     localStorage.setItem(KEY,str); localStorage.setItem(KEY+"_ts",String(localUpdatedAt));
     __lsFailed=false; measureBytes(str);
   }catch(e){ __lsFailed=true; paintCloudDot(); }
+  __pushBlocked=false;   /* новая правка — новая попытка, даже если прошлую облако отвергло */
   pushCloud();
 }
 function wipeLocal(){
-  try{ localStorage.removeItem(KEY); localStorage.removeItem(KEY+"_ts"); }catch(e){}
+  try{ localStorage.removeItem(KEY); localStorage.removeItem(KEY+"_ts"); localStorage.removeItem(AUTH_HINT); }catch(e){}
   STATE=migrate(freshState()); syncModelRef();
   localUpdatedAt=0; __primed=false; __storeWarned=false; __lsFailed=false; __lastBytes=0; __bytesAt=0;
   active=null; editmode=false; setCloud('wait');
@@ -1273,6 +1353,12 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
 
 /* ---------- ОБЛАКО ---------- */
 let __pushTimer=null, __primeTimer=null, __cloudUnsub=null, __cloudWaiting=false, __signingOut=false;
+/* __pushBlocked: облако ОТВЕРГЛО запись (документ >1 МиБ, нет прав). Firestore тогда
+   откатывает правку и присылает серверную версию — она «старее» локальной, и снапшот
+   снова звал pushCloud(): бесконечный цикл записи каждые ~0,9 с. Пока флаг стоит,
+   снапшот сам не пушит; снимают его новая правка (save) или тап по индикатору.
+   __slowCloud: первый снапшот не пришёл за 8 с — меняем только текст загрузки. */
+let __pushBlocked=false, __slowCloud=false;
 /* Пока не пришёл первый снапшот, не пушим: иначе после выхода/входа (локальный кэш
    стёрт) пустое состояние успело бы затереть облако. Если метка времени в
    localStorage есть — данные свои, можно работать офлайн сразу. */
@@ -1294,7 +1380,7 @@ function paintCloudDot(){
   const av=document.getElementById('avBtn'); if(av) av.setAttribute('aria-label','Профиль. '+t);
 }
 function cloudDotTap(){
-  if(cloudState==='error'||__lsFailed){ alert(cloudLabel()); pushCloud(); return; }
+  if(cloudState==='error'||__lsFailed){ alert(cloudLabel()); __pushBlocked=false; pushCloud(); return; }
   if(cloudState==='wait') pushCloud(); else alert(cloudLabel());
 }
 /* меню «⋯» в шапке хаба */
@@ -1319,27 +1405,47 @@ window.addEventListener('scroll',()=>{ if(hmOpen) closeHMenu(); },{passive:true}
 window.addEventListener('resize',()=>{ if(hmOpen) closeHMenu(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && hmOpen) closeHMenu(); });
 function pushCloud(){
-  if(!window.CLOUD){ setCloud('error','Firebase не загрузился'); return; }
+  /* На старте из кэша Firebase ещё грузится: правка сохранена локально, а в облако
+     уйдёт с первым снапшотом (он «старее» — ветка else в startCloud). Не ошибка. */
+  if(!window.CLOUD){ setCloud('wait'); return; }
   if(!__primed){ setCloud('wait'); return; }
   setCloud('saving');
   clearTimeout(__pushTimer);
-  __pushTimer=setTimeout(()=>{
-    const ts=localUpdatedAt; let pr=null;
-    try{ pr=window.CLOUD.push({data:JSON.stringify(STATE),updatedAt:ts,writer:myId}); }
-    catch(e){ setCloud('error','ошибка записи'); return; }
-    /* setDoc возвращает промис. Без .catch его отказ (документ >1 МиБ, permission-denied,
-       обрыв связи) уходил в unhandled rejection и пользователь НИЧЕГО не узнавал. */
-    if(pr && pr.then) pr.then(()=>{ if(localUpdatedAt===ts && cloudState==='saving') setCloud('ok'); })
-                        .catch(e=>setCloud('error',(e&&e.code)||'ошибка записи'));
-    else setCloud('ok');
-  }, 900);
+  __pushTimer=setTimeout(doPush, 900);
 }
+function doPush(){
+  __pushTimer=null;
+  if(!window.CLOUD || !__primed) return;
+  const ts=localUpdatedAt; let pr=null;
+  try{ pr=window.CLOUD.push({data:JSON.stringify(STATE),updatedAt:ts,writer:myId}); }
+  catch(e){ setCloud('error','ошибка записи'); return; }
+  /* setDoc возвращает промис. Без .catch его отказ (документ >1 МиБ, permission-denied,
+     обрыв связи) уходил в unhandled rejection и пользователь НИЧЕГО не узнавал. */
+  if(pr && pr.then) pr.then(()=>{ if(localUpdatedAt===ts && cloudState==='saving') setCloud('ok'); })
+                      .catch(e=>{ __pushBlocked=true; setCloud('error',(e&&e.code)||'ошибка записи'); });
+  else setCloud('ok');
+}
+/* Отложенную на 900 мс запись отправляем СРАЗУ, когда приложение сворачивают/закрывают:
+   iOS замораживает страницу, таймер не срабатывал, и правка оставалась только на
+   телефоне — а правка с другого устройства потом перекрывала её как «более новая». */
+function flushPush(){ if(__pushTimer){ clearTimeout(__pushTimer); doPush(); } }
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='hidden') return;
+  flushPush();
+  if(__updReady) applyUpdate();   /* свёрнуто — лучший момент подхватить новую версию */
+});
+window.addEventListener('pagehide', flushPush);
 function stopCloud(){ if(__cloudUnsub){ try{ __cloudUnsub(); }catch(e){} __cloudUnsub=null; } clearTimeout(__pushTimer); clearTimeout(__primeTimer); }
 function startCloud(){
   const go=()=>{ if(!window.CLOUD || __cloudUnsub) return;
-    __cloudUnsub=window.CLOUD.subscribe(d=>{
+    __cloudUnsub=window.CLOUD.subscribe((d,fromCache)=>{
       if(__signingOut) return;
-      const first=!__primed; __primed=true;
+      /* «Документа нет» из КЭША — это не ответ сервера, а «нет связи» (Firestore так
+         отвечает офлайн примерно через 10 с). Раньше это принималось за пустое облако:
+         свежее устройство пушило почти пустой список с новой меткой, и при появлении
+         связи он затирал данные на всех устройствах. Ждём настоящий ответ. */
+      if(!d && fromCache) return;
+      const first=!__primed; __primed=true; __slowCloud=false;
       if(!d){ if(!localUpdatedAt) localUpdatedAt=Date.now(); if(first){ setCloud('ok'); render(); } pushCloud(); return; }
       if(d.writer===myId){ if(first){ setCloud('ok'); render(); } return; }
       if((d.updatedAt||0) >= localUpdatedAt){
@@ -1353,7 +1459,7 @@ function startCloud(){
         /* Пришёл снапшот во время перетаскивания — не перестраиваем DOM под пальцем */
         if(drag){ pendingRemoteRender=true; }
         else renderAll();
-      } else { pushCloud(); }
+      } else if(!__pushBlocked){ pushCloud(); }
     }, (e)=>{
       /* Выход из аккаунта тоже роняет подписку в permission-denied — раньше после
          обычного «Выйти» показывался экран «Нет доступа» БЕЗ кнопки входа. */
@@ -1362,10 +1468,15 @@ function startCloud(){
       else setCloud('error',(e&&e.code)||'нет связи');
     });
   };
-  if(window.CLOUD){ go(); } else if(!__cloudWaiting){ __cloudWaiting=true; window.addEventListener('cloud-ready', go, {once:true}); }
+  __pushBlocked=false;
+  if(window.CLOUD){ go(); } else if(!__cloudWaiting){ __cloudWaiting=true; window.addEventListener('cloud-ready', ()=>{ __cloudWaiting=false; go(); }, {once:true}); }
   clearTimeout(__primeTimer);
-  /* офлайн на свежем устройстве: снапшота не будет — не держим экран загрузки вечно */
-  __primeTimer=setTimeout(()=>{ if(!__primed){ __primed=true; setCloud('ok'); render(); } }, 8000);
+  /* Свежее устройство без связи: снапшота нет. Раньше через 8 с показывался ПУСТОЙ
+     список с правом правки — первая же задача уходила в облако с новой меткой и
+     затирала весь список. Теперь только меняем текст: своих данных на устройстве нет,
+     править нечего, пока облако не ответит. Устройства с кэшем сюда не попадают
+     (__primed=true сразу по localUpdatedAt). */
+  __primeTimer=setTimeout(()=>{ if(!__primed){ __slowCloud=true; render(); } }, 8000);
 }
 /* Один вход для «перерисовать всё, что открыто» */
 function renderAll(){
@@ -1377,23 +1488,24 @@ function renderAll(){
 
 /* ---------- НАСТРОЙКИ ПОКАЗА ---------- */
 let hideDone=false; try{ hideDone=localStorage.getItem('hide_done')==='1'; }catch(e){}
-let sortPri=true; try{ sortPri=localStorage.getItem('sort_pri')!=='0'; }catch(e){}
 let hubView='tiles'; try{ if(localStorage.getItem('hub_view')==='list') hubView='list'; }catch(e){}
 /* Витрина выходных: 'cats' — по категориям (как было), 'list' — сплошной список
    срочных дел, ранжированный по очереди (правка 1.5). Настройка устройства. */
 let wkView='cats'; try{ if(localStorage.getItem('wk_view')==='list') wkView='list'; }catch(e){}
 function setWkView(v){ wkView=(v==='list')?'list':'cats'; try{ localStorage.setItem('wk_view',wkView); }catch(e){} render(); }
 /* Куда попадают новые задачи: сверху списка (по умолчанию) или снизу. Настройка в профиле. */
-let newTop=true; try{ newTop=localStorage.getItem('new_top')!=='0'; }catch(e){}
 /* Порядок в окне «Очереди»: новые сверху (по умолчанию) или старые сверху */
 let qNew=true; try{ qNew=localStorage.getItem('q_sort_new')!=='0'; }catch(e){}
 function toggleHideDone(){ hideDone=!hideDone; try{ localStorage.setItem('hide_done', hideDone?'1':'0'); }catch(e){} render(); }
-function toggleSortPri(){ sortPri=!sortPri; try{ localStorage.setItem('sort_pri', sortPri?'1':'0'); }catch(e){} render(); }
+/* общая настройка: пишем в STATE.prefs и сохраняем (уедет на другие устройства);
+   localStorage — только значение по умолчанию для нового списка на этом устройстве */
+function setPref(k,lsKey,v){ STATE.prefs[k]=!!v; syncModelRef(); try{ localStorage.setItem(lsKey, v?'1':'0'); }catch(e){} save(); }
+function toggleSortPri(){ setPref('sortPri','sort_pri',!sortPri); render(); }
 function setHubView(v){ hubView=v; try{ localStorage.setItem('hub_view', v); }catch(e){} render(); }
 /* Тумблеры «скрыть ✓» и «очередь» живут в шапке категории, но настройка общая —
    те же ключи localStorage продублированы переключателями в профиле. */
 function setHideDone(v){ hideDone=!!v; try{ localStorage.setItem('hide_done', hideDone?'1':'0'); }catch(e){} renderAll(); }
-function setSortPri(v){ sortPri=!!v; try{ localStorage.setItem('sort_pri', sortPri?'1':'0'); }catch(e){} renderAll(); }
+function setSortPri(v){ setPref('sortPri','sort_pri',v); renderAll(); }
 /* --- тема --- */
 let theme='system'; try{ theme=localStorage.getItem('theme')||'system'; }catch(e){}
 const __mqDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
@@ -1407,7 +1519,7 @@ function applyTheme(){
 function setTheme(v){ theme=v; try{ localStorage.setItem('theme',v); }catch(e){} applyTheme(); renderAll(); }
 if(__mqDark && __mqDark.addEventListener) __mqDark.addEventListener('change',()=>{ if(theme==='system') applyTheme(); });
 applyTheme();
-function setNewTop(v){ newTop=!!v; try{ localStorage.setItem('new_top', newTop?'1':'0'); }catch(e){} renderAll(); }
+function setNewTop(v){ setPref('newTop','new_top',v); renderAll(); }
 function toggleQSort(){ qNew=!qNew; try{ localStorage.setItem('q_sort_new', qNew?'1':'0'); }catch(e){} renderQueuesBody(); }
 
 /* ---------- НАВИГАЦИЯ / РЕНДЕР ---------- */
@@ -1428,7 +1540,9 @@ function render(){
     hdrEl.innerHTML=`<div class="h-row"><div class="brand">${ic('home')} <span class="tx">Дом!</span></div>
       <div class="h-right">${avatarBtn()}</div></div>`;
     viewEl.classList.remove('editmode');
-    viewEl.innerHTML=`<div class="loading">Загружаю список из облака…</div>`;
+    viewEl.innerHTML=__slowCloud
+      ? `<div class="loading">Нет связи с облаком.<br>Список появится, как только загрузится — ждать можно здесь.</div>`
+      : `<div class="loading">Загружаю список из облака…</div>`;
     paintCloudDot(); return;
   }
   renderHeader();
@@ -2755,6 +2869,22 @@ function hubDragOver(x,y){ if(overPh(x,y)) return; const el=document.elementFrom
     placePh(over,after?over.nextSibling:over); drag.target={refObj:catByKey(over.dataset.key),after};
   } }
 function applyHubDrop(d){ reorderCat(d); }
+
+/* ---------- СТАРТ ---------- */
+registerSW();   /* сразу, а не после входа: офлайн-кэш нужен и экрану входа */
+/* после автообновления возвращаемся туда, где были */
+try{ const a=sessionStorage.getItem('upd_active'); if(a){ sessionStorage.removeItem('upd_active');
+  if(a==='__wk__'||a==='__svc__'||catByKey(a)) active=a; } }catch(e){}
+/* Старт из кэша: тот же класс boot, что ставит скрипт в <head>. Firebase догонит —
+   onAuthChange либо подтвердит этого же пользователя (ничего не произойдёт), либо
+   скажет «входа нет» и покажет экран входа. Данные и так лежат на устройстве,
+   так что ранний показ ничего не раскрывает. */
+(function(){
+  const h=readAuthHint();
+  if(h && localUpdatedAt>0 && document.documentElement.classList.contains('boot')){
+    __optimistic=true; __authedUser=h; showApp();
+  } else document.documentElement.classList.remove('boot');   /* битая подсказка — не оставляем пустой экран */
+})();
 </script>
 
 <!-- ===== Firebase: вход + облачная синхронизация ===== -->
@@ -2785,7 +2915,8 @@ function applyHubDrop(d){ reorderCat(d); }
       push: (payload) => setDoc(ref, payload),
       /* возвращаем unsubscribe: при выходе из аккаунта подписку надо снять, иначе её
          permission-denied показывал экран «Нет доступа» без кнопки входа */
-      subscribe: (cb, errCb) => onSnapshot(ref, snap => cb(snap.exists() ? snap.data() : null), (e) => { if(errCb) errCb(e); })
+      /* fromCache обязателен: «документа нет» из кэша = «нет связи», а не «облако пустое» */
+      subscribe: (cb, errCb) => onSnapshot(ref, snap => cb(snap.exists() ? snap.data() : null, snap.metadata.fromCache), (e) => { if(errCb) errCb(e); })
     };
     onAuthStateChanged(auth, (user) => { if (window.onAuthChange) window.onAuthChange(user || null); });
     window.dispatchEvent(new Event('cloud-ready'));
