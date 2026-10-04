@@ -1648,6 +1648,9 @@ function onCloudSnapshot(d,fromCache){
   if(cloudState!=='error' && !__pushing) setCloud('ok');
   afterRemote();
   maybeDailyBackup();
+  /* migrate() дописал недостающие поля (документ от старой версии, например без prefs) —
+     один раз записываем нормализованную версию, иначе STATE ≠ BASE висело бы вечно */
+  if(isDirty() && !__pushBlocked) pushCloud();
 }
 function startCloud(){
   const go=()=>{ if(!window.CLOUD || __cloudUnsub) return;
