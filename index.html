@@ -578,7 +578,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
   <h2>Дом!</h2>
   <p id="lockMsg">Войдите, чтобы открыть список дел</p>
   <div class="row">
-    <button id="gsi" onclick="doSignIn()" style="display:flex;align-items:center;gap:9px;background:#fff;color:#2b2620;border:1.5px solid var(--line);padding:12px 18px;font-weight:700;font-size:15px">
+    <button id="gsi" onclick="doSignIn()" style="display:flex;align-items:center;gap:9px;background:var(--card);color:var(--ink);border:1.5px solid var(--line);padding:12px 18px;font-weight:700;font-size:15px">
       <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Войти через Google
     </button>
@@ -617,6 +617,9 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
   <div id="profStore"></div>
   <button class="newcat-btn" style="background:var(--card);color:var(--indigo-tx);border:1px solid var(--line);margin-top:12px;box-shadow:none" onclick="exportBackup()">
     <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 20h16"/></svg></span> Скачать резервную копию
+  </button>
+  <button class="newcat-btn" style="background:var(--card);color:var(--indigo-tx);border:1px solid var(--line);margin-top:8px;box-shadow:none" onclick="openBackups()">
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></span> Копии в облаке — вернуть список
   </button>
   <button class="prof-logout" onclick="doSignOut()">Выйти из аккаунта</button>
 </div>
@@ -737,6 +740,14 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
   <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3>Архив категорий</h3><button class="ts-del" style="color:var(--muted)" onclick="closeArchive()">Закрыть</button></div>
     <div class="sheet-scroll" id="arBody"></div>
+  </div>
+</div>
+
+<!-- ===== SHEET: копии в облаке ===== -->
+<div id="bksheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeBackups)">
+  <div class="sheet-card split"><div class="grip"></div>
+    <div class="ts-head"><h3>Копии в облаке</h3><button class="ts-del" style="color:var(--muted)" onclick="closeBackups()">Закрыть</button></div>
+    <div class="sheet-scroll" id="bkBody"></div>
   </div>
 </div>
 
@@ -1213,8 +1224,19 @@ function save(){
   __pushBlocked=false;   /* новая правка — новая попытка, даже если прошлую облако отвергло */
   pushCloud();
 }
+/* BASE — строка data, которая, по нашим сведениям, СЕЙЧАС лежит в облаке (последняя
+   принятая или записанная нами). От неё считается, что поменяли мы, а что — другое
+   устройство (mergeStates). Хранится рядом с кэшем: правки, сделанные офлайн и не
+   доехавшие до облака, переживают перезапуск и сливаются при первой связи. */
+let BASE=null; try{ BASE=localStorage.getItem(KEY+'_base'); }catch(e){}
+function setBase(str){ BASE=str; try{ localStorage.setItem(KEY+'_base',str); }catch(e){} }
+function isDirty(){ return BASE==null || JSON.stringify(STATE)!==BASE; }
+function parseState(str){ try{ return migrate(JSON.parse(str)); }catch(e){ return null; } }
+/* сохранить STATE на устройстве, НЕ запуская отправку в облако (для пришедших версий) */
+function persistLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(STATE)); localStorage.setItem(KEY+"_ts",String(localUpdatedAt)); __lsFailed=false; }catch(e){ __lsFailed=true; } }
 function wipeLocal(){
-  try{ localStorage.removeItem(KEY); localStorage.removeItem(KEY+"_ts"); localStorage.removeItem(AUTH_HINT); }catch(e){}
+  try{ localStorage.removeItem(KEY); localStorage.removeItem(KEY+"_ts"); localStorage.removeItem(KEY+'_base'); localStorage.removeItem(AUTH_HINT); }catch(e){}
+  BASE=null;
   STATE=migrate(freshState()); syncModelRef();
   localUpdatedAt=0; __primed=false; __storeWarned=false; __lsFailed=false; __lastBytes=0; __bytesAt=0;
   active=null; editmode=false; setCloud('wait');
@@ -1351,6 +1373,112 @@ function wkCount(){ let n=0; weekendAll().forEach(g=>g.items.forEach(it=>{ if(!i
    уходят только сгенерированные id/ключи (без кавычек и дефисов). */
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
+/* ---------- СЛИЯНИЕ ВЕРСИЙ (правка 1.7) ---------- */
+/* Трёхстороннее слияние: B — база (что было в облаке при прошлой синхронизации),
+   L — локальная версия, R — то, что сейчас в облаке. Сравниваем по отдельным
+   задачам/подкатегориям/категориям, а не целым документом: раньше побеждал
+   последний записавший, и правки, сделанные офлайн на телефоне, молча пропадали,
+   если на компе успели что-то поменять.
+   Правила: поле поменяли с одной стороны — берём его; с обеих — побеждает локальная.
+   Удаление побеждает, КРОМЕ задачи, которую на другой стороне меняли: потерять
+   правку хуже, чем вернуть задачу (её можно удалить ещё раз). */
+function jstr(x){ return JSON.stringify(x===undefined?null:x); }
+function clone(x){ return x===undefined?undefined:JSON.parse(JSON.stringify(x)); }
+function pick3(b,l,r){ return clone(jstr(l)===jstr(b) ? r : l); }
+function mergeFields(b,l,r,skip){
+  b=b||{}; l=l||{}; r=r||{}; const out={};
+  new Set([...Object.keys(b),...Object.keys(l),...Object.keys(r)]).forEach(k=>{
+    if(skip && skip.indexOf(k)>=0) return;
+    /* undefined = поле удалили (например, выключили «Повторять» — delete it.rec) */
+    const v=pick3(b[k],l[k],r[k]); if(v!==undefined) out[k]=v;
+  });
+  return out;
+}
+/* порядок ключей как в образце: иначе слияние одинаковых версий давало другую строку
+   (STATE ≠ BASE) и лишнюю запись в облако */
+function orderLike(o,ref){ if(!ref) return o; const out={}; Object.keys(ref).forEach(k=>{ if(k in o) out[k]=o[k]; }); Object.keys(o).forEach(k=>{ if(!(k in out)) out[k]=o[k]; }); return out; }
+function keep3(inB,inL,inR){ return inB ? (inL&&inR) : (inL||inR); }
+/* Порядок: если локально порядок общих элементов не меняли — основа порядок облака,
+   иначе локальный; недостающие вставляем после их соседа по другой версии. */
+function mergeOrder(bK,lK,rK,keep){
+  const inter=(a,b)=>{ const s=new Set(b); return a.filter(k=>s.has(k)); };
+  const lSame=jstr(inter(lK,bK))===jstr(inter(bK,lK));
+  const prim=lSame?rK:lK, sec=lSame?lK:rK;
+  const out=prim.filter(k=>keep.has(k)), seen=new Set(out);
+  sec.forEach((k,i)=>{ if(!keep.has(k)||seen.has(k)) return;
+    let j=i-1; while(j>=0 && !seen.has(sec[j])) j--;
+    let n=i+1; while(n<sec.length && !seen.has(sec[n])) n++;
+    /* в конце списка той версии — в конец; в начале — в начало; иначе после соседа */
+    const pos = n>=sec.length ? out.length : (j<0 ? out.indexOf(sec[n]) : out.indexOf(sec[j])+1);
+    out.splice(pos,0,k); seen.add(k); });
+  keep.forEach(k=>{ if(!seen.has(k)){ out.push(k); seen.add(k); } });
+  return out;
+}
+function mergeStates(B,L,R){
+  const catIdx=s=>{ const m=new Map(); (s.cats||[]).forEach(c=>m.set(c.key,{c,where:'cats'})); (s.archive||[]).forEach(c=>m.set(c.key,{c,where:'archive'})); return m; };
+  const itIdx=s=>{ const m=new Map(); [...(s.cats||[]),...(s.archive||[])].forEach(c=>(c.groups||[]).forEach(g=>{ if(g.items) g.items.forEach(it=>m.set(it.id,{it,ck:c.key,gid:g.gid})); })); return m; };
+  const cB=catIdx(B), cL=catIdx(L), cR=catIdx(R), iB=itIdx(B), iL=itIdx(L), iR=itIdx(R);
+  /* 1. категории (вместе с архивом: архивирование — это смена «где лежит») */
+  const cats=new Map();
+  new Set([...cL.keys(),...cR.keys()]).forEach(k=>{ const b=cB.get(k), l=cL.get(k), r=cR.get(k);
+    if(!keep3(!!b,!!l,!!r)) return;
+    const where=(l&&r)?pick3(b&&b.where,l.where,r.where):(l||r).where;
+    const meta=(l&&r)?mergeFields(b&&b.c,l.c,r.c,['groups']):clone((l||r).c); delete meta.groups;
+    /* 2. подкатегории внутри категории — по gid */
+    const gs=e=>e?(e.c.groups||[]):[], gB=gs(b), gL=gs(l), gR=gs(r);
+    const mp=a=>new Map(a.map(g=>[g.gid,g])), mB=mp(gB), mL=mp(gL), mR=mp(gR);
+    const keepG=new Set(); new Set([...mL.keys(),...mR.keys()]).forEach(id=>{ if(keep3(mB.has(id),mL.has(id),mR.has(id))) keepG.add(id); });
+    meta.groups=mergeOrder(gB.map(g=>g.gid),gL.map(g=>g.gid),gR.map(g=>g.gid),keepG).map(id=>{
+      const gb=mB.get(id), gl=mL.get(id), gr=mR.get(id), src=gl||gr;
+      const g=(gl&&gr)?mergeFields(gb,gl,gr,['items']):clone(src);
+      if(src.items) g.items=[]; else delete g.items;   /* заголовок-раздел без пунктов */
+      return orderLike(g,src); });
+    cats.set(k,{meta:orderLike(meta,(l||r).c),where});
+  });
+  /* 3. задачи — глобально по id: задачу могли перенести в другую категорию */
+  const changed=(b,x)=>jstr(b&&b.it)!==jstr(x&&x.it);
+  const placed=new Map();
+  new Set([...iL.keys(),...iR.keys()]).forEach(id=>{ const b=iB.get(id), l=iL.get(id), r=iR.get(id);
+    let keep=keep3(!!b,!!l,!!r);
+    if(!keep && b && (l||r) && changed(b,l||r)) keep=true;   /* удалили там, правили тут — оставляем */
+    if(!keep) return;
+    const loc=(l&&r)?(((b?b.ck+'|'+b.gid:'')!==l.ck+'|'+l.gid)?l:r):(l||r);
+    const it=orderLike((l&&r)?mergeFields(b&&b.it,l.it,r.it):clone((l||r).it),(l||r).it);
+    placed.set(id,{it,ck:loc.ck,gid:loc.gid});
+  });
+  const grpOf=(ck,gid)=>{ const c=cats.get(ck); return c&&c.meta.groups.find(g=>g.gid===gid&&g.items); };
+  const inboxCat=()=>[...cats.values()].find(c=>c.meta.kind==='inbox');
+  const fallback=ck=>{ const c=cats.get(ck)||inboxCat(); if(!c) return null;
+    return c.meta.groups.find(g=>g.items&&g.inb)||c.meta.groups.find(g=>g.items&&!g.svc)||null; };
+  const buckets=new Map(), orphans=[];
+  placed.forEach((v,id)=>{ const g=grpOf(v.ck,v.gid)||fallback(v.ck);
+    if(!g){ orphans.push(v.it); return; }
+    if(!buckets.has(g)) buckets.set(g,new Map()); buckets.get(g).set(id,v.it); });
+  const idsIn=(m,ck,gid)=>{ const e=m.get(ck); const g=e&&(e.c.groups||[]).find(x=>x.gid===gid); return g&&g.items?g.items.map(it=>it.id):[]; };
+  cats.forEach((c,ck)=>c.meta.groups.forEach(g=>{ const bk=buckets.get(g); if(!bk) return;
+    g.items=mergeOrder(idsIn(cB,ck,g.gid),idsIn(cL,ck,g.gid),idsIn(cR,ck,g.gid),new Set(bk.keys())).map(id=>bk.get(id)); }));
+  /* 4. корень */
+  const M=mergeFields(B,L,R,['cats','archive','stats','doneLog','svcLog','prefs']);
+  M.v=1;
+  M.prefs=mergeFields(B.prefs,L.prefs,R.prefs);
+  const order=w=>mergeOrder((B[w]||[]).map(c=>c.key),(L[w]||[]).map(c=>c.key),(R[w]||[]).map(c=>c.key),
+    new Set([...cats.keys()].filter(k=>cats.get(k).where===w)));
+  M.cats=order('cats').map(k=>cats.get(k).meta);
+  M.archive=order('archive').map(k=>cats.get(k).meta);
+  /* счётчики: прибавляем приращения обеих сторон */
+  const st=(s,k)=>num(s&&s.stats&&s.stats[k]);
+  M.stats={created:Math.max(0,st(L,'created')+st(R,'created')-st(B,'created')), done:Math.max(0,st(L,'done')+st(R,'done')-st(B,'done'))};
+  /* журналы: объединение с учётом удалённых записей (отмена галочки убирает запись) */
+  const logs=(f,key)=>{ const mk=a=>new Map((a||[]).map(e=>[key(e),e])); const b=mk(B[f]), l=mk(L[f]), r=mk(R[f]); const out=[];
+    new Set([...l.keys(),...r.keys()]).forEach(k=>{ if(keep3(b.has(k),l.has(k),r.has(k))) out.push(clone(l.get(k)||r.get(k))); }); return out; };
+  M.doneLog=logs('doneLog',e=>e.id+'|'+e.ts).sort((a,b)=>a.ts-b.ts).slice(-1000);
+  M.svcLog=logs('svcLog',e=>e.ts+'|'+e.t).sort((a,b)=>b.ts-a.ts).slice(0,300);
+  const s=migrate(orderLike(M,L));
+  if(orphans.length){ const g=ensureInboxGroup(getInboxOf(s)); orphans.forEach(it=>g.items.push(it)); }
+  return s;
+}
+function getInboxOf(s){ return s.cats.find(c=>c.kind==='inbox'); }
+
 /* ---------- ОБЛАКО ---------- */
 let __pushTimer=null, __primeTimer=null, __cloudUnsub=null, __cloudWaiting=false, __signingOut=false;
 /* __pushBlocked: облако ОТВЕРГЛО запись (документ >1 МиБ, нет прав). Firestore тогда
@@ -1369,6 +1497,7 @@ function cloudLabel(){
   if(__lsFailed) return 'Память устройства переполнена — данные не кэшируются локально.';
   if(cloudState==='error') return 'НЕ сохранено в облако ('+(cloudNote||'ошибка')+'). Нажмите, чтобы повторить.';
   if(cloudState==='saving') return 'Сохраняю в облако…';
+  if(cloudState==='wait' && cloudNote) return 'Нет связи с облаком — правки сохранены на этом устройстве и уйдут, когда появится интернет.';
   if(cloudState==='wait') return 'Жду первую загрузку из облака…';
   return 'Всё сохранено в облаке';
 }
@@ -1404,30 +1533,75 @@ function hmGo(fn){ closeHMenu(); fn(); }
 window.addEventListener('scroll',()=>{ if(hmOpen) closeHMenu(); },{passive:true});
 window.addEventListener('resize',()=>{ if(hmOpen) closeHMenu(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && hmOpen) closeHMenu(); });
+/* Запись — транзакцией (CLOUD.sync): читаем, что СЕЙЧАС в облаке. Совпадает с BASE —
+   пишем свою версию; не совпадает (другое устройство успело записать) — сливаем
+   mergeStates(BASE, моя, облако) и пишем результат. Офлайн транзакция падает: правка
+   остаётся на устройстве (STATE ≠ BASE), повтор — по таймеру, по событию online и
+   при первом снапшоте. Раньше setDoc вставал в очередь и при появлении связи
+   слепо затирал то, что успели записать с другого устройства.
+   __forceNext — записать без слияния (восстановление из копии). */
+let __pushing=false, __pushAgain=false, __retryTimer=null, __forceNext=false;
 function pushCloud(){
   /* На старте из кэша Firebase ещё грузится: правка сохранена локально, а в облако
-     уйдёт с первым снапшотом (он «старее» — ветка else в startCloud). Не ошибка. */
-  if(!window.CLOUD){ setCloud('wait'); return; }
-  if(!__primed){ setCloud('wait'); return; }
+     уйдёт с первым снапшотом. Не ошибка. */
+  if(!window.CLOUD || !__primed){ setCloud('wait'); return; }
   setCloud('saving');
-  clearTimeout(__pushTimer);
+  clearTimeout(__pushTimer); clearTimeout(__retryTimer);
   __pushTimer=setTimeout(doPush, 900);
 }
 function doPush(){
   __pushTimer=null;
   if(!window.CLOUD || !__primed) return;
-  const ts=localUpdatedAt; let pr=null;
-  try{ pr=window.CLOUD.push({data:JSON.stringify(STATE),updatedAt:ts,writer:myId}); }
-  catch(e){ setCloud('error','ошибка записи'); return; }
-  /* setDoc возвращает промис. Без .catch его отказ (документ >1 МиБ, permission-denied,
-     обрыв связи) уходил в unhandled rejection и пользователь НИЧЕГО не узнавал. */
-  if(pr && pr.then) pr.then(()=>{ if(localUpdatedAt===ts && cloudState==='saving') setCloud('ok'); })
-                      .catch(e=>{ __pushBlocked=true; setCloud('error',(e&&e.code)||'ошибка записи'); });
-  else setCloud('ok');
+  if(__pushing){ __pushAgain=true; return; }   /* одна транзакция за раз */
+  __pushing=true;
+  const localStr=JSON.stringify(STATE), base=BASE, ts=localUpdatedAt, force=__forceNext; __forceNext=false;
+  window.CLOUD.sync(cur=>{
+    if(cur && cur.data===localStr) return null;                 /* в облаке уже ровно это */
+    const upd=Math.max(ts, ((cur&&cur.updatedAt)||0)+1);
+    if(!force && cur && base!=null && cur.data!==base){         /* облако менялось без нас */
+      const R=parseState(cur.data);
+      if(R) return {data:JSON.stringify(mergeStates(JSON.parse(base),JSON.parse(localStr),R)), updatedAt:upd, writer:myId};
+    }
+    return {data:localStr, updatedAt:upd, writer:myId};
+  }).then(out=>{
+    __pushing=false;
+    const written=out?out.data:localStr;
+    setBase(written);
+    if(out) localUpdatedAt=Math.max(localUpdatedAt,out.updatedAt);
+    if(written!==localStr) adoptMerged(localStr,written);
+    /* повторяем ТОЛЬКО если за время записи были новые правки (или слияние их добавило);
+       проверка isDirty() тут дала бы вечный цикл, если строки разошлись из-за migrate */
+    if(__pushAgain){ __pushAgain=false; pushCloud(); }
+    else if(cloudState==='saving') setCloud('ok');
+    maybeDailyBackup();
+  }).catch(e=>{
+    __pushing=false; __pushAgain=false;
+    const code=(e&&e.code)||'';
+    /* нет связи — не ошибка: правка на устройстве, попробуем ещё */
+    if(!code || code==='unavailable' || code==='deadline-exceeded' || code==='aborted' || code==='failed-precondition'){
+      setCloud('wait','нет связи');
+      clearTimeout(__retryTimer); __retryTimer=setTimeout(()=>{ if(isDirty()) pushCloud(); }, 15000);
+    } else { __pushBlocked=true; setCloud('error',code); }
+  });
 }
+/* Транзакция записала слияние — подмешиваем его в текущий STATE. Если пока шла запись
+   пользователь ещё что-то поменял, сливаем и это и отправляем следующим заходом. */
+function adoptMerged(localStr,written){
+  const M=parseState(written); if(!M) return;
+  if(JSON.stringify(STATE)===localStr) STATE=M;
+  else { STATE=mergeStates(JSON.parse(localStr),JSON.parse(JSON.stringify(STATE)),M); __pushAgain=true; }
+  syncModelRef(); persistLocal(); afterRemote();
+}
+function afterRemote(){
+  /* '__svc__' тоже виртуальный: без него снапшот выкидывал из «Обслужить» на хаб */
+  if(active && active!=='__wk__' && active!=='__svc__' && !catByKey(active)) active=null;
+  /* Пришёл снапшот во время перетаскивания — не перестраиваем DOM под пальцем */
+  if(drag){ pendingRemoteRender=true; } else renderAll();
+}
+window.addEventListener('online',()=>{ if(__primed && isDirty() && !__pushBlocked) pushCloud(); });
 /* Отложенную на 900 мс запись отправляем СРАЗУ, когда приложение сворачивают/закрывают:
    iOS замораживает страницу, таймер не срабатывал, и правка оставалась только на
-   телефоне — а правка с другого устройства потом перекрывала её как «более новая». */
+   телефоне. Не успеет — не страшно: STATE ≠ BASE сохранено и уйдёт при следующем запуске. */
 function flushPush(){ if(__pushTimer){ clearTimeout(__pushTimer); doPush(); } }
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState!=='hidden') return;
@@ -1435,32 +1609,49 @@ document.addEventListener('visibilitychange',()=>{
   if(__updReady) applyUpdate();   /* свёрнуто — лучший момент подхватить новую версию */
 });
 window.addEventListener('pagehide', flushPush);
-function stopCloud(){ if(__cloudUnsub){ try{ __cloudUnsub(); }catch(e){} __cloudUnsub=null; } clearTimeout(__pushTimer); clearTimeout(__primeTimer); }
+function stopCloud(){ if(__cloudUnsub){ try{ __cloudUnsub(); }catch(e){} __cloudUnsub=null; } clearTimeout(__pushTimer); clearTimeout(__primeTimer); clearTimeout(__retryTimer); }
+function onCloudSnapshot(d,fromCache){
+  if(__signingOut) return;
+  /* «Документа нет» из КЭША — это не ответ сервера, а «нет связи» (Firestore так
+     отвечает офлайн примерно через 10 с). Раньше это принималось за пустое облако:
+     свежее устройство пушило почти пустой список с новой меткой, и при появлении
+     связи он затирал данные на всех устройствах. Ждём настоящий ответ. */
+  if(!d && fromCache) return;
+  const first=!__primed; __primed=true; __slowCloud=false;
+  if(!d){ if(!localUpdatedAt) localUpdatedAt=Date.now(); if(first){ setCloud('ok'); render(); } pushCloud(); return; }
+  /* облако совпадает с базой или это наша же запись — чужих правок нет */
+  if(d.data===BASE || d.writer===myId){
+    if(d.writer===myId) setBase(d.data);
+    if(first){ if(cloudState==='wait') setCloud('ok'); render(); }
+    /* правки, не доехавшие в прошлый раз (офлайн, закрыли приложение) */
+    if(isDirty() && !__pushBlocked && !__pushing && !__pushTimer) pushCloud();
+    maybeDailyBackup();
+    return;
+  }
+  const R=parseState(d.data); if(!R){ setCloud('error','битые данные в облаке'); return; }
+  if(BASE!=null && isDirty()){
+    /* правили и тут, и там — сливаем по задачам и отправляем результат */
+    STATE=mergeStates(JSON.parse(BASE),JSON.parse(JSON.stringify(STATE)),R); syncModelRef();
+    setBase(d.data);
+    localUpdatedAt=Math.max(localUpdatedAt+1, Date.now(), (d.updatedAt||0)+1);
+    persistLocal(); afterRemote();
+    if(!__pushBlocked) pushCloud();
+    return;
+  }
+  if(BASE==null && (d.updatedAt||0)<localUpdatedAt){
+    /* переход со старой версии (базы ещё нет): как раньше — локальное новее, отправляем */
+    setBase(d.data); if(!__pushBlocked) pushCloud(); return;
+  }
+  STATE=R; syncModelRef(); setBase(d.data);
+  localUpdatedAt=Math.max(d.updatedAt||0, 1);
+  persistLocal();
+  if(cloudState!=='error' && !__pushing) setCloud('ok');
+  afterRemote();
+  maybeDailyBackup();
+}
 function startCloud(){
   const go=()=>{ if(!window.CLOUD || __cloudUnsub) return;
-    __cloudUnsub=window.CLOUD.subscribe((d,fromCache)=>{
-      if(__signingOut) return;
-      /* «Документа нет» из КЭША — это не ответ сервера, а «нет связи» (Firestore так
-         отвечает офлайн примерно через 10 с). Раньше это принималось за пустое облако:
-         свежее устройство пушило почти пустой список с новой меткой, и при появлении
-         связи он затирал данные на всех устройствах. Ждём настоящий ответ. */
-      if(!d && fromCache) return;
-      const first=!__primed; __primed=true; __slowCloud=false;
-      if(!d){ if(!localUpdatedAt) localUpdatedAt=Date.now(); if(first){ setCloud('ok'); render(); } pushCloud(); return; }
-      if(d.writer===myId){ if(first){ setCloud('ok'); render(); } return; }
-      if((d.updatedAt||0) >= localUpdatedAt){
-        let parsed; try{ parsed=JSON.parse(d.data); }catch(e){ setCloud('error','битые данные в облаке'); return; }
-        STATE=migrate(parsed); syncModelRef();
-        localUpdatedAt=d.updatedAt||Date.now();
-        try{ localStorage.setItem(KEY,JSON.stringify(STATE)); localStorage.setItem(KEY+"_ts",String(localUpdatedAt)); __lsFailed=false; }catch(e){ __lsFailed=true; }
-        /* '__svc__' тоже виртуальный: без него снапшот выкидывал из «Обслужить» на хаб */
-        if(active && active!=='__wk__' && active!=='__svc__' && !catByKey(active)) active=null;
-        if(cloudState!=='error') setCloud('ok');
-        /* Пришёл снапшот во время перетаскивания — не перестраиваем DOM под пальцем */
-        if(drag){ pendingRemoteRender=true; }
-        else renderAll();
-      } else if(!__pushBlocked){ pushCloud(); }
-    }, (e)=>{
+    __cloudUnsub=window.CLOUD.subscribe(onCloudSnapshot, (e)=>{
       /* Выход из аккаунта тоже роняет подписку в permission-denied — раньше после
          обычного «Выйти» показывался экран «Нет доступа» БЕЗ кнопки входа. */
       if(__signingOut || !__authedUser) return;
@@ -1477,6 +1668,60 @@ function startCloud(){
      править нечего, пока облако не ответит. Устройства с кэшем сюда не попадают
      (__primed=true сразу по localUpdatedAt). */
   __primeTimer=setTimeout(()=>{ if(!__primed){ __slowCloud=true; render(); } }, 8000);
+}
+
+/* ---------- КОПИИ В ОБЛАКЕ (правка 1.7) ---------- */
+/* Раз в день первое открытое устройство кладёт то, что сейчас в облаке (BASE), в
+   ячейку home_bk_<номер дня % 14>. Ячейка с сегодняшней датой не перезаписывается.
+   Перед восстановлением текущий список уходит в home_bk_undo — откат отката. */
+const BK_SLOTS=14;
+function dayIndex(iso){ return Math.round(parseISO(iso).getTime()/86400000); }
+function maybeDailyBackup(){
+  if(!window.CLOUD || !window.CLOUD.backupDaily || !BASE) return;
+  const day=isoToday(); let last=''; try{ last=localStorage.getItem('bk_day')||''; }catch(e){}
+  if(last===day) return;
+  try{ localStorage.setItem('bk_day',day); }catch(e){}
+  window.CLOUD.backupDaily(dayIndex(day)%BK_SLOTS, day, {data:BASE, at:Date.now()})
+    .catch(()=>{ try{ localStorage.removeItem('bk_day'); }catch(e){} });
+}
+let __bkList=[];
+function bkStats(str){ try{ const s=JSON.parse(str); let t=0; (s.cats||[]).forEach(c=>(c.groups||[]).forEach(g=>{ if(g.items) t+=g.items.length; })); return {cats:(s.cats||[]).filter(c=>c.kind!=='inbox').length, t}; }catch(e){ return null; } }
+async function openBackups(){
+  const box=document.getElementById('bkBody');
+  box.innerHTML=`<div class="loading">Загружаю список копий…</div>`;
+  openSheet(document.getElementById('bksheet'));
+  if(!window.CLOUD || !window.CLOUD.backupGet){ box.innerHTML=`<div class="empty">Нет связи с облаком.</div>`; return; }
+  try{
+    const ids=['undo']; for(let i=0;i<BK_SLOTS;i++) ids.push(String(i));
+    const docs=await Promise.all(ids.map(id=>window.CLOUD.backupGet(id).then(d=>d&&d.data?Object.assign({id},d):null).catch(()=>null)));
+    __bkList=docs.filter(Boolean).sort((a,b)=>(b.at||0)-(a.at||0));
+    renderBackups();
+  }catch(e){ box.innerHTML=`<div class="empty">Не удалось загрузить копии: ${esc((e&&e.code)||'нет связи')}</div>`; }
+}
+function renderBackups(){
+  const box=document.getElementById('bkBody'); if(!box) return;
+  if(!__bkList.length){ box.innerHTML=`<div class="empty">${ic('history')}<br>Копий пока нет.<br>Первая появится сегодня — приложение делает копию раз в день и хранит последние ${BK_SLOTS}.</div>`; return; }
+  let h=`<div class="ar-sec">Последние ${BK_SLOTS} дней</div>`;
+  __bkList.forEach((b,i)=>{ const st=bkStats(b.data); const d=new Date(b.at||0);
+    const when=b.id==='undo' ? 'До восстановления, '+fmtTs(b.at)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') : fmtD(b.day);
+    h+=`<div class="ar-row"><span class="ar-emo" style="${chipStyle('var(--indigo-tx)')}">${ic(b.id==='undo'?'history':'archive')}</span>
+      <span class="ar-nm">${esc(when)}<small>${st?(st.cats+' '+plural(st.cats,'категория','категории','категорий')+' · '+st.t+' '+plural(st.t,'задача','задачи','задач')):'не читается'}</small></span>
+      <button class="ar-b restore" title="Вернуть эту копию" aria-label="Вернуть эту копию" onclick="restoreBackup(${i})">${ic('arrowUp')}</button></div>`; });
+  h+=`<div class="rep-more" style="text-align:left;padding:8px 2px 0">Копия заменяет весь список на всех устройствах. Текущий список перед этим сохраняется строкой «До восстановления» — можно вернуть обратно.</div>`;
+  box.innerHTML=h;
+}
+function closeBackups(){ closeSheet(document.getElementById('bksheet')); }
+async function restoreBackup(i){
+  const b=__bkList[i]; if(!b) return;
+  const M=parseState(b.data); if(!M){ alert('Эта копия повреждена — восстановить нельзя.'); return; }
+  const when=b.id==='undo'?'состоянию до восстановления':('копии от '+fmtD(b.day));
+  if(!confirm('Вернуть весь список к '+when+'?\nЭто изменит список на всех устройствах. Текущий список сохранится как «До восстановления».')) return;
+  try{ await window.CLOUD.backupPut('undo',{day:'undo', data:JSON.stringify(STATE), at:Date.now()}); }
+  catch(e){ alert('Не удалось сохранить текущий список перед восстановлением ('+((e&&e.code)||'нет связи')+'). Ничего не изменено.'); return; }
+  STATE=M; syncModelRef(); active=null;
+  __forceNext=true; save();
+  closeBackups(); renderAll();
+  showToast('Список возвращён к '+when);
 }
 /* Один вход для «перерисовать всё, что открыто» */
 function renderAll(){
@@ -2199,6 +2444,17 @@ function saveTaskSheet(){
   const n=document.getElementById('tsNote').value.trim();
   if(!t){ document.getElementById('tsName').focus(); return; }
   const rec=tsReadRec();
+  if(tsMode==='edit' && !findItem(tsId)){
+    /* Пока карточка была открыта, задачу удалили на другом устройстве. Раньше «ОК»
+       молча выбрасывал правку. Сохраняем как новую задачу (новый id: старый уже
+       числится удалённым, и слияние версий удалило бы её снова). */
+    const dst=catByKey(tsTargetCat)||getInbox();
+    if(dst){ const nit={id:nid(),ct:Date.now(),t,n,done:false,pri:tsPri,wk:tsWk}; if(rec) nit.rec=rec;
+      addTaskTo(ensureInboxGroup(dst),nit); statCreated(1); if(rec) placeByRec(nit.id);
+      save(); closeTaskSheet(); renderAll();
+      showToast('Задачу удалили на другом устройстве — сохранил заново в «'+(dst.title||dst.tab||'')+'»'); }
+    return;
+  }
   if(tsMode==='edit'){
     const f=findItem(tsId); if(f){ f.it.t=t; f.it.n=n; f.it.pri=tsPri; f.it.wk=tsWk;
       if(rec) f.it.rec=rec; else delete f.it.rec;
@@ -2487,7 +2743,7 @@ function saveESheet(){
 }
 function deleteCategory(catKey){
   const c=catByKey(catKey); if(!c) return false;
-  if(c.kind==='inbox'){ alert('Inbox нельзя удалить — это приёмник быстрого ввода.'); return false; }
+  if(c.kind==='inbox'){ alert('«Входящие» нельзя удалить — это приёмник быстрого ввода.'); return false; }
   const s=catStats(c);
   if(!confirm('Удалить категорию «'+(c.title||c.tab||'')+'» со всеми задачами ('+s.t+')?\nЭто НЕЛЬЗЯ отменить. Чтобы сохранить задачи — уберите категорию в архив.')) return false;
   STATE.cats=STATE.cats.filter(x=>x!==c);
@@ -2641,9 +2897,27 @@ function exportBackup(){
   try{
     const data=JSON.stringify(STATE,null,1);
     const d=new Date(); const stamp=toISO(d)+'-'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0');
+    const name='dom-backup-'+stamp+'.json';
+    /* На телефоне — системное «Поделиться» (сохранить в Файлы, отправить себе): в
+       приложении с экрана «Домой» на iPhone скачивание по ссылке часто не срабатывает.
+       На компьютере — обычное скачивание (там share-меню только мешало бы). */
+    try{
+      const file=new File([data],name,{type:'application/json'});
+      const touch=window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+      if(touch && navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file], title:'Дом! — резервная копия'})
+          .catch(e=>{ if(!e || e.name!=='AbortError') downloadBlob(data,name); });
+        return;
+      }
+    }catch(e){}
+    downloadBlob(data,name);
+  }catch(e){ alert('Не удалось создать файл копии: '+(e&&e.message||e)); }
+}
+function downloadBlob(data,name){
+  try{
     const blob=new Blob([data],{type:'application/json'});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download='dom-backup-'+stamp+'.json';
+    const a=document.createElement('a'); a.href=url; a.download=name;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),4000);
   }catch(e){ alert('Не удалось создать файл копии: '+(e&&e.message||e)); }
@@ -2891,7 +3165,7 @@ try{ const a=sessionStorage.getItem('upd_active'); if(a){ sessionStorage.removeI
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyDob_HdG-ihclIacDESG3sdISugCXAC43U",
     authDomain: "abkhazia-checklist.firebaseapp.com",
@@ -2913,6 +3187,29 @@ try{ const a=sessionStorage.getItem('upd_active'); if(a){ sessionStorage.removeI
     };
     window.CLOUD = {
       push: (payload) => setDoc(ref, payload),
+      /* Запись через транзакцию (правка 1.7): читаем, что СЕЙЧАС в облаке, и fn решает,
+         что писать (слияние с чужими правками). fn(cur) → payload | null (писать нечего).
+         Офлайн транзакция падает — и это нужно: слепая запись из очереди Firestore
+         затирала правки другого устройства. */
+      sync: (fn) => runTransaction(db, async tx => {
+        const s = await tx.get(ref);
+        const out = fn(s.exists() ? s.data() : null);
+        if (out) tx.set(ref, out);
+        return out;
+      }),
+      /* Копии по дням: 14 ячеек по кругу (номер дня % 14) — старые перезаписываются
+         сами, удалять и перечислять документы не нужно. В день пишем ОДИН раз:
+         если в ячейке уже сегодняшняя копия, не трогаем (иначе копия «до беды»
+         затёрлась бы самой бедой). */
+      backupDaily: async (slot, day, payload) => {
+        const r = doc(db, "checklists", "home_bk_" + slot);
+        const s = await getDoc(r);
+        if (s.exists() && s.data().day === day) return false;
+        await setDoc(r, Object.assign({ day }, payload));
+        return true;
+      },
+      backupPut: (id, payload) => setDoc(doc(db, "checklists", "home_bk_" + id), payload),
+      backupGet: async (id) => { const s = await getDoc(doc(db, "checklists", "home_bk_" + id)); return s.exists() ? s.data() : null; },
       /* возвращаем unsubscribe: при выходе из аккаунта подписку надо снять, иначе её
          permission-denied показывал экран «Нет доступа» без кнопки входа */
       /* fromCache обязателен: «документа нет» из кэша = «нет связи», а не «облако пустое» */
