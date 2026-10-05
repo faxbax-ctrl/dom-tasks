@@ -13,3 +13,7 @@ dom-zadachi.md
 _preview/
 # локальная копия старой инструкции (не публикуем повторно)
 Старая ин*/
+
+# сборка для Firebase Hosting (deploy.sh) и кэш утилиты
+_site/
+.firebase/

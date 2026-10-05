@@ -2,6 +2,12 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<script>
+/* Приложение переехало на свой домен (правка 1.8). Safari хранит иконки «Избранного»
+   по ДОМЕНУ, без пути: на общем faxbax-ctrl.github.io «Дом!» и «Соберись!» показывались
+   с одной и той же иконкой. Старый адрес просто перекидывает на новый. */
+if(location.hostname==='faxbax-ctrl.github.io') location.replace('https://dom-zadachi.web.app/'+location.search+location.hash);
+</script>
 <!-- user-scalable=no + maximum-scale: сведение двумя пальцами больше не масштабирует
      страницу (правка 1.5). Для iOS этого мало — в JS ещё глушим gesturestart/двойной тап. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">

@@ -11,8 +11,12 @@
 - Firebase-проект: `abkhazia-checklist` (общий с «Соберись!»), но **отдельный документ**.
 - Открывается как приложение на iPhone/Android и в браузере, работает офлайн,
   синхронизируется между устройствами и пользователями. Вход — Google.
-- **Живой адрес:** https://faxbax-ctrl.github.io/dom-tasks/
-- **Репозиторий:** https://github.com/faxbax-ctrl/dom-tasks (публичный, GitHub Pages).
+- **Живой адрес:** https://dom-zadachi.web.app/ (Firebase Hosting, сайт `dom-zadachi` в проекте
+  `abkhazia-checklist`). Старый https://faxbax-ctrl.github.io/dom-tasks/ перекидывает на новый
+  (скрипт в самом начале `<head>`). **Зачем переезжали:** Safari (Mac и iPhone) хранит иконки
+  «Избранного» по ДОМЕНУ, без пути — на общем `faxbax-ctrl.github.io` «Дом!» и «Соберись!»
+  показывались с одной иконкой. Возвращать на github.io нельзя по той же причине.
+- **Репозиторий:** https://github.com/faxbax-ctrl/dom-tasks (публичный; GitHub Pages теперь только переадресует).
 - **Статус:** задеплоено; документ `checklists/home` наполнен реальными задачами
   (пользовательский контент вносится через интерфейс, в коде/репозитории его нет).
 
@@ -20,7 +24,7 @@
 - Один статический сайт: `index.html` — весь HTML, CSS и JS.
 - PWA: `manifest.webmanifest` + `sw.js` (офлайн-кэш) + иконки `icon-*.png`.
 - Firebase (модульный SDK v10 через CDN): Auth (Google) + Firestore (хранение/синхр.).
-- Хостинг: GitHub Pages (ветка `main`, корень). Правки — прямо в файлах, без `npm build`.
+- Хостинг: Firebase Hosting (`./deploy.sh`). Правки — прямо в файлах, без `npm build`.
 
 ## Карта файлов
 - `index.html` — приложение целиком (экран входа, рендер, логика, синхронизация,
@@ -373,7 +377,7 @@ STATE = { v:1, cats: [
    доступны только под Google-аккаунтом пользователя, поэтому идём через его Chrome
    (`claude-in-chrome`), где сессия уже восстановлена Firebase. Логинить пользователя
    самим НЕЛЬЗЯ — если сессии нет, останавливаемся и просим войти.
-   1. `navigate` на https://faxbax-ctrl.github.io/dom-tasks/ , подождать ~3 с и
+   1. `navigate` на https://dom-zadachi.web.app/ , подождать ~3 с и
       проверить, что вход есть: `localStorage.getItem('home_v1')` не пуст.
    2. **Скачивание файла в автоматизированном Chrome НЕ РАБОТАЕТ** — ни кнопка
       «Скачать резервную копию», ни `exportBackup()`: файл не доезжает, `Downloads`
@@ -395,10 +399,19 @@ STATE = { v:1, cats: [
    Мелочи, очевидные из кода, не дублируем.
 
 ## Деплой
-- Репозиторий `faxbax-ctrl/dom-tasks` и GitHub Pages (ветка `main`, корень) уже настроены.
-- **Порядок всегда такой: копия данных → копия кода → коммит → `git push`.**
+- **Порядок всегда такой: копия данных → копия кода → коммит → `./deploy.sh` → `git push`.**
   Пользователь просил деплоить самому, без отдельного вопроса, но только после
   обоих бэкапов (см. правило 4).
-- `git push` в `main` → GitHub Pages публикует автоматически (~1 минута).
-- Проверять на живом адресе https://faxbax-ctrl.github.io/dom-tasks/;
-  для обхода кэша — добавить `?v=что-то`.
+- **`./deploy.sh`** — публикация на Firebase Hosting (https://dom-zadachi.web.app). Копирует в
+  `_site/` ФИКСИРОВАННЫЙ список файлов (index.html, sw.js, manifest, иконки) и запускает
+  `npx firebase-tools deploy --only hosting`. Новый файл приложения — добавить в этот список.
+  Публиковать корень папки НЕЛЬЗЯ: там `_backup/` с данными семьи. Вход в утилиту уже есть
+  (`faxbax@gmail.com`); если слетит — пользователь сам делает `npx firebase-tools login`.
+  Связь с API Firebase бывает медленной: команда может оборваться на «finalizing version» —
+  просто запустить `./deploy.sh` ещё раз (файлы уже загружены).
+- `git push` в `main` — история кода; GitHub Pages публикует ту же страницу, но она сразу
+  переадресует на новый адрес.
+- Вход через Google разрешён для домена в Firebase Console → Authentication → Settings →
+  Authorized domains (`dom-zadachi.web.app` добавлен). Проверить список без входа:
+  `curl "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getProjectConfig?key=<apiKey>"`.
+- Проверять на https://dom-zadachi.web.app/ ; для обхода кэша — добавить `?v=что-то`.
