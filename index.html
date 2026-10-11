@@ -1570,7 +1570,7 @@ function doPush(){
     }
     return {data:localStr, updatedAt:upd, writer:myId};
   }).then(out=>{
-    __pushing=false;
+    __pushing=false; __cloudSeq++;
     const written=out?out.data:localStr;
     setBase(written);
     if(out) localUpdatedAt=Math.max(localUpdatedAt,out.updatedAt);
@@ -1618,6 +1618,7 @@ window.addEventListener('pagehide', flushPush);
 function stopCloud(){ if(__cloudUnsub){ try{ __cloudUnsub(); }catch(e){} __cloudUnsub=null; } clearTimeout(__pushTimer); clearTimeout(__primeTimer); clearTimeout(__retryTimer); }
 function onCloudSnapshot(d,fromCache){
   if(__signingOut) return;
+  __cloudSeq++;
   /* «Документа нет» из КЭША — это не ответ сервера, а «нет связи» (Firestore так
      отвечает офлайн примерно через 10 с). Раньше это принималось за пустое облако:
      свежее устройство пушило почти пустой список с новой меткой, и при появлении
@@ -1658,6 +1659,32 @@ function onCloudSnapshot(d,fromCache){
      один раз записываем нормализованную версию, иначе STATE ≠ BASE висело бы вечно */
   if(isDirty() && !__pushBlocked) pushCloud();
 }
+/* ---------- СВЕРКА С СЕРВЕРОМ (правка 1.9) ---------- */
+/* Живая подписка onSnapshot после сна Mac или долгого фона вкладки/веб-приложения
+   иногда тихо умирает: новых снапшотов нет, а значок пишет «всё сохранено». Правки с
+   телефона не доезжали, пока не перезайдёшь. Поэтому при каждом возврате в приложение
+   (видимость, фокус, online) и раз в 2 мин, пока оно на экране, читаем документ прямо с
+   сервера и прогоняем через onCloudSnapshot (он идемпотентен: data===BASE — ничего).
+   __cloudSeq: если за время чтения пришёл снапшот или прошла наша запись — ответ
+   устарел, его НЕ применяем (иначе откатили бы свою же только что записанную правку). */
+let __cloudSeq=0, __pullAt=0, __pullBusy=false;
+function pullCloud(force){
+  if(!window.CLOUD || !window.CLOUD.pull || !__cloudUnsub || __signingOut || __pullBusy) return;
+  if(!force && Date.now()-__pullAt<5000) return;
+  if(__pushing || __pushTimer) return;   /* своя запись в пути — её ответ и так придёт снапшотом */
+  __pullAt=Date.now(); __pullBusy=true;
+  const seq=__cloudSeq;
+  window.CLOUD.pull().then(d=>{
+    __pullBusy=false;
+    if(seq!==__cloudSeq || __pushing || __pushTimer || !__cloudUnsub) return;
+    onCloudSnapshot(d,false);
+  }).catch(()=>{ __pullBusy=false; });
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') pullCloud(); });
+window.addEventListener('focus',()=>pullCloud());
+window.addEventListener('pageshow',()=>pullCloud());
+window.addEventListener('online',()=>pullCloud(true));
+setInterval(()=>{ if(document.visibilityState==='visible') pullCloud(); }, 120000);
 function startCloud(){
   const go=()=>{ if(!window.CLOUD || __cloudUnsub) return;
     __cloudUnsub=window.CLOUD.subscribe(onCloudSnapshot, (e)=>{
@@ -3174,7 +3201,7 @@ try{ const a=sessionStorage.getItem('upd_active'); if(a){ sessionStorage.removeI
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, getDocFromServer, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyDob_HdG-ihclIacDESG3sdISugCXAC43U",
     authDomain: "abkhazia-checklist.firebaseapp.com",
@@ -3222,6 +3249,8 @@ try{ const a=sessionStorage.getItem('upd_active'); if(a){ sessionStorage.removeI
       /* возвращаем unsubscribe: при выходе из аккаунта подписку надо снять, иначе её
          permission-denied показывал экран «Нет доступа» без кнопки входа */
       /* fromCache обязателен: «документа нет» из кэша = «нет связи», а не «облако пустое» */
+      /* разовое чтение С СЕРВЕРА, мимо кэша (сверка при возврате в приложение) */
+      pull: async () => { const s = await getDocFromServer(ref); return s.exists() ? s.data() : null; },
       subscribe: (cb, errCb) => onSnapshot(ref, snap => cb(snap.exists() ? snap.data() : null, snap.metadata.fromCache), (e) => { if(errCb) errCb(e); })
     };
     onAuthStateChanged(auth, (user) => { if (window.onAuthChange) window.onAuthChange(user || null); });
