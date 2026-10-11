@@ -3392,6 +3392,34 @@ function openWkEditor(){
    выключен мета-тегом (там user-scalable=no работает). */
 ['gesturestart','gesturechange','gestureend'].forEach(ev=>
   document.addEventListener(ev, e=>{ e.preventDefault(); }, {passive:false}));
+/* Окно не должно «ездить» за пальцем (правка 1.13). На iPhone overflow:hidden на body
+   фон не держит: если под пальцем нечего прокручивать (короткая карточка объекта,
+   подложка окна, шапка с кнопками), жест уходит странице, и она пружинит вместе с окном.
+   Поэтому НА САМИХ окнах (не глобально — см. выше) пропускаем движение, только когда
+   под пальцем есть блок, который реально может прокрутиться в эту сторону. Его край
+   тоже не отдаём наружу, иначе пружина возвращается на упоре. */
+let __shY=0;
+function sheetTouchStart(e){ if(e.touches.length===1) __shY=e.touches[0].clientY; }
+function sheetTouchMove(e){
+  if(e.touches.length!==1 || drag) return;   /* щипок и драг задачи — не наше */
+  /* в полях ввода палец двигает курсор и ручки выделения — не мешаем */
+  const tg=e.target; if(tg && (tg.tagName==='INPUT'||tg.tagName==='TEXTAREA'||tg.tagName==='SELECT'||tg.isContentEditable)) return;
+  /* направление — от прошлого движения, а не от начала касания: палец может развернуться */
+  const y=e.touches[0].clientY, dy=y-__shY; __shY=y;
+  for(let el=e.target; el && el!==e.currentTarget; el=el.parentElement){
+    if(el.scrollHeight<=el.clientHeight+1) continue;
+    const oy=getComputedStyle(el).overflowY;
+    if(oy!=='auto' && oy!=='scroll') continue;
+    const atTop=el.scrollTop<=0, atEnd=el.scrollTop+el.clientHeight>=el.scrollHeight-1;
+    if((dy>0 && atTop) || (dy<0 && atEnd)) e.preventDefault();
+    return;
+  }
+  e.preventDefault();
+}
+document.querySelectorAll('.sheet-back').forEach(el=>{
+  el.addEventListener('touchstart',sheetTouchStart,{passive:true});
+  el.addEventListener('touchmove',sheetTouchMove,{passive:false});
+});
 /* Зум по двойному тапу глушит touch-action:manipulation в CSS. Глобальный
    preventDefault на dblclick сюда добавлять НЕЛЬЗЯ: он ломает выделение слова
    двойным щелчком в полях ввода на десктопе. */
