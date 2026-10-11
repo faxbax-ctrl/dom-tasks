@@ -49,6 +49,7 @@ if(location.hostname==='faxbax-ctrl.github.io') location.replace('https://dom-za
   color-scheme:light;
   --bg:#eaeef3; --card:#ffffff; --ink:#1c2333; --muted:#5f6880; --line:#e3e8f1;
   --indigo:#37478f; --indigo-tx:#37478f; --indigo-soft:#e8ebf8;
+  --svc:#2f8a7e;
   --amber:#dd8636; --amber-soft:#fbeede; --pamber:#c06f22;
   --pri-red:#db4f3c; --pri-org:#e5983a; --pri-fast:#3f6fd6; --pri-green:#5f9a76;
   --done:#9aa2b2; --red:#c14b3f; --seg:var(--seg); --toast:#242b3f;
@@ -58,6 +59,7 @@ if(location.hostname==='faxbax-ctrl.github.io') location.replace('https://dom-za
   color-scheme:dark;
   --bg:#12161f; --card:#1b212c; --ink:#e8ecf4; --muted:#98a2b8; --line:#2b3344;
   --indigo:#5f72d8; --indigo-tx:#9fb0ff; --indigo-soft:#232b42;
+  --svc:#4fb3a4;
   --amber:#c8803c; --amber-soft:#33261a; --pamber:#e2a765;
   --pri-red:#e0705d; --pri-org:#dda04c; --pri-fast:#6b93e8; --pri-green:#6faa86;
   --done:#6c768c; --red:#dd6a5e; --seg:#252d3c; --toast:#2c3547;
@@ -398,10 +400,54 @@ body:not(.nofab) main{padding-bottom:92px}
 .rec-row input{width:64px;border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:10px;font-family:inherit;font-size:16px;text-align:center}
 .rec-row select{border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:10px;font-family:inherit;font-size:15px;color:var(--ink)}
 .rec-row input:focus,.rec-row select:focus{outline:none;border-color:var(--indigo-tx)}
-.recline{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#2f8a7e;margin-top:3px}
+.oe-sel{width:100%;border:1.5px solid var(--line);background:var(--card);border-radius:11px;padding:12px 13px;font-family:inherit;font-size:15px;color:var(--ink)}
+.recline{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--svc);margin-top:3px}
 .recline .ic{font-size:12px}
 .recline.late{color:var(--pri-red)}
 .svc-cat{font-size:10.5px;color:var(--muted);font-weight:600;margin-top:2px;display:block}
+/* ---- Объекты обслуживания (правка 1.11) ---- */
+.olist{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.orow{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:10px 10px 10px 12px;cursor:pointer;box-shadow:var(--shadow);position:relative;-webkit-user-select:none;user-select:none}
+.orow.late{border-color:color-mix(in srgb,var(--pri-red) 45%,var(--line))}
+.orow.soon{border-color:color-mix(in srgb,var(--pri-org) 45%,var(--line))}
+.orow .oico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;font-size:20px}
+.orow .lbl{display:block;font-weight:700;font-size:14px;line-height:1.3}
+.orow .odue{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;color:var(--svc);margin-top:2px}
+.orow.late .odue{color:var(--pri-red)}
+.orow.soon .odue{color:var(--pri-org)}
+.orow .osub{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-top:1px;line-height:1.35}
+.odone{width:40px;height:40px;flex:none;border-radius:99px;border:1.5px solid color-mix(in srgb,var(--svc) 55%,var(--line));background:var(--card);color:var(--svc);display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;padding:0}
+.odone:active{background:color-mix(in srgb,var(--svc) 14%,var(--card))}
+.duebox{background:color-mix(in srgb,var(--pri-org) 7%,var(--card));border:1px solid color-mix(in srgb,var(--pri-org) 35%,var(--line));border-radius:14px;padding:10px 10px 4px;margin-bottom:11px}
+.duebox-h{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:800;color:var(--pri-org);margin:0 2px 9px;cursor:pointer}
+.duebox .orow{box-shadow:none}
+.duebox .rep-more{cursor:pointer;padding:0 0 8px}
+.addobj{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:1.5px dashed var(--svc);border-radius:14px;color:var(--svc);font-weight:700;font-size:13px;cursor:pointer;background:var(--card);margin:10px 0 4px}
+.ov-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.ov-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:5px 9px;border-radius:99px;background:var(--bg);color:var(--muted)}
+.ov-chip.due{background:color-mix(in srgb,var(--svc) 13%,var(--card));color:var(--svc)}
+.ov-chip.due.late{background:color-mix(in srgb,var(--pri-red) 12%,var(--card));color:var(--pri-red)}
+.ov-chip.due.soon{background:color-mix(in srgb,var(--pri-org) 13%,var(--card));color:var(--pri-org)}
+.ov-chip .ic{font-size:13px}
+.ov-block{background:var(--bg);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:13.5px;line-height:1.45;white-space:pre-line;word-break:break-word}
+.ov-chk{list-style:none;margin:0;padding:0}
+.ov-chk li{display:flex;gap:7px;align-items:flex-start;padding:3px 0;font-size:13.5px;white-space:normal}
+.ov-chk li .ic{font-size:14px;color:var(--svc);margin-top:2px;flex:none}
+.st-chip{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:99px;margin-left:6px;vertical-align:1px;color:#fff}
+.log-row .lx{float:right;border:0;background:none;color:var(--muted);font-size:15px;cursor:pointer;padding:0 0 4px 8px}
+.ochk{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:7px;cursor:pointer;font-size:14px;font-weight:600;line-height:1.3}
+.ochk .cb{width:22px;height:22px;flex:none;border-radius:7px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent}
+.ochk.on{border-color:color-mix(in srgb,var(--svc) 50%,var(--line))}
+.ochk.on .cb{background:var(--svc);border-color:var(--svc);color:#fff}
+.oed-chk{display:flex;gap:6px;margin-bottom:7px}
+.oed-chk input{flex:1;min-width:0;border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:10px 11px;font-family:inherit;font-size:15px;color:var(--ink)}
+.oed-chk input:focus{outline:none;border-color:var(--indigo-tx)}
+.oed-chk button{width:40px;flex:none;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:10px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;padding:0}
+.oed-add{border:1.5px dashed var(--line);background:none;color:var(--indigo-tx);font-family:inherit;font-weight:700;font-size:13px;padding:10px;border-radius:10px;width:100%;cursor:pointer;margin-bottom:12px}
+.fld.bad textarea{border-color:var(--pri-red)}
+.st-seg{display:flex;gap:6px;margin-bottom:12px}
+.st-seg button{flex:1;border:1.5px solid var(--line);background:var(--card);color:var(--muted);font-family:inherit;font-weight:800;font-size:12.5px;padding:10px 4px;border-radius:10px;cursor:pointer}
+.st-seg button.on{color:#fff}
 .log-row{padding:9px 2px;border-bottom:1px solid var(--line);font-size:13.5px;line-height:1.4}
 .log-row .ld{font-weight:800;color:var(--ink)}
 .log-row .lc{color:var(--muted);font-weight:600;font-size:11.5px}
@@ -489,6 +535,8 @@ body:not(.nofab) main{padding-bottom:92px}
 .ip-sug .ips{width:44px;height:44px;border:1.5px solid var(--indigo);background:var(--indigo-soft);border-radius:11px;color:var(--indigo-tx);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .ip-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-height:190px;overflow-y:auto;padding:5px;border:1px solid var(--line);border-radius:12px;background:var(--bg);overscroll-behavior:contain;margin-bottom:12px}
 .ip-grid .ipg{aspect-ratio:1;border:1px solid transparent;background:var(--card);border-radius:9px;color:var(--ink);font-size:19px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.ip-grid.sm{grid-template-columns:repeat(8,1fr);max-height:132px}
+@media(max-width:409px){ .ip-grid.sm{grid-template-columns:repeat(6,1fr)} }
 .ip-grid .ipg.on{background:var(--indigo-soft);color:var(--indigo-tx);border-color:var(--indigo-tx)}
 .col-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .col-sw{width:34px;height:34px;border-radius:9px;cursor:pointer;border:2px solid transparent;position:relative}
@@ -651,7 +699,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
     <div class="note-hint">Списки: наберите <b>-</b> и пробел — строка станет пунктом <b>•</b>, Enter продолжит список. <b>1.</b> — нумерованный, <b>[]</b> — галочка. Пустой пункт + Enter выходит из списка.</div>
     <div class="fld-lbl">Очередь</div><div class="pri-row" id="tsPri"></div>
     <div class="wktog" id="tsWk" onclick="tsToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">На выходные<small>Показать в общей витрине выходных</small></span><span class="toggle"></span></div>
-    <div class="wktog" id="tsRec" onclick="tsToggleRec()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span><span class="wl">Повторять<small>Цикличная задача — попадёт в «Обслужить»</small></span><span class="toggle"></span></div>
+    <div class="wktog" id="tsRec" onclick="tsToggleRec()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span><span class="wl">Повторять<small>Цикличная задача — попадёт в «Обслуживание»</small></span><span class="toggle"></span></div>
     <div id="tsRecCfg" style="display:none">
       <div class="rec-row">каждые <input id="tsRecN" type="number" min="1" max="365" value="1" inputmode="numeric"> <select id="tsRecU"><option value="d">дней</option><option value="w">недель</option><option value="m" selected>месяцев</option><option value="y">лет</option></select></div>
       <div class="fld-lbl">Отсчёт следующего срока</div>
@@ -659,6 +707,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
         <span class="segsw" id="tsRecMode"></span></div>
       <label class="fld"><span>Следующий срок</span><input id="tsRecD" type="date"></label>
     </div>
+      <button type="button" class="qsort" id="tsToObj" onclick="tsMakeObj()" style="margin-bottom:12px">Сделать объектом обслуживания — с чек-листом и историей</button>
     <div id="tsCatWrap"></div>
     </div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeTaskSheet()">Отмена</button><button class="btn-main" onclick="saveTaskSheet()">ОК</button></div>
@@ -713,6 +762,62 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
       <input id="ssNote" type="text" placeholder="Например: фильтр Аквафор К5" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();event.target.blur();}"></label>
     <div class="ip-note" id="ssNext"></div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeSvcDone()">Отмена</button><button class="btn-main" onclick="svcConfirm()">Записать в журнал</button></div>
+  </div>
+</div>
+
+<!-- ===== SHEET: объект обслуживания — просмотр (правка 1.11) ===== -->
+<div id="ovsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeObjView)">
+  <div class="sheet-card split"><div class="grip"></div>
+    <div class="ts-head"><h3 id="ovTitle">Объект</h3><span class="ts-btns"><button class="tsb" id="ovEditB" onclick="ovEdit()" title="Изменить объект" aria-label="Изменить объект"></button></span></div>
+    <div class="sheet-scroll" id="ovBody"></div>
+    <div class="sheet-acts"><button class="btn-ghost" onclick="closeObjView()">Закрыть</button><button class="btn-main" onclick="ovDone()">Обслужить</button></div>
+  </div>
+</div>
+
+<!-- ===== SHEET: объект обслуживания — редактор ===== -->
+<div id="osheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeObjEditor)">
+  <div class="sheet-card split"><div class="grip"></div>
+    <div class="ts-head"><h3 id="oeTitle">Объект обслуживания</h3><span class="ts-btns"><button class="tsb del" id="oeDelB" onclick="oeDelete()" title="Удалить объект" aria-label="Удалить объект"></button></span></div>
+    <div class="sheet-scroll">
+    <label class="fld"><span>Что обслуживаем</span><input id="oeName" type="text" placeholder="Например, фильтр воды под мойкой" autocomplete="off" enterkeyhint="done" oninput="oeSuggest()"></label>
+    <div class="fld-lbl">Иконка</div>
+    <div id="oeSug" class="ip-sug"></div>
+    <div id="oeIcons" class="ip-grid sm"></div>
+    <div class="fld-lbl">Периодичность</div>
+    <div class="rec-row">каждые <input id="oeN" type="number" min="1" max="365" value="3" inputmode="numeric"> <select id="oeU"><option value="d">дней</option><option value="w">недель</option><option value="m" selected>месяцев</option><option value="y">лет</option></select></div>
+    <div class="setrow" style="margin-bottom:10px"><span class="sl">Считать период<small id="oeModeNote"></small></span><span class="segsw" id="oeMode"></span></div>
+    <label class="fld"><span>Следующее обслуживание</span><input id="oeNext" type="date"></label>
+    <div class="rec-row">показывать в «Пора обслужить» за <input id="oeLead" type="number" min="0" max="90" value="3" inputmode="numeric"> дн.</div>
+    <label class="fld"><span>Категория (необязательно)</span><select id="oeCat" class="oe-sel"></select></label>
+    <div class="fld-lbl">Чек-лист осмотра</div>
+    <div class="ip-note">Что проверить или сделать каждый раз. При обслуживании пункты отмечаются галочками.</div>
+    <div id="oeChecks"></div>
+    <button type="button" class="oed-add" onclick="oeAddCheck()">+ Добавить пункт</button>
+    <div class="fld">
+      <div class="fld-head"><span>Паспорт</span></div>
+      <textarea id="oeSpec" placeholder="Модель, расходники и артикулы, где купить, телефон мастера…" onkeydown="noteKey(event)" oninput="noteInput(event)"></textarea>
+    </div>
+    <div class="wktog" id="oeNeed" onclick="oeToggleNeed()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="wl">Комментарий обязателен<small>Без комментария обслуживание не запишется</small></span><span class="toggle"></span></div>
+    </div>
+    <div class="sheet-acts"><button class="btn-ghost" onclick="closeObjEditor()">Отмена</button><button class="btn-main" onclick="saveObjEditor()">Сохранить</button></div>
+  </div>
+</div>
+
+<!-- ===== SHEET: объект обслуживания — отметка «обслужено» ===== -->
+<div id="odsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeObjDone)">
+  <div class="sheet-card split"><div class="grip"></div>
+    <h3>Обслуживание</h3>
+    <div class="cm-title" id="odName"></div>
+    <div class="sheet-scroll">
+    <div id="odChecks"></div>
+    <div class="fld-lbl">Состояние</div>
+    <div class="st-seg" id="odSt"></div>
+    <label class="fld" id="odNoteF"><span id="odNoteL">Комментарий</span><textarea id="odNote" style="min-height:84px" placeholder="Что сделали, что заметили, какой расходник поставили"></textarea></label>
+    <label class="fld"><span>Дата обслуживания</span><input id="odDate" type="date" onchange="odRenderNext()"></label>
+    <div class="wktog" id="odTask" onclick="odToggleTask()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span class="wl">Создать задачу на ремонт<small id="odTaskNote">В 1 очередь</small></span><span class="toggle"></span></div>
+    <div class="ip-note" id="odNext"></div>
+    </div>
+    <div class="sheet-acts"><button class="btn-ghost" onclick="closeObjDone()">Отмена</button><button class="btn-main" onclick="odConfirm()">Записать</button></div>
   </div>
 </div>
 
@@ -1108,6 +1213,12 @@ let uid=1;
 const nid =()=> 'i'+Date.now().toString(36)+(uid++)+rnd4();
 const ncid=()=> 'c'+Date.now().toString(36)+(uid++)+rnd4();
 const ngid=()=> 'g'+Date.now().toString(36)+(uid++)+rnd4();
+/* объекты обслуживания (правка 1.11): здесь, а не ниже — migrate() зовётся из load() сразу */
+const noid=()=> 'o'+Date.now().toString(36)+(uid++)+rnd4();
+const nkid=()=> 'k'+Date.now().toString(36)+(uid++)+rnd4();
+const nlid=()=> 'l'+Date.now().toString(36)+(uid++)+rnd4();
+const OBJ_ST={ok:{lbl:'В норме',c:'var(--svc)'},warn:{lbl:'Есть замечания',c:'var(--pri-org)'},bad:{lbl:'Нужен ремонт',c:'var(--pri-red)'}};
+const OBJ_LOG_CAP=60;
 /* У подкатегории есть стабильный gid: индексы групп «плывут» при перетаскивании и
    при вставке служебных групп, а на индексы завязаны свёрнутость и редакторы.
    В ключах/id нет дефиса — на этом держится разбор data-gk. */
@@ -1190,6 +1301,8 @@ function migrate(raw){
   else s.stats={created:num(s.stats.created), done:num(s.stats.done)};
   if(!Array.isArray(s.doneLog)) s.doneLog=[];
   if(!Array.isArray(s.svcLog)) s.svcLog=[];
+  if(!Array.isArray(s.objs)) s.objs=[];
+  s.objs=s.objs.filter(o=>o&&typeof o==='object'); s.objs.forEach(normObj);
   /* Настройки, которые меняют ПОРЯДОК задач в данных, — общие для всех устройств
      (правка 1.6). «Очередь» сортирует сами массивы g.items: когда она жила в
      localStorage, телефон с включённой «очередью» пересортировывал список, а комп с
@@ -1372,7 +1485,44 @@ function nextRecDate(rec){
   return daysTo(d)<0 ? addPeriod(isoToday(),n,unit) : d;
 }
 function recTasks(){ const out=[]; STATE.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.rec&&it.rec.next) out.push({it,c}); }); })); return out; }
-function svcDueCount(){ return recTasks().filter(r=>daysTo(r.it.rec.next)<=7).length; }
+function svcDueCount(){ return dueObjs().length + recTasks().filter(r=>daysTo(r.it.rec.next)<=7).length; }
+/* ---------- ОБЪЕКТЫ ОБСЛУЖИВАНИЯ (правка 1.11) ---------- */
+/* STATE.objs — вещи, за которыми следим: {id, ct, t, icon, ck (категория, ''), spec (паспорт),
+   checks:[{id,t}] (чек-лист осмотра), rec:{n,unit,next,mode} (как у цикличной задачи),
+   lead (за сколько дней до срока показывать в «Пора обслужить»), needNote,
+   log:[{id,ts,d,note,st,chk}] — история, новые сверху, кап OBJ_LOG_CAP}.
+   Это НЕ задачи: в cats они не лежат, в счётчики задач/очереди-приоритеты не входят. */
+function normObj(o){
+  if(!o.id) o.id=noid();
+  if(typeof o.t!=='string') o.t=String(o.t||'');
+  if(!o.icon || !P[o.icon]) o.icon='gear';
+  if(typeof o.ck!=='string') o.ck='';
+  if(typeof o.spec!=='string') o.spec='';
+  if(!Array.isArray(o.checks)) o.checks=[];
+  o.checks=o.checks.filter(x=>x&&typeof x.t==='string'&&x.t.trim()); o.checks.forEach(x=>{ if(!x.id) x.id=nkid(); });
+  if(!o.rec || typeof o.rec!=='object') o.rec={n:3,unit:'m',next:isoToday(),mode:'done'};
+  const r=o.rec; r.n=Math.min(365,Math.max(1,num(r.n)||1));
+  if(['d','w','m','y'].indexOf(r.unit)<0) r.unit='m';
+  if(!validISO(r.next)) r.next=isoToday();
+  if(r.mode!=='fixed') r.mode='done';
+  o.lead=('lead' in o) ? Math.min(90,num(o.lead)) : 3;
+  o.needNote=!!o.needNote;
+  if(!Array.isArray(o.log)) o.log=[];
+  o.log=o.log.filter(e=>e&&num(e.ts));
+  o.log.forEach(e=>{ if(!e.id) e.id='l'+num(e.ts).toString(36); if(!(e.st in OBJ_ST)) e.st='ok';
+    if(typeof e.note!=='string') e.note=''; if(!Array.isArray(e.chk)) e.chk=[]; if(!validISO(e.d)) e.d=toISO(new Date(e.ts)); });
+  o.log.sort((a,b)=>b.ts-a.ts);
+  if(o.log.length>OBJ_LOG_CAP) o.log.length=OBJ_LOG_CAP;
+  if(!o.ct) o.ct=0;
+}
+function objById(id){ return (STATE.objs||[]).find(o=>o.id===id)||null; }
+function objDays(o){ return daysTo(o.rec.next); }
+function objDue(o){ return objDays(o)<=o.lead; }
+function dueObjs(){ return STATE.objs.filter(objDue).sort((a,b)=>objDays(a)-objDays(b)); }
+/* следующий срок после обслуживания в день d: от даты обслуживания или по графику */
+function objNextAfter(o,d){ return o.rec.mode==='fixed' ? nextRecDate(o.rec) : addPeriod(d,o.rec.n,o.rec.unit); }
+const PER_U={d:['день','дня','дней'],w:['неделю','недели','недель'],m:['месяц','месяца','месяцев'],y:['год','года','лет']};
+function periodLabel(r){ const f=PER_U[r.unit]||PER_U.m; return r.n===1 ? 'раз в '+f[0] : 'каждые '+r.n+' '+plural(r.n,f[0],f[1],f[2]); }
 function ensureSvcGroup(c){ let g=c.groups.find(x=>x.svc&&x.items); if(!g){ g=mkGroup({emo:'repeat',title:'Цикличные',items:[],svc:true}); c.groups.unshift(g); } return g; }
 function totalUrgent(){ let n=0; eachItem(it=>{ if(it.pri==='red'&&!it.done)n++; }); return n; }
 function inboxCount(){ const ib=getInbox(); let n=0; if(ib) ib.groups.forEach(g=>g.items&&g.items.forEach(it=>{ if(!it.done)n++; })); return n; }
@@ -1425,6 +1575,26 @@ function mergeOrder(bK,lK,rK,keep){
   keep.forEach(k=>{ if(!seen.has(k)){ out.push(k); seen.add(k); } });
   return out;
 }
+/* Слияние массива записей с id: присутствие по keep3, поля — mergeOne(b,l,r), порядок — mergeOrder.
+   keepChanged: удалили с одной стороны, а с другой правили — оставляем (как у задач). */
+function mergeById(bA,lA,rA,mergeOne,keepChanged){
+  bA=bA||[]; lA=lA||[]; rA=rA||[];
+  const mp=a=>new Map(a.map(x=>[x.id,x])), mB=mp(bA), mL=mp(lA), mR=mp(rA);
+  const keep=new Set();
+  new Set([...mL.keys(),...mR.keys()]).forEach(id=>{ const b=mB.get(id), l=mL.get(id), r=mR.get(id);
+    let k=keep3(!!b,!!l,!!r);
+    if(!k && keepChanged && b && (l||r) && jstr(b)!==jstr(l||r)) k=true;
+    if(k) keep.add(id); });
+  return mergeOrder(bA.map(x=>x.id),lA.map(x=>x.id),rA.map(x=>x.id),keep).map(id=>{
+    const b=mB.get(id), l=mL.get(id), r=mR.get(id);
+    return (l&&r) ? orderLike(mergeOne(b,l,r),l) : clone(l||r); });
+}
+function mergeObj(b,l,r){
+  const o=mergeFields(b,l,r,['checks','log']);
+  o.checks=mergeById(b&&b.checks,l.checks,r.checks,(x,y,z)=>mergeFields(x,y,z));
+  o.log=mergeById(b&&b.log,l.log,r.log,(x,y,z)=>mergeFields(x,y,z)).sort((a,c)=>c.ts-a.ts).slice(0,OBJ_LOG_CAP);
+  return o;
+}
 function mergeStates(B,L,R){
   const catIdx=s=>{ const m=new Map(); (s.cats||[]).forEach(c=>m.set(c.key,{c,where:'cats'})); (s.archive||[]).forEach(c=>m.set(c.key,{c,where:'archive'})); return m; };
   const itIdx=s=>{ const m=new Map(); [...(s.cats||[]),...(s.archive||[])].forEach(c=>(c.groups||[]).forEach(g=>{ if(g.items) g.items.forEach(it=>m.set(it.id,{it,ck:c.key,gid:g.gid})); })); return m; };
@@ -1469,7 +1639,9 @@ function mergeStates(B,L,R){
   cats.forEach((c,ck)=>c.meta.groups.forEach(g=>{ const bk=buckets.get(g); if(!bk) return;
     g.items=mergeOrder(idsIn(cB,ck,g.gid),idsIn(cL,ck,g.gid),idsIn(cR,ck,g.gid),new Set(bk.keys())).map(id=>bk.get(id)); }));
   /* 4. корень */
-  const M=mergeFields(B,L,R,['cats','archive','stats','doneLog','svcLog','prefs']);
+  const M=mergeFields(B,L,R,['cats','archive','stats','doneLog','svcLog','prefs','objs']);
+  /* объекты обслуживания — по id; внутри — чек-лист по id и история объединением */
+  M.objs=mergeById(B.objs,L.objs,R.objs,mergeObj,true);
   M.v=1;
   M.prefs=mergeFields(B.prefs,L.prefs,R.prefs);
   const order=w=>mergeOrder((B[w]||[]).map(c=>c.key),(L[w]||[]).map(c=>c.key),(R[w]||[]).map(c=>c.key),
@@ -1770,6 +1942,7 @@ function renderAll(){
   if(profileOpen){ renderAcct(); renderProfSettings(); renderProfileCats(); }
   if(queuesOpen) renderQueuesBody();
   if(archiveOpen) renderArchiveBody();
+  if(ovId) renderObjView();
 }
 
 /* ---------- НАСТРОЙКИ ПОКАЗА ---------- */
@@ -1819,7 +1992,7 @@ function render(){
   /* До первого снапшота показываем загрузку и прячем ввод: правка в этот момент
      затёрла бы облако пустым состоянием (после выхода локальный кэш стёрт). */
   const loading=!__primed && !!__authedUser;
-  const noFab=loading || active==='__wk__' || active==='__svc__';
+  const noFab=loading || active==='__wk__';
   document.getElementById('fab').classList.toggle('hidden', noFab);
   document.body.classList.toggle('nofab', noFab);
   if(loading){
@@ -1877,7 +2050,7 @@ function renderHeader(){
   } else if(active==='__svc__'){
     hdrEl.innerHTML=`<div class="h-row">
       <button class="bk" onclick="goHub()">${ic('chevL')}</button>
-      <div class="catttl"><span class="ce" style="${chipStyle('#2f8a7e')}">${ic('repeat')}</span><span class="nm">Обслужить</span></div>
+      <div class="catttl"><span class="ce" style="${chipStyle('var(--svc)')}">${ic('gear')}</span><span class="nm">Обслуживание</span></div>
       <div class="h-right"><button class="hb" onclick="openSvcLog()" title="Журнал обслуживания" aria-label="Журнал обслуживания">${ic('history')}</button>${avatarBtn()}</div></div>`;
   } else {
     const c=catByKey(active); const s=catStats(c); const col=catColor(c);
@@ -1904,8 +2077,11 @@ function renderHub(){
   const ib=getInbox();
   let h=`<div class="pin inbox" role="button" tabindex="0" onclick="openCat('${ib.key}')"><span class="ico">${ic('inbox')}</span><span class="nm">${esc(ib.title||'Входящие')}<small>Быстрый ввод, разобрать позже</small></span><span class="badge ${inboxCount()?'':'zero'}">${inboxCount()}</span></div>`;
   h+=`<div class="pin wk" role="button" tabindex="0" onclick="openWeekend()"><span class="ico">${ic('calendar')}</span><span class="nm">${esc(STATE.wkTitle)}<small>Отмеченные задачи со всех категорий</small></span><span class="badge ${wkCount()?'':'zero'}">${wkCount()}</span></div>`;
-  const svcDue=svcDueCount();
-  h+=`<div class="pin svc" role="button" tabindex="0" onclick="openService()"><span class="ico" style="${chipStyle('#2f8a7e')}">${ic('repeat')}</span><span class="nm">Обслужить<small>Цикличные дела: фильтры, чистка, ТО</small></span><span class="badge ${svcDue?'':'zero'}"${svcDue?' style="background:#2f8a7e"':''}>${svcDue}</span></div>`;
+  const svcDue=svcDueCount(), on=STATE.objs.length;
+  h+=`<div class="pin svc" role="button" tabindex="0" onclick="openService()"><span class="ico" style="${chipStyle('var(--svc)')}">${ic('gear')}</span><span class="nm">Обслуживание<small>${on?on+' '+plural(on,'объект','объекта','объектов')+' · фильтры, техника, ТО':'Фильтры, техника, ТО — с историей'}</small></span><span class="badge ${svcDue?'':'zero'}"${svcDue?' style="background:var(--svc)"':''}>${svcDue}</span></div>`;
+  /* подошёл срок — объекты поднимаются на самый верх главного экрана */
+  const due=dueObjs();
+  if(due.length) h=`<div class="duebox"><div class="duebox-h" role="button" tabindex="0" onclick="openService()">${ic('clock')} Пора обслужить · ${due.length}</div><div class="olist">${due.slice(0,5).map(objRow).join('')}</div>${due.length>5?`<div class="rep-more" role="button" tabindex="0" onclick="openService()">ещё ${due.length-5} — открыть «Обслуживание»</div>`:''}</div>`+h;
   const list=hubView==='list';
   h+=`<div class="sect-l"><span>Категории</span>
     <span class="viewseg">
@@ -2045,31 +2221,232 @@ function renderWeekend(){
   }
   viewEl.innerHTML=h;
 }
+function objRow(o){
+  const d=objDays(o), last=o.log[0];
+  const cls=d<0?' late':(d<=o.lead?' soon':'');
+  const lastTx=last ? 'последнее '+fmtD(last.d)+(last.st!=='ok'?' — '+OBJ_ST[last.st].lbl.toLowerCase():'') : 'ещё не обслуживали';
+  return `<div class="orow${cls}" role="button" tabindex="0" onclick="openObjView('${o.id}')">
+    <span class="oico" style="${chipStyle('var(--svc)')}">${ic(o.icon)}</span>
+    <div class="lw"><span class="lbl">${esc(o.t||'Без названия')}</span>
+      <span class="odue">${ic('clock')} ${fmtD(o.rec.next)} · ${dueLabel(d)}</span>
+      <span class="osub">${periodLabel(o.rec)} · ${lastTx}</span></div>
+    <button class="odone" title="Обслужить" aria-label="Отметить обслуживание" onclick="event.stopPropagation();openObjDone('${o.id}')">${ic('check')}</button></div>`;
+}
 function renderService(){
-  const rs=recTasks();
-  if(!rs.length){ viewEl.innerHTML=`<div class="empty">${ic('repeat')}<br>Цикличных дел пока нет.<br>Откройте задачу и включите «Повторять» —<br>она появится здесь с датой и напоминанием.</div>`; return; }
-  rs.sort((a,b)=>daysTo(a.it.rec.next)-daysTo(b.it.rec.next));
+  const objs=STATE.objs.slice().sort((a,b)=>objDays(a)-objDays(b));
+  const rs=recTasks().sort((a,b)=>daysTo(a.it.rec.next)-daysTo(b.it.rec.next));
+  const add=`<div class="addobj" role="button" tabindex="0" onclick="openObjEditor(null)">${ic('gear')} Добавить объект обслуживания</div>`;
   let h='';
-  const near=rs.filter(r=>daysTo(r.it.rec.next)<=7);
-  const nearSet=new Set(near.map(r=>r.it.id));
-  if(near.length){
-    h+=`<div class="wkgrp-h">${ic('clock','color:#c1503b')} Ближайшие</div><div class="grp"><div class="items">`;
-    near.forEach(r=>h+=itemRow(r.it));
-    h+=`</div></div>`;
+  if(!objs.length) h+=`<div class="empty">${ic('gear')}<br>Здесь живут вещи, за которыми нужно следить:<br>фильтры, котёл, кондиционер, огнетушители.<br>У каждой — период, чек-лист осмотра и история.</div>`;
+  const sec=(title,col,icon,l)=>{ if(!l.length) return;
+    h+=`<div class="wkgrp-h" style="color:${col}">${ic(icon)} ${title} · ${l.length}</div><div class="olist">${l.map(objRow).join('')}</div>`; };
+  sec('Просрочено','var(--pri-red)','clock',objs.filter(o=>objDays(o)<0));
+  sec('Пора обслужить','var(--pri-org)','clock',objs.filter(o=>{ const d=objDays(o); return d>=0 && d<=o.lead; }));
+  sec('По графику','var(--svc)','gear',objs.filter(o=>objDays(o)>o.lead));
+  h+=add;
+  if(rs.length){
+    h+=`<div class="wkgrp-h">${ic('repeat','color:var(--svc)')} Повторяющиеся задачи · ${rs.length}</div>
+      <div class="rep-more" style="text-align:left;padding:0 4px 6px">Простые повторы из категорий. Нужны история и чек-лист — откройте задачу и нажмите «Сделать объектом обслуживания».</div>
+      <div class="grp"><div class="items">${rs.map(r=>itemRow(r.it,`<span class="svc-cat">${esc(r.c.title||r.c.tab||'')}</span>`)).join('')}</div></div>`;
   }
-  /* «Всё обслуживание» не дублирует «Ближайшие»: раньше одна задача рисовалась
-     дважды с одним data-id — дубли в DOM и ловушка для drag-движка. */
-  const restByCat=STATE.cats.map(c=>({c,l:rs.filter(r=>r.c===c && !nearSet.has(r.it.id))})).filter(x=>x.l.length);
-  if(restByCat.length){
-    h+=`<div class="wkgrp-h">${ic('repeat','color:#2f8a7e')} Остальное обслуживание</div>`;
-    if(near.length) h+=`<div class="rep-more" style="text-align:left;padding:0 4px 6px">Ближайшие (${near.length}) показаны выше.</div>`;
-  }
-  restByCat.forEach(({c,l})=>{
-    h+=`<div class="wkgrp-h" style="font-size:11.5px;color:var(--muted)">${ic(c.icon,'color:'+catColor(c))} ${esc(c.title||c.tab)}</div><div class="grp"><div class="items">`;
-    l.forEach(r=>h+=itemRow(r.it));
-    h+=`</div></div>`;
-  });
   viewEl.innerHTML=h;
+}
+
+/* --- окно объекта: паспорт, чек-лист, история --- */
+let ovId=null;
+function openObjView(id){
+  const o=objById(id); if(!o) return;
+  ovId=id; renderObjView();
+  document.getElementById('ovEditB').innerHTML=ic('pencil');
+  openSheet(document.getElementById('ovsheet'));
+}
+function closeObjView(){ ovId=null; closeSheet(document.getElementById('ovsheet')); }
+function renderObjView(){
+  const o=objById(ovId);
+  if(!o){ closeObjView(); return; }   /* удалили на другом устройстве */
+  document.getElementById('ovTitle').textContent=o.t||'Объект';
+  const d=objDays(o), cls=d<0?' late':(d<=o.lead?' soon':'');
+  const cat=catByKey(o.ck);
+  let h=`<div class="ov-meta">
+    <span class="ov-chip due${cls}">${ic('clock')} ${fmtD(o.rec.next)} · ${dueLabel(d)}</span>
+    <span class="ov-chip">${ic('repeat')} ${periodLabel(o.rec)}${o.rec.mode==='fixed'?', по графику':''}</span>
+    ${cat?`<span class="ov-chip">${ic(cat.icon,'color:'+catColor(cat))} ${esc(cat.title||cat.tab)}</span>`:''}</div>`;
+  if(o.checks.length) h+=`<div class="fld-lbl">Чек-лист осмотра</div><div class="ov-block"><ul class="ov-chk">${o.checks.map(x=>`<li>${ic('check')}<span>${esc(x.t)}</span></li>`).join('')}</ul></div>`;
+  if(o.spec) h+=`<div class="fld-lbl">Паспорт</div><div class="ov-block">${esc(o.spec)}</div>`;
+  h+=`<div class="fld-lbl">История · ${o.log.length}</div>`;
+  h+=o.log.length ? o.log.map(e=>{
+      const n=o.checks.length ? e.chk.filter(id=>o.checks.some(x=>x.id===id)).length : 0;
+      return `<div class="log-row"><button class="lx" title="Удалить запись" aria-label="Удалить запись" onclick="objLogDel('${o.id}','${e.id}')">${ic('x')}</button>
+        <span class="ld">${fmtD(e.d)}</span><span class="st-chip" style="background:${OBJ_ST[e.st].c}">${OBJ_ST[e.st].lbl}</span>
+        ${o.checks.length?`<span class="lc"> · чек-лист ${n}/${o.checks.length}</span>`:''}
+        ${e.note?`<div class="ln">${esc(e.note)}</div>`:''}</div>`; }).join('')
+    : `<div class="empty" style="padding:14px">Записей пока нет. Нажмите «Обслужить», когда сделаете.</div>`;
+  document.getElementById('ovBody').innerHTML=h;
+}
+function ovEdit(){ const id=ovId; closeObjView(); setTimeout(()=>openObjEditor(id),140); }
+function ovDone(){ const id=ovId; closeObjView(); setTimeout(()=>openObjDone(id),140); }
+function objLogDel(oid,lid){
+  const o=objById(oid); if(!o) return;
+  if(!confirm('Удалить эту запись из истории?')) return;
+  o.log=o.log.filter(e=>e.id!==lid); save(); renderAll();
+}
+
+/* --- редактор объекта --- */
+let oeId=null, oeIcon='gear', oeMode='done', oeNeedOn=false, oeChk=[];
+function oeIconsHtml(){ return ICON_LIB.map(id=>`<button type="button" class="ipg ${id===oeIcon?'on':''}" title="${ICON_NAMES[id]||id}" aria-label="${ICON_NAMES[id]||id}" aria-pressed="${id===oeIcon?'true':'false'}" onclick="oeSetIcon('${id}')">${ic(id)}</button>`).join(''); }
+function oeSetIcon(id){ oeIcon=id; document.getElementById('oeIcons').innerHTML=oeIconsHtml(); }
+function oeSuggest(){ const l=iconSuggestList(document.getElementById('oeName').value); document.getElementById('oeSug').innerHTML=l.map(id=>`<button type="button" class="ips" onclick="oeSetIcon('${id}')">${ic(id)}</button>`).join(''); }
+function oeRenderMode(){
+  const b=(v,l)=>`<button type="button" class="${oeMode===v?'on':''}" aria-pressed="${oeMode===v?'true':'false'}" onclick="oeSetMode('${v}')">${l}</button>`;
+  document.getElementById('oeMode').innerHTML=b('done','От обслуживания')+b('fixed','По графику');
+  document.getElementById('oeModeNote').textContent=oeMode==='fixed'
+    ? 'Срок идёт по календарю от прошлой плановой даты, даже если обслужили позже.'
+    : 'Следующий срок считается от даты, когда реально обслужили.';
+}
+function oeSetMode(v){ oeMode=v==='fixed'?'fixed':'done'; oeRenderMode(); }
+function oeToggleNeed(){ oeNeedOn=!oeNeedOn; document.getElementById('oeNeed').classList.toggle('on',oeNeedOn); }
+/* чек-лист правится в DOM; перед перерисовкой забираем введённое обратно в oeChk */
+function oeReadChecks(){ oeChk.forEach(x=>{ const el=document.getElementById('oeC_'+x.id); if(el) x.t=el.value; }); }
+function oeRenderChecks(){
+  document.getElementById('oeChecks').innerHTML=oeChk.map(x=>`<div class="oed-chk"><input id="oeC_${x.id}" type="text" value="${esc(x.t)}" placeholder="Например: проверить давление" autocomplete="off" enterkeyhint="next" onkeydown="if(event.key==='Enter'){event.preventDefault();oeAddCheck();}"><button type="button" title="Убрать пункт" aria-label="Убрать пункт" onclick="oeDelCheck('${x.id}')">${ic('x')}</button></div>`).join('');
+}
+function oeAddCheck(){ oeReadChecks(); const k={id:nkid(),t:''}; oeChk.push(k); oeRenderChecks(); const el=document.getElementById('oeC_'+k.id); if(el) el.focus(); }
+function oeDelCheck(id){ oeReadChecks(); oeChk=oeChk.filter(x=>x.id!==id); oeRenderChecks(); }
+function openObjEditor(id){
+  const o=id?objById(id):null;
+  oeId=o?o.id:null;
+  document.getElementById('oeTitle').textContent=o?'Объект обслуживания':'Новый объект';
+  const del=document.getElementById('oeDelB'); del.innerHTML=ic('trash'); del.style.display=o?'':'none';
+  document.getElementById('oeName').value=o?o.t:'';
+  oeIcon=o?o.icon:'gear';
+  document.getElementById('oeN').value=o?o.rec.n:3;
+  document.getElementById('oeU').value=o?o.rec.unit:'m';
+  oeMode=o?o.rec.mode:'done';
+  document.getElementById('oeNext').value=o?o.rec.next:isoToday();
+  document.getElementById('oeLead').value=o?o.lead:3;
+  document.getElementById('oeCat').innerHTML=`<option value="">— не привязан —</option>`+alphaCats().map(c=>`<option value="${c.key}"${o&&o.ck===c.key?' selected':''}>${esc(c.title||c.tab)}</option>`).join('');
+  document.getElementById('oeSpec').value=o?o.spec:'';
+  oeNeedOn=o?o.needNote:false; document.getElementById('oeNeed').classList.toggle('on',oeNeedOn);
+  oeChk=o?o.checks.map(x=>({id:x.id,t:x.t})):[];
+  oeRenderChecks(); oeRenderMode(); oeSetIcon(oeIcon); oeSuggest();
+  openSheet(document.getElementById('osheet'));
+  if(!o) setTimeout(()=>document.getElementById('oeName').focus(),80);
+}
+function closeObjEditor(){ closeSheet(document.getElementById('osheet')); }
+function saveObjEditor(){
+  const t=document.getElementById('oeName').value.trim();
+  if(!t){ document.getElementById('oeName').focus(); return; }
+  oeReadChecks();
+  const nx=document.getElementById('oeNext').value;
+  let o=oeId?objById(oeId):null;
+  if(oeId && !o){ alert('Этот объект удалили на другом устройстве.'); closeObjEditor(); return; }
+  if(!o){ o={id:noid(),ct:Date.now(),log:[]}; STATE.objs.push(o); }
+  o.t=t; o.icon=oeIcon; o.ck=document.getElementById('oeCat').value||'';
+  o.spec=document.getElementById('oeSpec').value.trim();
+  o.checks=oeChk.map(x=>({id:x.id,t:x.t.trim()})).filter(x=>x.t);
+  o.rec={n:Math.min(365,Math.max(1,parseInt(document.getElementById('oeN').value,10)||1)), unit:document.getElementById('oeU').value||'m',
+    next:validISO(nx)?nx:isoToday(), mode:oeMode};
+  o.lead=Math.min(90,Math.max(0,parseInt(document.getElementById('oeLead').value,10)||0));
+  o.needNote=oeNeedOn;
+  normObj(o);
+  save(); closeObjEditor(); renderAll();
+}
+function oeDelete(){
+  const o=oeId&&objById(oeId); if(!o) return;
+  if(!confirm('Удалить «'+o.t+'» вместе с историей обслуживания?')) return;
+  const idx=STATE.objs.indexOf(o); STATE.objs.splice(idx,1);
+  save(); closeObjEditor(); renderAll();
+  showToast('Удалено: '+o.t, ()=>{ if(!objById(o.id)){ STATE.objs.splice(Math.min(idx,STATE.objs.length),0,o); save(); renderAll(); } });
+}
+
+/* --- отметка «обслужено»: чек-лист, состояние, комментарий, дата --- */
+let odId=null, odSt='ok', odChk=new Set(), odTaskOn=true;
+function openObjDone(id){
+  const o=objById(id); if(!o) return;
+  odId=id; odSt='ok'; odChk=new Set(); odTaskOn=true;
+  document.getElementById('odName').textContent=o.t;
+  document.getElementById('odNote').value='';
+  document.getElementById('odDate').value=isoToday();
+  document.getElementById('odNoteF').classList.remove('bad');
+  odRenderChecks(); odRenderSt(); odRenderNext();
+  openSheet(document.getElementById('odsheet'));
+}
+function closeObjDone(){ closeSheet(document.getElementById('odsheet')); }
+function odRenderChecks(){
+  const o=objById(odId); const box=document.getElementById('odChecks');
+  box.innerHTML=(o&&o.checks.length) ? `<div class="fld-lbl">Чек-лист</div>`+o.checks.map(x=>`<div class="ochk${odChk.has(x.id)?' on':''}" role="checkbox" tabindex="0" aria-checked="${odChk.has(x.id)?'true':'false'}" onclick="odToggleChk('${x.id}')"><span class="cb">${ic('check')}</span>${esc(x.t)}</div>`).join('') : '';
+}
+function odToggleChk(id){ if(odChk.has(id)) odChk.delete(id); else odChk.add(id); odRenderChecks(); }
+function odRenderSt(){
+  const o=objById(odId);
+  document.getElementById('odSt').innerHTML=Object.keys(OBJ_ST).map(k=>`<button type="button" class="${odSt===k?'on':''}" aria-pressed="${odSt===k?'true':'false'}" style="${odSt===k?'background:'+OBJ_ST[k].c+';border-color:'+OBJ_ST[k].c:''}" onclick="odSetSt('${k}')">${OBJ_ST[k].lbl}</button>`).join('');
+  const need=(o&&o.needNote)||odSt!=='ok';
+  document.getElementById('odNoteL').textContent=need?'Комментарий (обязательно)':'Комментарий';
+  const t=document.getElementById('odTask'); t.style.display=odSt==='bad'?'':'none'; t.classList.toggle('on',odTaskOn);
+  const c=o&&catByKey(o.ck);
+  document.getElementById('odTaskNote').textContent='В 1 очередь, категория «'+(c?(c.title||c.tab):(getInbox().title||'Входящие'))+'»';
+}
+function odSetSt(k){ odSt=k; odRenderSt(); }
+function odToggleTask(){ odTaskOn=!odTaskOn; document.getElementById('odTask').classList.toggle('on',odTaskOn); }
+function odRenderNext(){
+  const o=objById(odId); if(!o) return;
+  const d=document.getElementById('odDate').value, iso=validISO(d)?d:isoToday();
+  const nx=objNextAfter(o,iso);
+  document.getElementById('odNext').textContent='Следующее обслуживание — '+fmtD(nx)+' ('+dueLabel(daysTo(nx))+')'+(o.rec.mode==='fixed'?', по графику.':'.');
+}
+function odConfirm(){
+  const o=objById(odId);
+  if(!o){ closeObjDone(); return; }   /* удалили на другом устройстве */
+  const note=document.getElementById('odNote').value.trim();
+  if(((o.needNote)||odSt!=='ok') && !note){
+    document.getElementById('odNoteF').classList.add('bad'); document.getElementById('odNote').focus(); return; }
+  const dv=document.getElementById('odDate').value, d=validISO(dv)?dv:isoToday();
+  /* задним числом — полдень того дня, чтобы история сортировалась по дате обслуживания */
+  const ts=d===isoToday()?Date.now():parseISO(d).getTime()+12*3600000;
+  const e={id:nlid(),ts,d,note,st:odSt,chk:o.checks.filter(x=>odChk.has(x.id)).map(x=>x.id)};
+  const prevNext=o.rec.next;
+  o.log.unshift(e); o.log.sort((a,b)=>b.ts-a.ts); if(o.log.length>OBJ_LOG_CAP) o.log.length=OBJ_LOG_CAP;
+  o.rec.next=objNextAfter(o,d);
+  const doneId='svc-'+e.id; markDone({id:doneId},true);
+  let taskId=null;
+  if(odSt==='bad' && odTaskOn){
+    const c=catByKey(o.ck)||getInbox();
+    taskId=nid(); addTaskTo(ensureInboxGroup(c),{id:taskId,ct:Date.now(),t:'Ремонт: '+o.t,n:note,done:false,pri:'red',wk:false});
+    statCreated(1);
+  }
+  save(); closeObjDone(); renderAll();
+  showToast('Записано. Следующее — '+fmtD(o.rec.next), ()=>{
+    const x=objById(o.id); if(!x) return;
+    x.log=x.log.filter(l=>l.id!==e.id); x.rec.next=prevNext; markDone({id:doneId},false);
+    if(taskId){ const f=findItem(taskId); if(f){ f.g.items.splice(f.g.items.indexOf(f.it),1); STATE.stats.created=Math.max(0,num(STATE.stats.created)-1); } }
+    save(); renderAll(); });
+}
+/* Цикличная задача → объект. id детерминированный ('o'+id задачи): если два устройства
+   превратят одну задачу, слияние даст один объект, а не два. Записи общего журнала с тем
+   же названием переезжают в историю объекта. */
+function taskToObj(id){
+  const f=findItem(id); if(!f) return null;
+  const it=f.it, oid='o'+it.id;
+  if(objById(oid)) return objById(oid);
+  const log=[];
+  STATE.svcLog=STATE.svcLog.filter(e=>{ if(e.t!==it.t) return true;
+    log.push({id:'l'+num(e.ts).toString(36),ts:e.ts,d:toISO(new Date(e.ts)),note:e.note||'',st:'ok',chk:[]}); return false; });
+  const o={id:oid,ct:it.ct||Date.now(),t:it.t,icon:iconSuggestList(it.t)[0]||'gear',ck:f.c.kind==='inbox'?'':f.c.key,
+    spec:it.n||'',checks:[],rec:it.rec?clone(it.rec):{n:3,unit:'m',next:isoToday(),mode:'done'},lead:3,needNote:false,log};
+  normObj(o); STATE.objs.push(o);
+  f.g.items.splice(f.g.items.indexOf(it),1);
+  /* опустевшая служебная «Цикличные» больше не нужна */
+  if(f.g.svc && !f.g.items.length) f.c.groups=f.c.groups.filter(g=>g!==f.g);
+  return o;
+}
+function tsMakeObj(){
+  const id=tsId; if(!id) return;
+  if(!confirm('Задача станет объектом обслуживания: с паспортом, чек-листом и историей. Из категории она уйдёт в «Обслуживание». Продолжить?')) return;
+  saveTaskSheet();                    /* сначала сохраняем то, что успели поменять в карточке */
+  if(!findItem(id)) return;
+  const o=taskToObj(id); if(!o) return;
+  save(); renderAll();
+  setTimeout(()=>openObjView(o.id),180);
 }
 
 /* Прокрутка хаба запоминается при уходе и возвращается при «назад»: раньше
@@ -2169,8 +2546,12 @@ function svcConfirm(){
 function fmtTs(ts){ const d=new Date(ts); return d.getDate()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getFullYear()).slice(2); }
 function openSvcLog(){
   const box=document.getElementById('lsBody');
-  box.innerHTML=STATE.svcLog.length
-    ? STATE.svcLog.map(e=>`<div class="log-row"><span class="ld">${fmtTs(e.ts)}</span> — ${esc(e.t)} <span class="lc">· ${esc(e.cat)}</span>${e.note?`<div class="ln">${esc(e.note)}</div>`:''}</div>`).join('')
+  /* общий журнал: история объектов + старые записи цикличных задач */
+  const all=STATE.svcLog.map(e=>({ts:e.ts,t:e.t,sub:e.cat,note:e.note,st:null}));
+  STATE.objs.forEach(o=>o.log.forEach(e=>all.push({ts:e.ts,t:o.t,sub:'',note:e.note,st:e.st})));
+  all.sort((a,b)=>b.ts-a.ts);
+  box.innerHTML=all.length
+    ? all.map(e=>`<div class="log-row"><span class="ld">${fmtTs(e.ts)}</span> — ${esc(e.t)}${e.sub?` <span class="lc">· ${esc(e.sub)}</span>`:''}${e.st?`<span class="st-chip" style="background:${OBJ_ST[e.st].c}">${OBJ_ST[e.st].lbl}</span>`:''}${e.note?`<div class="ln">${esc(e.note)}</div>`:''}</div>`).join('')
     : `<div class="empty">Журнал пуст.<br>Отмечайте цикличные дела выполненными — здесь появится история: что и когда обслужено.</div>`;
   openSheet(document.getElementById('lsheet'));
 }
@@ -2267,6 +2648,9 @@ function renderQueuesBody(){
   if(sb){ sb.innerHTML=ic(qNew?'sortNew':'sortOld')+(qNew?' новые сверху':' старые сверху');
     sb.setAttribute('aria-label', qNew?'Сейчас новые сверху, переключить на старые':'Сейчас старые сверху, переключить на новые'); }
   let h=''; let any=false;
+  const due=dueObjs();
+  if(due.length){ any=true;
+    h+=`<div class="wkgrp-h" style="color:var(--pri-org)">${ic('gear')} Пора обслужить · ${due.length}</div><div class="olist">${due.map(objRow).join('')}</div>`; }
   ['red','orange','fast','green',''].forEach(p=>{
     const l=[]; STATE.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if((it.pri||'')===p && !it.done) l.push({it,c}); }); }));
     if(!l.length) return; any=true;
@@ -2315,7 +2699,7 @@ function renderArchiveBody(){
       <button class="ar-b restore" title="Вернуть из архива" aria-label="Вернуть из архива" onclick="arRestore('${c.key}')">${ic('arrowUp')}</button>
       <button class="ar-b del" title="Удалить навсегда" aria-label="Удалить навсегда" onclick="arDelete('${c.key}')">${ic('trash')}</button></div>`;
   });
-  h+=`<div class="rep-more" style="text-align:left;padding:8px 2px 0">Задачи из архива не попадают в очереди, отчёт и «Обслужить». Найти их можно в поиске — галочка «в архиве».</div>`;
+  h+=`<div class="rep-more" style="text-align:left;padding:8px 2px 0">Задачи из архива не попадают в очереди, отчёт и «Обслуживание». Найти их можно в поиске — галочка «в архиве».</div>`;
   box.innerHTML=h;
 }
 /* archiveCategory/restoreCategory/deleteArchived сами перерисовывают всё открытое (afterCatChange) */
@@ -2385,10 +2769,11 @@ function tsSetRecUI(rec){
   document.getElementById('tsRecU').value=rec?rec.unit:'m';
   document.getElementById('tsRecD').value=rec?rec.next:isoToday();
   tsRecMode=(rec&&rec.mode==='fixed')?'fixed':'done';
-  renderTsRecMode();
+  renderTsRecMode(); tsObjBtn();
 }
+function tsObjBtn(){ const b=document.getElementById('tsToObj'); if(b) b.style.display=(tsRecOn && tsMode==='edit')?'':'none'; }
 function tsToggleRec(){
-  tsRecOn=!tsRecOn;
+  tsRecOn=!tsRecOn; tsObjBtn();
   document.getElementById('tsRec').classList.toggle('on',tsRecOn);
   document.getElementById('tsRecCfg').style.display=tsRecOn?'':'none';
   if(tsRecOn && !document.getElementById('tsRecD').value) document.getElementById('tsRecD').value=isoToday();
@@ -2603,6 +2988,7 @@ function closeNoteEditor(){ closeSheet(document.getElementById('nsheet')); }
 /* ---------- SHEET: быстрый ввод (FAB) ---------- */
 let qaPri='', qaWk=false, qaCat=null;
 function openQuick(){
+  if(active==='__svc__'){ openObjEditor(null); return; }   /* в «Обслуживании» «+» — новый объект */
   qaPri=''; qaWk=false;
   qaCat = (active && catByKey(active)) ? active : getInbox().key;
   document.getElementById('qaInput').value='';
