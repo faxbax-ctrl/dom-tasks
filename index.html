@@ -1111,6 +1111,8 @@ const ngid=()=> 'g'+Date.now().toString(36)+(uid++)+rnd4();
 /* У подкатегории есть стабильный gid: индексы групп «плывут» при перетаскивании и
    при вставке служебных групп, а на индексы завязаны свёрнутость и редакторы.
    В ключах/id нет дефиса — на этом держится разбор data-gk. */
+/* название приёмника категории (до 1.10 — «Inbox»); выше migrate(), иначе TDZ при загрузке */
+const INB_TITLE='Без категории';
 function mkGroup(o){ o.gid=ngid(); return o; }
 function groupByGid(c,gid){ return c&&c.groups.find(g=>g.gid===gid); }
 function gidxOf(c,gid){ return c?c.groups.findIndex(g=>g.gid===gid):-1; }
@@ -1174,6 +1176,9 @@ function migrate(raw){
      если её нет — создаётся сверху. Дальше держится на флаге `inb`, поэтому
      переименование и перетаскивание пользователем ничего не ломают. */
   s.cats.forEach(c=>ensureInboxGroup(c));
+  /* Правка 1.10: приёмник называется «Без категории» вместо «Inbox» — переименовываем
+     только нетронутое название, своё имя пользователя не трогаем (и в архиве тоже) */
+  s.cats.concat(Array.isArray(s.archive)?s.archive:[]).forEach(c=>(c.groups||[]).forEach(g=>{ if(g.inb && g.title==='Inbox') g.title=INB_TITLE; }));
   /* Архив категорий: отдельный массив вне s.cats — поэтому НЕ участвует ни в
      каком подсчёте (метрики, очереди, обслуживание), пока не восстановят. */
   if(!Array.isArray(s.archive)) s.archive=[];
@@ -1274,13 +1279,13 @@ function restoreCategory(key){
   afterCatChange();
 }
 /* Подкатегория «Задачи» — гарантированный приёмник переносов, вверху категории */
-/* Приёмник всего входящего внутри категории — подкатегория «Inbox».
+/* Приёмник всего входящего внутри категории — подкатегория «Без категории» (до 1.10 «Inbox»).
    Держится на флаге `inb`, а НЕ на названии: пользователь может её переименовать
    и перетащить куда угодно, и она всё равно останется приёмником. */
 function ensureInboxGroup(c){
   let g=c.groups.find(x=>x.items && x.inb && !x.sub);
   if(!g) g=adoptInboxGroup(c);
-  if(!g){ g=mkGroup({emo:'inbox',title:'Inbox',items:[],inb:true});
+  if(!g){ g=mkGroup({emo:'inbox',title:INB_TITLE,items:[],inb:true});
     const idx=(c.groups[0]&&c.groups[0].svc)?1:0; c.groups.splice(idx,0,g); }
   return g;
 }
@@ -1289,7 +1294,7 @@ function adoptInboxGroup(c){
   const g=c.groups.find(x=>x.items && !x.svc && !x.sub && (x.title==='Задачи'||x.title==='Inbox'||(c.kind==='inbox'&&x.title==='Входящие')));
   if(!g) return null;
   g.inb=true;
-  if(g.title==='Задачи'){ g.title='Inbox'; if(!g.emo||g.emo==='box') g.emo='inbox'; }
+  if(g.title==='Задачи'){ g.title=INB_TITLE; if(!g.emo||g.emo==='box') g.emo='inbox'; }
   return g;
 }
 function catColor(c){ return c&&c.color?c.color:'var(--indigo-tx)'; }
@@ -2402,7 +2407,7 @@ function placeByRec(id){
     const sg=ensureSvcGroup(f.c);
     f.g.items=f.g.items.filter(x=>x!==f.it); sg.items.unshift(f.it);
   } else if(!f.it.rec && f.g.svc){
-    const ng=f.c.groups.find(x=>x.items&&!x.svc)||ensureInboxGroup(f.c);
+    const ng=ensureInboxGroup(f.c);   /* сняли цикличность — в «Без категории», а не в первую попавшуюся */
     f.g.items=f.g.items.filter(x=>x!==f.it); ng.items.unshift(f.it);
   }
 }
@@ -2765,8 +2770,8 @@ function saveESheet(){
     STATE.wkTitle=name.slice(0,30);
   } else if(esMode==='cat'){
     if(esNew){ const key=ncid();
-      /* новая категория сразу с приёмником «Inbox» — как и все остальные (правка 5) */
-      STATE.cats.push({key, icon:esIcon, color:esColor, tab:name.slice(0,14), title:name, intro:'', groups:[mkGroup({emo:'inbox',title:'Inbox',items:[],inb:true})]}); active=key; editmode=false;
+      /* новая категория сразу с приёмником «Без категории» — как и все остальные (правка 5) */
+      STATE.cats.push({key, icon:esIcon, color:esColor, tab:name.slice(0,14), title:name, intro:'', groups:[mkGroup({emo:'inbox',title:INB_TITLE,items:[],inb:true})]}); active=key; editmode=false;
     } else { const c=catByKey(esCatKey); if(c){ c.icon=esIcon; c.color=esColor; c.tab=name.slice(0,14); c.title=name; } }
   } else if(esMode==='sub'){
     const c=catByKey(esCatKey);
