@@ -1530,14 +1530,33 @@ function migrate(raw){
      настройки этого устройства, дальше — из облака. */
   if(!s.prefs || typeof s.prefs!=='object') s.prefs={sortPri:lsFlag('sort_pri'), newTop:lsFlag('new_top')};
   s.prefs.sortPri = s.prefs.sortPri!==false; s.prefs.newTop = s.prefs.newTop!==false;
+  /* Настройки показа — тоже общие (правка 1.16): «скрыть ✓», плитки/список, вид выходных,
+     порядок в «Очередях», тема, скрытый блок «Пора обслужить». Раньше жили в localStorage, и
+     на телефоне и компьютере были разными. Первое значение — с этого устройства, дальше —
+     из облака; localStorage остаётся зеркалом (тема из него ставится до отрисовки). */
+  const pr=s.prefs, lsv=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } };
+  if(typeof pr.hideDone!=='boolean') pr.hideDone=lsv('hide_done')==='1';
+  if(pr.hubView!=='tiles' && pr.hubView!=='list') pr.hubView=lsv('hub_view')==='list'?'list':'tiles';
+  if(pr.wkView!=='cats' && pr.wkView!=='list') pr.wkView=lsv('wk_view')==='list'?'list':'cats';
+  if(typeof pr.qNew!=='boolean') pr.qNew=lsv('q_sort_new')!=='0';
+  if(THEMES.indexOf(pr.theme)<0){ const t=lsv('theme'); pr.theme=THEMES.indexOf(t)>=0?t:'system'; }
+  if(!Array.isArray(pr.dueHide)){ let a=[]; try{ a=JSON.parse(lsv('due_hide')||'[]'); }catch(e){} pr.dueHide=Array.isArray(a)?a:[]; }
+  pr.dueHide=pr.dueHide.filter(x=>typeof x==='string').slice(0,200);
   sortItemsIn(s);
   return s;
 }
 let STATE, MODEL=[];
 /* sortPri/newTop — зеркало STATE.prefs. Объявлены через var без значения: syncModelRef()
    зовётся уже в load(), раньше, чем дошла бы очередь до let-объявления (TDZ). */
-var sortPri, newTop;
-function syncModelRef(){ MODEL=STATE.cats; sortPri=STATE.prefs.sortPri; newTop=STATE.prefs.newTop; }
+var sortPri, newTop, hideDone, hubView, wkView, qNew, theme, __themeReady=false;
+const THEMES=['light','dark','system'];
+function syncModelRef(){ MODEL=STATE.cats; const p=STATE.prefs;
+  sortPri=p.sortPri; newTop=p.newTop; hideDone=p.hideDone; hubView=p.hubView; wkView=p.wkView; qNew=p.qNew;
+  const th=p.theme;
+  /* зеркало в localStorage: тема нужна скрипту в <head> ещё до загрузки списка */
+  try{ localStorage.setItem('theme',th); localStorage.setItem('hide_done',hideDone?'1':'0'); localStorage.setItem('hub_view',hubView);
+    localStorage.setItem('wk_view',wkView); localStorage.setItem('q_sort_new',qNew?'1':'0'); }catch(e){}
+  if(th!==theme){ theme=th; if(__themeReady) applyTheme(); } }
 let localUpdatedAt=0; try{ localUpdatedAt=parseInt(localStorage.getItem(KEY+"_ts")||"0",10)||0; }catch(e){}
 function load(){ try{const s=localStorage.getItem(KEY); if(s){ STATE=migrate(JSON.parse(s)); syncModelRef(); return; }}catch(e){} STATE=migrate(freshState()); syncModelRef(); }
 load();
@@ -2228,27 +2247,23 @@ function renderAll(){
 }
 
 /* ---------- НАСТРОЙКИ ПОКАЗА ---------- */
-let hideDone=false; try{ hideDone=localStorage.getItem('hide_done')==='1'; }catch(e){}
-let hubView='tiles'; try{ if(localStorage.getItem('hub_view')==='list') hubView='list'; }catch(e){}
-/* Витрина выходных: 'cats' — по категориям (как было), 'list' — сплошной список
-   срочных дел, ранжированный по очереди (правка 1.5). Настройка устройства. */
-let wkView='cats'; try{ if(localStorage.getItem('wk_view')==='list') wkView='list'; }catch(e){}
-function setWkView(v){ wkView=(v==='list')?'list':'cats'; try{ localStorage.setItem('wk_view',wkView); }catch(e){} render(); }
-/* Куда попадают новые задачи: сверху списка (по умолчанию) или снизу. Настройка в профиле. */
-/* Порядок в окне «Очереди»: новые сверху (по умолчанию) или старые сверху */
-let qNew=true; try{ qNew=localStorage.getItem('q_sort_new')!=='0'; }catch(e){}
-function toggleHideDone(){ hideDone=!hideDone; try{ localStorage.setItem('hide_done', hideDone?'1':'0'); }catch(e){} render(); }
+/* Все настройки показа общие для устройств (правка 1.16) и лежат в STATE.prefs:
+   hideDone, hubView ('tiles'|'list'), wkView ('cats'|'list' — витрина выходных),
+   qNew (порядок в «Очередях»), theme, dueHide. Глобальные переменные — зеркало
+   (syncModelRef). Меняются только через setPrefV → save() → облако. */
+function setPrefV(k,v){ if(jstr(STATE.prefs[k])===jstr(v)) return; STATE.prefs[k]=v; syncModelRef(); save(); }
+function setWkView(v){ setPrefV('wkView',(v==='list')?'list':'cats'); render(); }
+function toggleHideDone(){ setPrefV('hideDone',!hideDone); render(); }
 /* общая настройка: пишем в STATE.prefs и сохраняем (уедет на другие устройства);
    localStorage — только значение по умолчанию для нового списка на этом устройстве */
 function setPref(k,lsKey,v){ STATE.prefs[k]=!!v; syncModelRef(); try{ localStorage.setItem(lsKey, v?'1':'0'); }catch(e){} save(); }
 function toggleSortPri(){ setPref('sortPri','sort_pri',!sortPri); render(); }
-function setHubView(v){ hubView=v; try{ localStorage.setItem('hub_view', v); }catch(e){} render(); }
+function setHubView(v){ setPrefV('hubView',v==='list'?'list':'tiles'); render(); }
 /* Тумблеры «скрыть ✓» и «очередь» живут в шапке категории, но настройка общая —
    те же ключи localStorage продублированы переключателями в профиле. */
-function setHideDone(v){ hideDone=!!v; try{ localStorage.setItem('hide_done', hideDone?'1':'0'); }catch(e){} renderAll(); }
+function setHideDone(v){ setPrefV('hideDone',!!v); renderAll(); }
 function setSortPri(v){ setPref('sortPri','sort_pri',v); renderAll(); }
 /* --- тема --- */
-let theme='system'; try{ theme=localStorage.getItem('theme')||'system'; }catch(e){}
 const __mqDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 function resolvedTheme(){ return theme==='system' ? ((__mqDark&&__mqDark.matches)?'dark':'light') : theme; }
 function applyTheme(){
@@ -2257,11 +2272,11 @@ function applyTheme(){
   const m=document.querySelector('meta[name="theme-color"]');
   if(m) m.setAttribute('content', t==='dark'?'#12161f':'#37478f');
 }
-function setTheme(v){ theme=v; try{ localStorage.setItem('theme',v); }catch(e){} applyTheme(); renderAll(); }
+function setTheme(v){ setPrefV('theme',THEMES.indexOf(v)>=0?v:'system'); applyTheme(); renderAll(); }
 if(__mqDark && __mqDark.addEventListener) __mqDark.addEventListener('change',()=>{ if(theme==='system') applyTheme(); });
-applyTheme();
+__themeReady=true; applyTheme();   /* дальше тема перекрашивается и по снапшоту из облака (syncModelRef) */
 function setNewTop(v){ setPref('newTop','new_top',v); renderAll(); }
-function toggleQSort(){ qNew=!qNew; try{ localStorage.setItem('q_sort_new', qNew?'1':'0'); }catch(e){} renderQueuesBody(); }
+function toggleQSort(){ setPrefV('qNew',!qNew); renderQueuesBody(); }
 
 /* ---------- НАВИГАЦИЯ / РЕНДЕР ---------- */
 let active=null;           // null=хаб, '__wk__'=выходные, иначе ключ категории
@@ -2391,14 +2406,14 @@ function renderHub(){
    «объект|срок|фаза»: фаза меняется с 'soon' (поднят заранее, за lead дней) на 'due'
    (срок наступил) — отпечаток другой, и блок появляется снова. После обслуживания
    меняется срок — тоже новый отпечаток. В «Обслуживании» всё видно как прежде.
-   Настройка устройства (localStorage), у каждого своя. */
+   С 1.16 — общая настройка (STATE.prefs.dueHide): скрыли на телефоне — скрыто и на компьютере. */
 function dueSig(o){ return o.id+'|'+o.rec.next+'|'+(objDays(o)<=0?'due':'soon'); }
-function dueHidden(){ try{ const a=JSON.parse(localStorage.getItem('due_hide')||'[]'); return new Set(Array.isArray(a)?a:[]); }catch(e){ return new Set(); } }
+function dueHidden(){ return new Set(STATE.prefs.dueHide||[]); }
 function hideDueBox(){
   /* сохраняем отпечатки ВСЕХ подошедших сейчас — заодно выбрасываются устаревшие */
-  try{ localStorage.setItem('due_hide',JSON.stringify(dueObjs().map(dueSig))); }catch(e){}
+  setPrefV('dueHide',dueObjs().map(dueSig));
   render();
-  showToast('Скрыто до срока обслуживания', ()=>{ try{ localStorage.removeItem('due_hide'); }catch(e){} render(); });
+  showToast('Скрыто до срока обслуживания', ()=>{ setPrefV('dueHide',[]); render(); });
 }
 function hubCardTap(key){ if(justDragged||tapSuppressed()) return; if(editmode){ openCatEditor(key); } else { openCat(key); } }
 /* Избранное: как в Asana — звезда поднимает карточку наверх, следующая встаёт за ней */
@@ -3700,7 +3715,7 @@ function searchOpenObj(id){ closeSearch(); setTimeout(()=>openObjView(id),140); 
 function searchGo(id){
   const f=findItem(id); if(!f) return;
   closeSearch();
-  if(f.it.done && hideDone){ hideDone=false; try{ localStorage.setItem('hide_done','0'); }catch(e){} }
+  if(f.it.done && hideDone) setPrefV('hideDone',false);
   openState[f.c.key+'-'+f.g.gid]=true;
   openCat(f.c.key);
   setTimeout(()=>flashItem(id),60);
@@ -3953,7 +3968,7 @@ function setSeg(title,note,opts,cur,fn){
 function renderProfSettings(){
   const el=document.getElementById('profSet'); if(!el) return;
   el.innerHTML=
-    `<div class="prof-sec" style="margin-top:4px">Внешний вид · на этом устройстве</div>`+
+    `<div class="prof-sec" style="margin-top:4px">Внешний вид · общий для всех устройств</div>`+
     setSeg('Тема','Светлая, тёмная или как в системе',[['light','Светлая'],['dark','Тёмная'],['system','Как в системе']],theme,'setTheme')+
     setSeg('Категории на главной','Плитками или списком',[['tiles','Плитки'],['list','Список']],hubView,'setHubViewR')+
     setSeg('Выходные','По категориям или сплошным списком по очереди',[['cats','По категориям'],['list','Списком']],wkView,'setWkViewR')+
