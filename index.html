@@ -98,7 +98,7 @@ svg{display:block}
 /* ---- Header ---- */
 header{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(9px + env(safe-area-inset-top)) 15px 10px;border-bottom:1px solid var(--line)}
 .h-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px;letter-spacing:-.3px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px;letter-spacing:-.3px;border:0;background:none;color:var(--ink);font-family:inherit;padding:6px 6px 6px 0;margin:-6px 0;cursor:pointer}
 .brand .ic{font-size:22px;color:var(--indigo-tx)}
 .catttl{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
 .catttl .ce{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
@@ -109,14 +109,14 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(9px + 
 .hb .ic{font-size:21px}
 .hb:active{background:var(--bg)}
 body.editmode .hb.edit{background:var(--amber);border-color:var(--amber);color:#fff}
-.av{width:40px;height:40px;flex:none;border-radius:99px;border:1px solid var(--line);background:var(--indigo-soft);color:var(--indigo-tx);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;position:relative}
+.av{width:40px;height:40px;flex:none;border-radius:99px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;position:relative}
 .q{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 13px;border-radius:99px;font-family:inherit;font-weight:800;font-size:13.5px;letter-spacing:-.1px;cursor:pointer;border:1px solid transparent;white-space:nowrap}
 .q .ic{font-size:16px}
 .q .n{border-radius:99px;padding:1px 6px;font-size:12.5px}
 .q.q1{background:color-mix(in srgb,var(--pri-red) 15%,var(--card));color:var(--pri-red);border-color:color-mix(in srgb,var(--pri-red) 28%,transparent)}
 .q.q1 .n{background:rgba(219,79,60,.16)}
 .q.qall{background:var(--indigo-soft);color:var(--indigo-tx);border-color:color-mix(in srgb,var(--indigo) 26%,transparent)}
-.bk{width:36px;height:36px;flex:none;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-size:19px}
+.bk{width:40px;height:40px;flex:none;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-size:19px}
 .bk .ic{font-size:20px}
 /* индикатор облака — бейдж на аватаре: зелёный сохранено, янтарный пишу, красный ошибка */
 .cdot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:99px;background:#9aa2b2;border:2px solid var(--bg);transition:background .2s;pointer-events:none}
@@ -139,9 +139,17 @@ body.editmode .hb.edit{background:var(--amber);border-color:var(--amber);color:#
 .bar{height:6px;background:var(--line);border-radius:99px;margin-top:10px;overflow:hidden}
 .bar>i{display:block;height:100%;width:0;background:var(--indigo);border-radius:99px;transition:width .35s ease}
 .bar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
-.bar-lbl{font-size:11px;color:var(--muted);font-weight:600}
-.h-toggles{display:flex;gap:6px;align-items:center}
-.tgl{border:1px solid var(--line);background:var(--card);font-family:inherit;font-size:10.5px;font-weight:700;color:var(--muted);padding:4px 9px;border-radius:99px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.bar-lbl{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap}
+/* шапка категории: прогресс с подписью справа, ниже строка кнопок — поиск слева (правка 1.14) */
+.bar-row .bar{flex:1;margin-top:0}
+.bar-row.prog{margin-top:10px}
+.tg-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
+.h-toggles{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.tgl{border:1px solid var(--line);background:var(--card);font-family:inherit;font-size:11.5px;font-weight:700;color:var(--muted);height:32px;padding:0 11px;border-radius:99px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.tgl .ic{font-size:15px}
+/* поиск — шире остальных и отдельно слева: под палец (правка 1.14) */
+.tgl.srch{width:68px;justify-content:center;padding:0;color:var(--indigo-tx);border-color:color-mix(in srgb,var(--indigo) 30%,var(--line))}
+.tgl.srch .ic{font-size:18px}
 .tgl.on{background:var(--indigo-soft);border-color:var(--indigo-tx);color:var(--indigo-tx)}
 .tgl.hidden{display:none}
 
@@ -242,7 +250,9 @@ body:not(.nofab) main{padding-bottom:92px}
 .iqb.wkflame.wkon svg{fill:currentColor;stroke:none}
 .iqb.wkflame:active{background:var(--bg)}
 #view.editmode .iqb{display:none}
-.act{display:none;width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:13px;color:var(--muted);align-items:center;justify-content:center;padding:0}
+.act{display:none;width:34px;height:34px;flex:none;border-radius:9px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:17px;color:var(--muted);align-items:center;justify-content:center;padding:0;margin:-4px 0}
+/* ручки ≡ у задач больше нет (правка 1.14): в правке задачу тащат долгим нажатием,
+   а справа на её месте — корзина */
 .act.del{color:var(--red);border-color:color-mix(in srgb,var(--red) 30%,var(--line))}
 #view.editmode .act{display:flex}
 .drag{display:none;width:28px;height:28px;flex:none;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:7px;background:var(--card);color:var(--muted);font-size:14px;touch-action:none;cursor:grab;padding:0;user-select:none}
@@ -304,9 +314,22 @@ body:not(.nofab) main{padding-bottom:92px}
 .tc-bar>i{display:block;height:100%;background:var(--indigo);border-radius:99px}
 .tc-lbl{font-size:11px;color:var(--muted);font-weight:600;margin-top:7px;line-height:1.4}
 #profile.hidden{display:none}
+.pm-grp{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:8px}
+.pm-row{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:11px 13px;font-family:inherit;text-align:left;color:var(--ink);cursor:pointer;min-height:58px}
+.pm-row:last-child{border-bottom:0}
+.pm-row:active{background:var(--bg)}
+.pm-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.pm-tx{flex:1;min-width:0;font-weight:700;font-size:14.5px;line-height:1.3}
+.pm-tx small{display:block;font-weight:500;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.35}
+.pm-row>.ic:last-child{color:var(--muted);font-size:17px;flex:none}
+.pm-row.bad .pm-tx small{color:var(--red);font-weight:700}
+.scr-head .back{display:flex;align-items:center;gap:2px;color:var(--indigo-tx);font-weight:700;margin-left:-10px}
+.scr-head .back .ic{font-size:19px}
+.prof-title{margin:0 0 12px;font-size:24px;font-weight:800;letter-spacing:-.4px}
+.prof-note{font-size:12px;color:var(--muted);line-height:1.5;margin:0 2px 12px}
 .scr-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .scr-head h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px}
-.scr-head .x{border:0;background:none;color:var(--muted);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;padding:6px 4px}
+.scr-head .x{border:0;background:none;color:var(--muted);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;padding:10px 12px;margin:-8px -10px -8px 0;min-height:44px}
 .prof-hint{font-size:12.5px;color:var(--muted);line-height:1.5;margin:-2px 0 12px;background:var(--indigo-soft);padding:11px 13px;border-radius:12px}
 .fld{display:block;margin-bottom:12px}
 .fld>span,.fld-lbl{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
@@ -327,7 +350,7 @@ body:not(.nofab) main{padding-bottom:92px}
 .prof-cat .lockbadge{font-size:15px;color:var(--muted);width:32px;display:flex;justify-content:center;flex:none}
 .newcat-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;background:var(--indigo);color:#fff;font-family:inherit;font-weight:700;font-size:15px;padding:14px;border-radius:14px;cursor:pointer;margin-top:4px;box-shadow:var(--shadow)}
 .acct{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;box-shadow:var(--shadow)}
-.acct .ava{width:46px;height:46px;border-radius:99px;background:var(--indigo-soft);color:var(--indigo-tx);font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden}
+.acct .ava{width:46px;height:46px;border-radius:99px;background:var(--indigo);color:#fff;font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden}
 .acct .ava img{width:100%;height:100%;object-fit:cover}
 .acct .who{min-width:0;flex:1}
 .acct .who b{display:block;font-size:15px;font-weight:800;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -350,16 +373,21 @@ body:not(.nofab) main{padding-bottom:92px}
 .sheet-back{position:fixed;inset:0;z-index:90;background:rgba(20,26,44,.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s ease;
   padding:calc(14px + env(safe-area-inset-top)) 10px calc(14px + env(safe-area-inset-bottom))}
 .sheet-back.show{opacity:1}
+/* Закрывающееся окно 220 мс остаётся на экране прозрачным — и съедало тапы: «назад»,
+   «Отмена» сразу после закрытия окна «не нажимались» (правка 1.14). Ловит касания
+   только показанное окно. pan-y: окно не уезжает вбок за пальцем на телефоне. */
+.sheet-back:not(.show){pointer-events:none}
+.sheet-back{touch-action:pan-y}
 .sheet-back.hidden{display:none}
 .sheet-back.fullback{padding:0}
-.sheet-card{width:100%;max-width:560px;background:var(--card);border-radius:20px;padding:8px 18px 18px;box-shadow:0 18px 50px rgba(20,26,44,.28);transform:translateY(14px) scale(.985);transition:transform .22s cubic-bezier(.2,.8,.2,1);max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.sheet-card{width:100%;max-width:560px;background:var(--card);border-radius:20px;padding:8px 18px 18px;box-shadow:0 18px 50px rgba(20,26,44,.28);transform:translateY(14px) scale(.985);transition:transform .22s cubic-bezier(.2,.8,.2,1);max-height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .sheet-back.show .sheet-card{transform:none}
 /* Окно с «шапка / прокрутка / кнопки»: тянется только .sheet-scroll, кнопки «ОК»
    и «Сохранить» ВСЕГДА видны. Раньше карточка категории (иконки + цвета) прокручивалась
    целиком и «Сохранить» оказывалась за нижним краем экрана (правка 1.5). */
 .sheet-card.split{display:flex;flex-direction:column;overflow:hidden}
 .sheet-card.split>*{flex-shrink:0}
-.sheet-card.split>.sheet-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:0 -18px;padding:0 18px}
+.sheet-card.split>.sheet-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:0 -18px;padding:0 18px}
 .sheet-card.split>.sheet-acts{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .grip{width:40px;height:5px;background:var(--line);border-radius:99px;margin:0 auto 10px;padding:8px 24px;background-clip:content-box;box-sizing:content-box;cursor:pointer}
 .grip:active{background-color:var(--muted);background-clip:content-box}
@@ -376,19 +404,31 @@ body:not(.nofab) main{padding-bottom:92px}
 .sheet-card h3{margin:0 0 14px;font-size:18px;font-weight:800;letter-spacing:-.2px}
 .ts-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px}
 .ts-head h3{margin:0}
-.ts-del{border:0;background:none;color:var(--red);font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;padding:6px 4px;display:flex;align-items:center;gap:5px}
+.ts-del{border:0;background:none;color:var(--red);font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;padding:10px 12px;margin:-6px -10px -6px 0;min-height:44px;display:flex;align-items:center;gap:5px}
 .ts-del.hidden{display:none}
 .ts-btns{display:flex;gap:8px;position:relative}
 .ts-btns.hidden{display:none}
 /* выпадающий список «Перенести» */
-.mv-panel{position:absolute;right:0;top:42px;z-index:6;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(20,26,44,.18);max-height:min(250px,42vh);overflow-y:auto;overscroll-behavior:contain;min-width:220px;padding:6px;display:none}
+.mv-panel{position:absolute;right:0;top:42px;z-index:6;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(20,26,44,.18);max-height:min(250px,42vh);overflow-y:auto;overscroll-behavior:contain;min-width:260px;max-width:calc(100vw - 48px);padding:6px;display:none}
 .mv-panel.show{display:block}
 .mv-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:var(--ink)}
 .mv-item:active{background:var(--bg)}
-.mv-item.cur{color:var(--muted);cursor:default}
+.mv-item>span.mvn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* где задача СЕЙЧАС — заметно (правка 1.14); куда переносим — отдельно */
+.mv-item.cur{background:var(--indigo-soft);color:var(--indigo-tx);font-weight:800;box-shadow:inset 3px 0 0 var(--indigo-tx)}
+.mv-item.sel{background:color-mix(in srgb,var(--amber) 16%,var(--card));color:var(--pamber);font-weight:800;box-shadow:inset 3px 0 0 var(--amber)}
+.mv-item small,.cm-mv small.here{flex:none;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:99px;background:var(--card);color:inherit}
 .mv-item .ic{font-size:16px}
 .mv-note{font-size:12px;font-weight:700;color:var(--indigo-tx);background:var(--indigo-soft);border-radius:10px;padding:8px 11px;margin:-4px 0 12px;display:none}
 .mv-note.show{display:block}
+.ts-trow{display:flex;align-items:center;gap:10px}
+.ts-trow input{flex:1;min-width:0}
+.ts-trow .box{width:28px;height:28px;border-radius:8px;margin:0;cursor:pointer}
+.ts-trow .box .ic{font-size:17px}
+.ts-trow.checked .box{background:var(--indigo);border-color:var(--indigo-tx)}
+.ts-trow.checked .box .ic{opacity:1;transform:none}
+.ts-trow.checked input{text-decoration:line-through;color:var(--done)}
+.ts-trow.nobox .box{display:none}
 .tsb{width:36px;height:36px;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-size:18px}
 .tsb.del{color:var(--red);border-color:color-mix(in srgb,var(--red) 30%,var(--line))}
 /* контекстное меню задачи (долгое нажатие) */
@@ -402,7 +442,7 @@ body:not(.nofab) main{padding-bottom:92px}
 .cm-mv .ic{font-size:18px;flex:none}
 .cm-mv>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cm-mv small{color:var(--muted);font-weight:600;font-size:11px;flex:none}
-.cm-mv.cur{color:var(--muted);cursor:default}
+.cm-mv.cur{background:var(--indigo-soft);color:var(--indigo-tx);border-color:var(--indigo-tx);border-width:1.5px;cursor:default;opacity:1}
 /* цикличные задачи */
 .rec-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:14px;font-weight:600;margin-bottom:12px}
 .rec-row input{width:64px;border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:10px;font-family:inherit;font-size:16px;text-align:center}
@@ -427,7 +467,9 @@ body:not(.nofab) main{padding-bottom:92px}
 .odone{width:40px;height:40px;flex:none;border-radius:99px;border:1.5px solid color-mix(in srgb,var(--svc) 55%,var(--line));background:var(--card);color:var(--svc);display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;padding:0}
 .odone:active{background:color-mix(in srgb,var(--svc) 14%,var(--card))}
 .duebox{background:color-mix(in srgb,var(--pri-org) 7%,var(--card));border:1px solid color-mix(in srgb,var(--pri-org) 35%,var(--line));border-radius:14px;padding:10px 10px 4px;margin-bottom:11px}
-.duebox-h{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:800;color:var(--pri-org);margin:0 2px 9px;cursor:pointer}
+.duebox-h{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:800;color:var(--pri-org);margin:0 2px 9px}
+.duebox-h .dt{display:flex;align-items:center;gap:7px;flex:1;min-width:0;cursor:pointer;min-height:32px}
+.due-x{border:1px solid color-mix(in srgb,var(--pri-org) 35%,var(--line));background:var(--card);color:var(--pri-org);font-family:inherit;font-weight:800;font-size:12px;height:32px;padding:0 12px;border-radius:99px;cursor:pointer;flex:none}
 .duebox .orow{box-shadow:none}
 .duebox .rep-more{cursor:pointer;padding:0 0 8px}
 @media(max-width:409px){
@@ -459,12 +501,13 @@ body:not(.nofab) main{padding-bottom:92px}
 .oed-chk input:focus{outline:none;border-color:var(--indigo-tx)}
 .oed-chk button{width:40px;flex:none;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:10px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;padding:0}
 .oed-add{border:1.5px dashed var(--line);background:none;color:var(--indigo-tx);font-family:inherit;font-weight:700;font-size:13px;padding:10px;border-radius:10px;width:100%;cursor:pointer;margin-bottom:12px}
-.fld.bad textarea{border-color:var(--pri-red)}
+.fld.bad textarea,.fld.bad input{border-color:var(--pri-red)}
 .st-seg{display:flex;gap:6px;margin-bottom:12px}
 .st-seg button{flex:1;border:1.5px solid var(--line);background:var(--card);color:var(--muted);font-family:inherit;font-weight:800;font-size:12.5px;padding:10px 4px;border-radius:10px;cursor:pointer}
 .st-seg button.on{color:var(--card)}
 .log-row{padding:9px 2px;border-bottom:1px solid var(--line);font-size:13.5px;line-height:1.4}
 .log-row .ld{font-weight:800;color:var(--ink)}
+.log-row .lval{font-weight:800;color:var(--svc);margin-left:4px}
 .log-row .lc{color:var(--muted);font-weight:600;font-size:11.5px}
 .log-row .ln{color:var(--muted);font-size:12.5px;margin-top:2px}
 .qa-input{width:100%;border:1.5px solid var(--indigo);border-radius:12px;padding:12px 13px;font-family:inherit;font-size:16px;color:var(--ink);background:var(--card);box-shadow:0 0 0 3px color-mix(in srgb,var(--indigo) 12%,transparent)}
@@ -552,6 +595,12 @@ body:not(.nofab) main{padding-bottom:92px}
 .ip-grid .ipg{aspect-ratio:1;border:1px solid transparent;background:var(--card);border-radius:9px;color:var(--ink);font-size:19px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 .ip-grid.sm{grid-template-columns:repeat(8,1fr);max-height:132px}
 @media(max-width:409px){ .ip-grid.sm{grid-template-columns:repeat(6,1fr)} }
+.ic.emo{width:1em;height:1em;line-height:1;font-size:.92em;font-style:normal;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;overflow:visible}
+.ip-find{width:100%;border:1.5px solid var(--line);background:var(--card);border-radius:11px;padding:10px 12px;font-family:inherit;font-size:16px;color:var(--ink);margin-bottom:6px}
+.ip-find:focus{outline:none;border-color:var(--indigo-tx)}
+.ip-qnote{font-size:11.5px;font-weight:700;color:var(--indigo-tx);margin:0 2px 6px;min-height:0}
+.ip-qnote:empty{display:none}
+.ip-none{grid-column:1/-1;font-size:12px;color:var(--muted);text-align:center;padding:14px 8px}
 .ip-grid .ipg.on{background:var(--indigo-soft);color:var(--indigo-tx);border-color:var(--indigo-tx)}
 .col-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .col-sw{width:34px;height:34px;border-radius:9px;cursor:pointer;border:2px solid transparent;position:relative}
@@ -564,6 +613,12 @@ body:not(.nofab) main{padding-bottom:92px}
 .vlist .vi{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:14px;line-height:1.35;border-bottom:1px solid var(--line)}
 .vlist .vi .mk{flex:none;width:18px;font-weight:800;display:flex;justify-content:center;padding-top:1px}
 .vlist .vi.off{color:var(--muted)}
+.vlist .vi .vt{flex:1;min-width:0}
+.fs-go{flex:none;align-self:center;height:38px;padding:0 10px 0 12px;gap:4px;font-family:inherit;font-weight:800;font-size:12.5px;border:1px solid color-mix(in srgb,var(--indigo) 30%,var(--line));background:var(--indigo-soft);color:var(--indigo-tx);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.fs-go .ic{font-size:15px}
+.fs-go:active{background:var(--card)}
+@keyframes flashrow{0%,40%{background:color-mix(in srgb,var(--amber) 32%,var(--card));box-shadow:0 0 0 2px var(--amber) inset}100%{background:transparent;box-shadow:none}}
+.item.flash{animation:flashrow 2.4s ease}
 .vlist .vi .vn{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px;white-space:pre-line}
 
 /* ---- drag ---- */
@@ -582,7 +637,9 @@ body.noscroll{overflow:hidden}
   display:flex;align-items:center;gap:14px;max-width:calc(100vw - 32px);
   background:var(--toast);color:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 10px 30px rgba(20,26,44,.35);
   font-size:13.5px;font-weight:600;transition:transform .22s cubic-bezier(.2,.8,.2,1),opacity .22s ease;pointer-events:none}
-#toast.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+#toast.show{transform:translate(-50%,0);opacity:1}
+/* тапы ловит только «Отменить»: сам тост раньше перекрывал кнопки окна под ним */
+#toast.show button{pointer-events:auto}
 /* когда FAB на экране — поднимаем тост над ним, иначе «Отменить» уезжает под кнопку */
 body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--vvb,0px))}
 #toast .tt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -604,8 +661,36 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
 .note-tools button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-family:inherit;font-weight:700;font-size:12px;padding:7px 11px;border-radius:9px;cursor:pointer}
 .note-tools button:active{background:var(--bg)}
 .note-tools button .ic{font-size:14px}
-#nsText{width:100%;flex:1 1 auto;min-height:180px;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:13px;font-family:inherit;font-size:16px;line-height:1.5;color:var(--ink);resize:none}
-#nsText:focus{outline:none;border-color:var(--indigo-tx)}
+/* ---- описание с форматированием, как в Заметках (правка 1.14) ----
+   В данных — ТЕКСТ с лёгкой разметкой (rtGet/rtSet): «# », «## » — заголовки,
+   **жирный**, *курсив*, __подчёркнутый__, ~~зачёркнутый~~, «• », «1. », «☐ »/«☑ ». */
+.rt-bar{display:flex;gap:3px;margin-bottom:7px}
+.rt-bar button{flex:1 1 0;min-width:0;height:34px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-family:inherit;font-weight:700;font-size:14px;border-radius:8px;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+.rt-bar button b,.rt-bar button i,.rt-bar button u,.rt-bar button s{font-size:15px}
+.rt-bar button[data-c="ul"],.rt-bar button[data-c="ck"]{font-size:19px}
+.rt-bar button.on{background:var(--indigo-soft);border-color:var(--indigo-tx);color:var(--indigo-tx)}
+.rt{position:relative;min-height:122px;border:1.5px solid var(--line);background:var(--card);border-radius:11px;padding:11px 13px;font-size:16px;line-height:1.45;color:var(--ink);outline:none;-webkit-user-select:text;user-select:text;word-break:break-word;overflow-wrap:anywhere;cursor:text}
+.rt:focus{border-color:var(--indigo-tx)}
+.rt.empty::before{content:attr(data-ph);position:absolute;left:13px;top:11px;right:13px;color:var(--muted);pointer-events:none}
+.rt>div{min-height:1.45em}
+.rt>[data-t="h1"]{font-size:21px;font-weight:800;line-height:1.3;letter-spacing:-.3px;margin:2px 0}
+.rt>[data-t="h2"]{font-size:17.5px;font-weight:800;line-height:1.35;margin:2px 0}
+.rt>[data-t="ul"],.rt>[data-t="ol"],.rt>[data-t="ck"]{position:relative;padding-left:27px}
+.rt>[data-t="ul"]::before{content:'•';position:absolute;left:9px;font-weight:800;color:var(--indigo-tx)}
+.rt>div:not([data-t="ol"]){counter-reset:rtol}
+.rt>[data-t="ol"]{counter-increment:rtol}
+.rt>[data-t="ol"]::before{content:counter(rtol) '.';position:absolute;left:0;width:21px;text-align:right;font-weight:700;color:var(--indigo-tx)}
+.rt>[data-t="ck"]::before{content:'';position:absolute;left:0;top:.18em;width:19px;height:19px;border:1.8px solid var(--muted);border-radius:6px;box-sizing:border-box;cursor:pointer}
+.rt>[data-t="ck"][data-on="1"]{color:var(--done);text-decoration:line-through}
+.rt>[data-t="ck"][data-on="1"]::before{background:var(--indigo);border-color:var(--indigo)}
+.rt>[data-t="ck"][data-on="1"]::after{content:'';position:absolute;left:6.5px;top:.36em;width:5px;height:9px;border:solid var(--card);border-width:0 2.2px 2.2px 0;transform:rotate(45deg)}
+.rt b,.rt strong{font-weight:800}
+.sheet-card.full>.rt-full,.rt-full{flex:1 1 auto;min-height:180px;overflow-y:auto;overscroll-behavior:contain}
+.sheet-card.full>.rt-full{min-height:0}
+/* превью описания в строке задачи */
+.note .nh{font-weight:800;color:var(--ink)}
+.note .nk{color:var(--indigo-tx);font-weight:800}
+.note s.nd{color:var(--done)}
 
 /* ---- «На выходных»: плитки по категориям / сплошной список по срочности ---- */
 .wk-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 10px}
@@ -622,7 +707,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
 /* ---- десктоп / MacBook ---- */
 @media(min-width:900px){
   main{max-width:760px}
-  header .h-row,header .h-row2,header .bar,header .bar-row,header .stats,header .edbar{max-width:760px;margin-left:auto;margin-right:auto}
+  header .h-row,header .h-row2,header .bar,header .bar-row,header .tg-row,header .stats,header .edbar{max-width:760px;margin-left:auto;margin-right:auto}
   header .bar{margin-top:10px}
   .hub{grid-template-columns:repeat(3,1fr)}
   .fab{right:calc(50% - 380px + 16px)}
@@ -676,21 +761,11 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
 
 <!-- ===== ПРОФИЛЬ ===== -->
 <div id="profile" class="hidden">
-  <div class="scr-head"><h2>Профиль</h2><button class="x" onclick="closeProfile()">Закрыть</button></div>
-  <div class="prof-hint" id="profHint" style="display:none"></div>
-  <div id="profAcct"></div>
-  <div class="prof-sec">Настройки</div>
-  <div id="profSet"></div>
-  <div class="prof-sec">Категории</div>
-  <div id="profCats"></div>
-  <div id="profStore"></div>
-  <button class="newcat-btn" style="background:var(--card);color:var(--indigo-tx);border:1px solid var(--line);margin-top:12px;box-shadow:none" onclick="exportBackup()">
-    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 20h16"/></svg></span> Скачать резервную копию
-  </button>
-  <button class="newcat-btn" style="background:var(--card);color:var(--indigo-tx);border:1px solid var(--line);margin-top:8px;box-shadow:none" onclick="openBackups()">
-    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></span> Копии в облаке — вернуть список
-  </button>
-  <button class="prof-logout" onclick="doSignOut()">Выйти из аккаунта</button>
+  <!-- Профиль — меню разделов (правка 1.14): Настройки / Категории / Архив / Облако и копии.
+       Раздел открывается внутри этого же экрана (profPage), «‹ Профиль» — назад. -->
+  <div class="scr-head" id="profHead"></div>
+  <div id="profBody"></div>
+  <input type="file" id="impFile" accept="application/json,.json" style="display:none" onchange="importBackupFile(this)">
 </div>
 
 <!-- ===== SHEET: задача ===== -->
@@ -704,14 +779,19 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
     </span></div>
     <div class="mv-note" id="mvNote"></div>
     <div class="sheet-scroll">
-    <label class="fld"><span>Заголовок</span><input id="tsName" type="text" placeholder="Что сделать" autocomplete="off" enterkeyhint="done"></label>
+    <div class="fld"><span class="fld-lbl">Заголовок</span><div class="ts-trow" id="tsTrow">
+      <span class="box" id="tsBox" role="checkbox" tabindex="0" aria-checked="false" aria-label="Выполнено" onclick="tsToggleDone()"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span>
+      <input id="tsName" type="text" placeholder="Что сделать" autocomplete="off" enterkeyhint="done"></div></div>
     <div class="fld">
       <div class="fld-head"><span>Описание</span>
         <button type="button" class="expandb" onclick="openNoteEditor()" title="Развернуть на весь экран"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7.5 7.5"/><path d="M3 21l7.5-7.5"/></svg></span>Развернуть</button>
       </div>
-      <textarea id="tsNote" placeholder="Детали, количество, напоминание…&#10;&#10;Наберите «- » и нажмите Enter — получится список" onkeydown="noteKey(event)" oninput="noteInput(event)"></textarea>
+      <div class="rt-bar" data-ed="tsNote" role="toolbar" aria-label="Форматирование">
+        <button type="button" data-c="h1" title="Заголовок" onpointerdown="rtCmd(event,'h1')" onmousedown="event.preventDefault()">H1</button><button type="button" data-c="h2" title="Подзаголовок" onpointerdown="rtCmd(event,'h2')" onmousedown="event.preventDefault()">H2</button><button type="button" data-c="b" title="Жирный" onpointerdown="rtCmd(event,'b')" onmousedown="event.preventDefault()"><b>B</b></button><button type="button" data-c="i" title="Курсив" onpointerdown="rtCmd(event,'i')" onmousedown="event.preventDefault()"><i>I</i></button><button type="button" data-c="u" title="Подчёркнутый" onpointerdown="rtCmd(event,'u')" onmousedown="event.preventDefault()"><u>U</u></button><button type="button" data-c="s" title="Зачёркнутый" onpointerdown="rtCmd(event,'s')" onmousedown="event.preventDefault()"><s>S</s></button><button type="button" data-c="ul" title="Список" onpointerdown="rtCmd(event,'ul')" onmousedown="event.preventDefault()">•</button><button type="button" data-c="ol" title="Нумерация" onpointerdown="rtCmd(event,'ol')" onmousedown="event.preventDefault()">1.</button><button type="button" data-c="ck" title="Чек-лист" onpointerdown="rtCmd(event,'ck')" onmousedown="event.preventDefault()">☐</button>
+      </div>
+      <div id="tsNote" class="rt" contenteditable="true" spellcheck="true" data-ph="Детали, количество, напоминание…"></div>
     </div>
-    <div class="note-hint">Списки: наберите <b>-</b> и пробел — строка станет пунктом <b>•</b>, Enter продолжит список. <b>1.</b> — нумерованный, <b>[]</b> — галочка. Пустой пункт + Enter выходит из списка.</div>
+    <div class="note-hint">Как в Заметках: <b>H1/H2</b> — заголовки, <b>B I U S</b> — начертание, <b>☐</b> — чек-лист (тап по квадратику зачёркивает пункт). Быстро: <b>-</b> и пробел — список, <b>[]</b> — галочка, <b>1.</b> — нумерация, <b>#</b> — заголовок.</div>
     <div class="fld-lbl">Очередь</div><div class="pri-row" id="tsPri"></div>
     <div class="wktog" id="tsWk" onclick="tsToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">На выходные<small>Показать в общей витрине выходных</small></span><span class="toggle"></span></div>
     <div class="wktog" id="tsRec" onclick="tsToggleRec()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span><span class="wl">Повторять<small>Цикличная задача — попадёт в «Обслуживание»</small></span><span class="toggle"></span></div>
@@ -755,8 +835,9 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
     <label class="fld"><span id="eNameLbl">Название</span><input id="eName" type="text" placeholder="Например, Кухня" autocomplete="off" enterkeyhint="done" oninput="suggestIcon()"></label>
     <div id="esIconBlock">
       <div class="fld-lbl">Иконка</div>
-      <div class="ip-note" id="esIconNote">Печатать эмодзи не нужно — выберите готовую иконку. Ниже подсказки по названию, затем вся библиотека.</div>
       <div id="iconSug" class="ip-sug"></div>
+      <input id="eIconQ" class="ip-find" type="text" autocomplete="off" enterkeyhint="search" placeholder="Поиск иконки или эмодзи 🙂" oninput="esIconFind()">
+      <div class="ip-qnote" id="eIconQN"></div>
       <div id="iconGrid" class="ip-grid"></div>
     </div>
     <div id="esColorBlock">
@@ -785,7 +866,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
   <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3 id="ovTitle">Объект</h3><span class="ts-btns"><button class="tsb" id="ovEditB" onclick="ovEdit()" title="Изменить объект" aria-label="Изменить объект"></button></span></div>
     <div class="sheet-scroll" id="ovBody"></div>
-    <div class="sheet-acts"><button class="btn-ghost" onclick="closeObjView()">Закрыть</button><button class="btn-main" onclick="ovDone()">Обслужить</button></div>
+    <div class="sheet-acts"><button class="btn-ghost" onclick="closeObjView()">Закрыть</button><button class="btn-main" id="ovDoneB" onclick="ovDone()">Обслужить</button></div>
   </div>
 </div>
 
@@ -797,13 +878,18 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
     <label class="fld"><span>Что обслуживаем</span><input id="oeName" type="text" placeholder="Например, фильтр воды под мойкой" autocomplete="off" enterkeyhint="done" oninput="oeSuggest()"></label>
     <div class="fld-lbl">Иконка</div>
     <div id="oeSug" class="ip-sug"></div>
+    <input id="oeIconQ" class="ip-find" type="text" autocomplete="off" enterkeyhint="search" placeholder="Поиск иконки или эмодзи 🙂" oninput="oeIconFind()">
+    <div class="ip-qnote" id="oeIconQN"></div>
     <div id="oeIcons" class="ip-grid sm"></div>
+    <div class="setrow" style="margin-bottom:10px"><span class="sl">Когда обслуживать<small id="oeModeNote"></small></span><span class="segsw" id="oeMode"></span></div>
+    <div id="oePerBlk">
     <div class="fld-lbl">Периодичность</div>
     <div class="rec-row">каждые <input id="oeN" type="number" min="1" max="365" value="3" inputmode="numeric"> <select id="oeU"><option value="d">дней</option><option value="w">недель</option><option value="m" selected>месяцев</option><option value="y">лет</option></select></div>
-    <div class="setrow" style="margin-bottom:10px"><span class="sl">Считать период<small id="oeModeNote"></small></span><span class="segsw" id="oeMode"></span></div>
     <label class="fld"><span>Следующее обслуживание</span><input id="oeNext" type="date"></label>
     <div class="fld-lbl">Поднимать в «Пора обслужить» заранее</div>
     <div class="rec-row">за <input id="oeLead" type="number" min="0" max="90" value="3" inputmode="numeric"> дн. до срока</div>
+    </div>
+    <label class="fld"><span id="oeMetricL">Что записываем (необязательно)</span><input id="oeMetric" type="text" maxlength="60" placeholder="Например: давление, бар" autocomplete="off" enterkeyhint="done"></label>
     <label class="fld"><span>Категория (необязательно)</span><select id="oeCat" class="oe-sel"></select></label>
     <div class="fld-lbl">Чек-лист осмотра</div>
     <div class="ip-note">Что проверить или сделать каждый раз. При обслуживании пункты отмечаются галочками.</div>
@@ -822,9 +908,10 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
 <!-- ===== SHEET: объект обслуживания — отметка «обслужено» ===== -->
 <div id="odsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeObjDone)">
   <div class="sheet-card split"><div class="grip"></div>
-    <h3>Обслуживание</h3>
+    <h3 id="odH">Обслуживание</h3>
     <div class="cm-title" id="odName"></div>
     <div class="sheet-scroll">
+    <label class="fld" id="odValF"><span id="odValL">Показание</span><input id="odVal" type="text" inputmode="decimal" autocomplete="off" maxlength="40" enterkeyhint="done" placeholder="Например: 1,5" onkeydown="if(event.key==='Enter'){event.preventDefault();event.target.blur();}"></label>
     <div id="odChecks"></div>
     <div class="fld-lbl">Состояние</div>
     <div class="st-seg" id="odSt"></div>
@@ -873,7 +960,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
 <!-- ===== SHEET: копии в облаке ===== -->
 <div id="bksheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeBackups)">
   <div class="sheet-card split"><div class="grip"></div>
-    <div class="ts-head"><h3>Копии в облаке</h3><button class="ts-del" style="color:var(--muted)" onclick="closeBackups()">Закрыть</button></div>
+    <div class="ts-head"><h3>Автокопии в облаке</h3><button class="ts-del" style="color:var(--muted)" onclick="closeBackups()">Закрыть</button></div>
     <div class="sheet-scroll" id="bkBody"></div>
   </div>
 </div>
@@ -929,13 +1016,10 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
 <div id="nsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeNoteEditor)">
   <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3>Описание</h3><button class="ts-del" style="color:var(--muted)" onclick="closeNoteEditor()">Отмена</button></div>
-    <div class="note-tools">
-      <button type="button" onclick="noteWrap('• ')" title="Маркированный список">• Список</button>
-      <button type="button" onclick="noteWrap('1. ')" title="Нумерованный список">1. Нумерация</button>
-      <button type="button" onclick="noteWrap('☐ ')" title="Галочки">☐ Галочки</button>
-      <button type="button" onclick="noteWrap('')" title="Убрать маркер">Без маркера</button>
-    </div>
-    <textarea id="nsText" placeholder="Пишите свободно. «- » + Enter превращает строку в пункт списка." onkeydown="noteKey(event)" oninput="noteInput(event)"></textarea>
+    <div class="rt-bar" data-ed="nsText" role="toolbar" aria-label="Форматирование">
+        <button type="button" data-c="h1" title="Заголовок" onpointerdown="rtCmd(event,'h1')" onmousedown="event.preventDefault()">H1</button><button type="button" data-c="h2" title="Подзаголовок" onpointerdown="rtCmd(event,'h2')" onmousedown="event.preventDefault()">H2</button><button type="button" data-c="b" title="Жирный" onpointerdown="rtCmd(event,'b')" onmousedown="event.preventDefault()"><b>B</b></button><button type="button" data-c="i" title="Курсив" onpointerdown="rtCmd(event,'i')" onmousedown="event.preventDefault()"><i>I</i></button><button type="button" data-c="u" title="Подчёркнутый" onpointerdown="rtCmd(event,'u')" onmousedown="event.preventDefault()"><u>U</u></button><button type="button" data-c="s" title="Зачёркнутый" onpointerdown="rtCmd(event,'s')" onmousedown="event.preventDefault()"><s>S</s></button><button type="button" data-c="ul" title="Список" onpointerdown="rtCmd(event,'ul')" onmousedown="event.preventDefault()">•</button><button type="button" data-c="ol" title="Нумерация" onpointerdown="rtCmd(event,'ol')" onmousedown="event.preventDefault()">1.</button><button type="button" data-c="ck" title="Чек-лист" onpointerdown="rtCmd(event,'ck')" onmousedown="event.preventDefault()">☐</button>
+      </div>
+    <div id="nsText" class="rt rt-full" contenteditable="true" spellcheck="true" data-ph="Пишите свободно. «- » и пробел — список, «[] » — галочка."></div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeNoteEditor()">Отмена</button><button class="btn-main" onclick="saveNoteEditor()">Сохранить</button></div>
   </div>
 </div>
@@ -1026,6 +1110,7 @@ const P={
   check:'<path d="M20 6 9 17l-5-5"/>',
   chevD:'<path d="M6 9l6 6 6-6"/>',
   chevL:'<path d="M15 18l-6-6 6-6"/>',
+  chevR:'<path d="m9 18 6-6-6-6"/>',
   pencil:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
   list:'<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
   x:'<path d="M18 6 6 18M6 6l12 12"/>',
@@ -1067,6 +1152,68 @@ const P={
   pin:'<path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
   tag:'<path d="M2.5 12.5v-8a2 2 0 0 1 2-2h8L21 11a2 2 0 0 1 0 2.8L15.8 19a2 2 0 0 1-2.8 0z"/><circle cx="7.5" cy="7.5" r="1" fill="currentColor" stroke="none"/>',
   gift:'<rect x="3" y="8" width="18" height="4"/><path d="M12 8v13"/><path d="M5 12v9h14v-9"/><path d="M12 8s-1.5-5-4.5-5C5 3 5 8 12 8zM12 8s1.5-5 4.5-5C19 3 19 8 12 8z"/>',
+  /* правка 1.14: ещё иконки — быт, финансы, отдых, сад, люди */
+  snowflake:'<path d="M12 2v20M4.5 6.5l15 11M19.5 6.5l-15 11"/><path d="m9 4 3 2 3-2M9 20l3-2 3 2"/>',
+  tree:'<path d="M12 3 6 11h3l-4 6h14l-4-6h3z"/><path d="M12 17v4"/>',
+  flower:'<circle cx="12" cy="6" r="2.6"/><circle cx="8.5" cy="9.5" r="2.6"/><circle cx="15.5" cy="9.5" r="2.6"/><circle cx="12" cy="12" r="2"/><path d="M12 14v8M12 19c-1.5-2-3.5-2.5-5-2M12 18c1.5-2 3.5-2.5 5-2"/>',
+  apple:'<path d="M12 7c-1.5-1-5-1.5-6.5 1.5S5 16 7.5 19c1.5 1.8 3 1.8 4.5 1 1.5.8 3 .8 4.5-1 2.5-3 3.5-7.5 2-10.5S13.5 6 12 7z"/><path d="M12 7c0-2 1-3.5 3-4"/>',
+  carrot:'<path d="M14.5 9.5 4 20c4.5-1.5 9-3.8 11.5-6.3a3 3 0 0 0-1-4.2z"/><path d="M15 9c.5-2 2-3.5 4-4M16 8l5-1M16 8l1-5"/>',
+  basket:'<path d="M3 10h18l-2 9.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19.5z"/><path d="m8 10 3-6M16 10l-3-6M9 14v3M12 14v3M15 14v3"/>',
+  kettle:'<path d="M6 9h11l1 10.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19.5z"/><path d="M8.5 9 9 5.5h6L15.5 9M17 11.5l3-2.5v5l-2.5 2"/>',
+  stove:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M8.5 6h.01M12 6h.01"/><rect x="7" y="12" width="10" height="6" rx="1"/>',
+  sink:'<path d="M3 12h18v1a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6z"/><path d="M12 12V6a2 2 0 0 1 4 0M9 21h6"/>',
+  wine:'<path d="M8 3h8l.5 5a4.5 4.5 0 0 1-9 0z"/><path d="M12 12.5V21M8.5 21h7"/>',
+  cake:'<path d="M4 21v-8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8M2.5 21h19"/><path d="M4 15.5c1.3 1 2.7 1 4 0s2.7-1 4 0 2.7 1 4 0 2.7-1 4 0"/><path d="M12 11V8M12 5.5c-.8-.6-.8-1.6 0-2.5.8.9.8 1.9 0 2.5z"/>',
+  shirt:'<path d="M8 3 3 6l2 4 2-1v12h10V9l2 1 2-4-5-3c-.5 1.5-2 2.5-4 2.5S8.5 4.5 8 3z"/>',
+  hanger:'<path d="M12 7a2 2 0 1 1 2-2c0 1-1 1.5-2 2.5v1"/><path d="M12 8.5 2.8 15.2A1 1 0 0 0 3.4 17h17.2a1 1 0 0 0 .6-1.8z"/>',
+  scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.2 8.2 20 20M8.2 15.8 20 4"/>',
+  glasses:'<circle cx="6.5" cy="15" r="3.5"/><circle cx="17.5" cy="15" r="3.5"/><path d="M10 15h4M3 15l1.5-8H7M21 15l-1.5-8H17"/>',
+  spray:'<path d="M8 10h6v10.5a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z"/><path d="M9 10V7h4v3M9 7V4.5h4.5L16 6M18 4h.01M19.5 6.5h.01M18 9h.01M21 4.5h.01"/>',
+  bucket:'<path d="M4 8h16l-1.8 11.2a2 2 0 0 1-2 1.8H7.8a2 2 0 0 1-2-1.8z"/><path d="M6 8a6 6 0 0 1 12 0"/>',
+  brush:'<path d="M18.5 3.5a2 2 0 0 1 2.8 2.8L13 14.6 10.4 12z"/><path d="M10 13c-2 0-3.5 1.5-3.5 3.5 0 1.5-1 2.5-3 3 3 1.5 7.5 1 8.5-1.5.6-1.5.5-3-2-5z"/>',
+  recycle:'<path d="M7 19H4.5a1.8 1.8 0 0 1-1.5-2.7L7 9.5M11 19h8.5a1.8 1.8 0 0 0 1.6-2.7l-1.3-2.3M14 16l-3 3 3 3M8.3 13.4 7 9.5l-4 1M16.5 9.5 13.6 4.4a1.8 1.8 0 0 0-3.2 0L9 6.8M13 8.5l3.5 1 1-4"/>',
+  toolbox:'<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V5.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V8M3 13h18M10 13v2h4v-2"/>',
+  boiler:'<rect x="6" y="2.5" width="12" height="16" rx="2"/><circle cx="12" cy="9" r="3"/><path d="M9 21.5v-3M15 21.5v-3M10 14.5h4"/>',
+  pipe:'<path d="M3 7h9a4 4 0 0 1 4 4v10"/><path d="M3 11h9v10"/><path d="M3 5.5v7M10.5 21h7"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  fence:'<path d="M4 6l1.5-2L7 6v14H4zM10.5 6 12 4l1.5 2v14h-3zM17 6l1.5-2L20 6v14h-3z"/><path d="M7 9h3.5M13.5 9H17M7 15h3.5M13.5 15H17"/>',
+  shovel:'<path d="m19 3 2 2-2 2-2-2z"/><path d="M18 6 9.5 14.5"/><path d="M11 16.5 7.5 20a2.1 2.1 0 0 1-3-3L8 13.5z"/>',
+  building:'<rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h.01M12 7h.01M15 7h.01M9 11h.01M12 11h.01M15 11h.01M9 15h.01M15 15h.01M10.5 21v-3.5h3V21"/>',
+  bank:'<path d="M3 9.5 12 4l9 5.5zM4.5 20h15M3 22h18"/><path d="M6 10v8M10 10v8M14 10v8M18 10v8"/>',
+  wallet:'<path d="M19 7V5a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2"/><path d="M3 6v12a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-2"/>',
+  card:'<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 10h19M6 15h4"/>',
+  coins:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>',
+  receipt:'<path d="M5 3v18l2-1.5L9 21l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5V3l-2 1.5L15 3l-2 1.5L11 3 9 4.5 7 3z"/><path d="M8.5 9h7M8.5 13h7"/>',
+  passport:'<rect x="5" y="2.5" width="14" height="19" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M9 16.5h6"/>',
+  clipboard:'<rect x="5" y="4" width="14" height="17.5" rx="2"/><rect x="9" y="2.5" width="6" height="3.5" rx="1"/><path d="M9 11h6M9 15h4"/>',
+  checklist:'<path d="m3.5 6 1.5 1.5 3-3M3.5 12.5 5 14l3-3M3.5 19 5 20.5l3-3"/><path d="M11 6h10M11 12.5h10M11 19h10"/>',
+  briefcase:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8.5 7V5a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v2M3 12.5h18"/>',
+  school:'<path d="M2 9.5 12 5l10 4.5-10 4.5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9.5V15"/>',
+  laptop:'<rect x="4.5" y="5" width="15" height="10" rx="1.5"/><path d="M2.5 19h19l-1.5-4H4z"/>',
+  printer:'<path d="M7 8V3h10v5"/><rect x="3" y="8" width="18" height="8" rx="2"/><path d="M7 13h10v8H7z"/>',
+  speaker:'<rect x="5" y="2.5" width="14" height="19" rx="2"/><circle cx="12" cy="14.5" r="3.5"/><circle cx="12" cy="7" r="1.2"/>',
+  music:'<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+  game:'<path d="M7 8h10a5 5 0 0 1 4.9 6l-.6 3a2.5 2.5 0 0 1-4.3 1.2L15 16H9l-2 2.2A2.5 2.5 0 0 1 2.7 17l-.6-3A5 5 0 0 1 7 8z"/><path d="M7.5 11v3M6 12.5h3M15.5 12h.01M17.5 13.5h.01"/>',
+  dumbbell:'<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>',
+  bike:'<circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9l3 7.5h1L15 9M8 6h3M15 9l-1-3h2.5"/>',
+  trophy:'<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3.6M17 6h2.5a2.5 2.5 0 0 1-2.6 3.6M12 14v3.5M8 21h8l-1-3.5H9z"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="2"/>',
+  plane:'<path d="M10.5 13.5 4 12l-1.5 1.5 6 3 3 6L13 21l-1.5-6.5 4-4 4.5 6.5 1.5-1.5-2-8.5 2.2-2.2a1.8 1.8 0 0 0-2.5-2.5L17 4.5 8.5 2.5 7 4l6.5 4.5z"/>',
+  suitcase:'<rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V4.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V7M9 7v13M15 7v13"/>',
+  truck:'<path d="M2.5 6h11v10h-11zM13.5 9.5h4l3.5 3.5v3h-7.5"/><circle cx="6.5" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/>',
+  fuel:'<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 13h2a2 2 0 0 1 2 2v2.5a1.5 1.5 0 0 0 3 0V9l-3-3"/>',
+  anchor:'<circle cx="12" cy="5" r="2.2"/><path d="M12 7.2V21M8 11h8M4 13a8 8 0 0 0 16 0"/>',
+  waves:'<path d="M2 7c2-1.5 3.5-1.5 5 0s3 1.5 5 0 3.5-1.5 5 0 3 1.5 5 0M2 12c2-1.5 3.5-1.5 5 0s3 1.5 5 0 3.5-1.5 5 0 3 1.5 5 0M2 17c2-1.5 3.5-1.5 5 0s3 1.5 5 0 3.5-1.5 5 0 3 1.5 5 0"/>',
+  fish:'<path d="M3 12c3-5 9-6.5 13-3l4-3v12l-4-3c-4 3.5-10 2-13-3z"/><circle cx="8" cy="11" r=".8" fill="currentColor" stroke="none"/>',
+  mountain:'<path d="m2 20 7.5-13 4.5 7.5 2.5-3.5L22 20z"/>',
+  moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  cloud:'<path d="M7 19h10.5a4.5 4.5 0 0 0 .5-9 6 6 0 0 0-11.6 1.5A3.8 3.8 0 0 0 7 19z"/>',
+  bug:'<rect x="8" y="7" width="8" height="13" rx="4"/><path d="M12 7v13M9.5 7a2.5 2.5 0 0 1 5 0M8 11H4M8 15H3.5M16 11h4M16 15h4.5M9 5 7 3M15 5l2-2"/>',
+  heart:'<path d="M12 20s-7.5-4.5-9-9.5A4.8 4.8 0 0 1 12 6.5a4.8 4.8 0 0 1 9 4C19.5 15.5 12 20 12 20z"/>',
+  family:'<circle cx="8" cy="7" r="2.8"/><circle cx="16.5" cy="8" r="2.3"/><path d="M3 20v-2a5 5 0 0 1 10 0v2M13.5 20v-1.5a3.5 3.5 0 0 1 7 0V20"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.8A8 8 0 1 1 21 12z"/>',
+  hourglass:'<path d="M6 2.5h12M6 21.5h12M7 2.5c0 4 2 6 5 9.5 3-3.5 5-5.5 5-9.5M7 21.5c0-4 2-6 5-9.5 3 3.5 5 5.5 5 9.5"/>',
   /* служебные (интерфейс) */
   repeat:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
   history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
@@ -1074,11 +1221,53 @@ const P={
   archive:'<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M9.5 12h5"/>',
   grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
   arrowUp:'<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  arrowDown:'<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
+  arrowR:'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
   chart:'<path d="M4 20V4"/><path d="M4 20h16"/><rect x="7" y="12" width="3" height="5" rx=".5"/><rect x="12" y="8" width="3" height="9" rx=".5"/><rect x="17" y="5" width="3" height="12" rx=".5"/>',
 };
-function ic(id,style){ return `<span class="ic"${style?` style="${style}"`:''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${P[id]||''}</svg></span>`; }
-const ICON_LIB=['roof','brick','droplet','faucet','flame','extinguisher','wrench','screwdriver','gear','drill','nut','gauge','battery','funnel','wind','fan','thermometer','radiator','plug','bolt','hammer','paint','ruler','ladder','window','door','garage','box','folder','documents','bed','sofa','wardrobe','table','chair','shelf','lamp','mirror','utensils','coffee','fridge','microwave','dishwasher','washer','iron','vacuum','shower','bath','toilet','tv','cart','broom','trash','cpu','wifi','camera','lightbulb','lock','key','phone','shield','medkit','pill','syringe','stethoscope','tooth','heartpulse','palette','car','leaf','plant','sun','umbrella','pet','baby','star','flag','book','mail','clock','pin','tag','gift','home','inbox','calendar'];
-const ICON_NAMES={roof:'кровля',brick:'фасад',droplet:'вода',faucet:'смеситель',flame:'пожар',extinguisher:'огнетуш.',wrench:'ремонт',screwdriver:'отвёртка',gear:'механизм',drill:'дрель',nut:'крепёж',gauge:'счётчик',battery:'батарейки',funnel:'фильтр',wind:'вентил.',fan:'кондиц.',thermometer:'тепло',radiator:'радиатор',plug:'розетка',bolt:'электро',hammer:'молоток',paint:'покраска',ruler:'замер',ladder:'стремянка',window:'окно',door:'дверь',garage:'гараж',box:'коробка',folder:'папка',documents:'документы',bed:'спальня',sofa:'диван',wardrobe:'шкаф',table:'стол',chair:'стул',shelf:'полка',lamp:'лампа',mirror:'зеркало',utensils:'кухня',coffee:'кофе',fridge:'холодильник',microwave:'микроволновка',dishwasher:'посудомойка',washer:'стиралка',iron:'утюг',vacuum:'пылесос',shower:'душ',bath:'ванна',toilet:'санузел',tv:'техника',cart:'купить',broom:'уборка',trash:'мусор',cpu:'умный дом',wifi:'wi-fi',camera:'камера',lightbulb:'свет',lock:'замок',key:'ключи',phone:'звонок',shield:'страховка',medkit:'аптечка',pill:'лекарства',syringe:'прививки',stethoscope:'врач',tooth:'зубы',heartpulse:'здоровье',palette:'дизайн',car:'авто',leaf:'сад',plant:'растение',sun:'улица',umbrella:'дождь',pet:'питомец',baby:'малыш',star:'важное',flag:'флаг',book:'книги',mail:'почта',clock:'время',pin:'место',tag:'ярлык',gift:'подарки',home:'дом',inbox:'входящие',calendar:'выходные'};
+/* Эмодзи вместо иконки (правка 1.14). Знакомое эмодзи (EMOJI_ICON) превращается в иконку
+   в стиле приложения; незнакомое хранится как есть — поле icon/emo тогда содержит сам
+   символ, и ic() рисует его текстом. Кавычек и < > & в нём не бывает (firstEmoji
+   их отсекает), поэтому в onclick="f('…')" оно подставляется безопасно. */
+const EMOJI_ICON={'🏠':'home','🏡':'home','🏘':'home','🛖':'roof','🏢':'building','🏬':'building','🏙':'building','🔥':'flame','💧':'droplet','💦':'droplet','🚰':'faucet','🔧':'wrench','🔨':'hammer','⚒':'hammer','🛠':'hammer','🪛':'screwdriver','⚙':'gear','🔩':'nut','🔋':'battery','🪫':'battery','⚡':'bolt','🔌':'plug','💡':'lightbulb','🌡':'thermometer','💨':'wind','🌬':'wind','🪭':'fan','🧯':'extinguisher','🪟':'window','🚪':'door','🪜':'ladder','📏':'ruler','📐':'ruler','🖌':'brush','🎨':'palette','📦':'box','📁':'folder','📂':'folder','🗂':'folder','📄':'documents','📃':'documents','📑':'documents','📝':'documents','🧾':'receipt','🛂':'passport','📋':'clipboard','✅':'checklist','☑':'checklist','🛏':'bed','🛋':'sofa','🪑':'chair','🪞':'mirror','🍴':'utensils','🍽':'utensils','☕':'coffee','🫖':'kettle','🍷':'wine','🍸':'wine','🥂':'wine','🍺':'wine','🎂':'cake','🍰':'cake','🧁':'cake','🍎':'apple','🍏':'apple','🍌':'apple','🍇':'apple','🍊':'apple','🥕':'carrot','🥦':'carrot','🥬':'carrot','🥔':'carrot','🍅':'carrot','🧺':'basket','🧊':'fridge','🫧':'washer','👕':'shirt','👔':'shirt','👗':'shirt','👖':'shirt','🧥':'hanger','✂':'scissors','👓':'glasses','🕶':'glasses','🚿':'shower','🛁':'bath','🚽':'toilet','📺':'tv','🛒':'cart','🛍':'cart','🧹':'broom','🧴':'spray','🪣':'bucket','🗑':'trash','♻':'recycle','🤖':'cpu','💻':'laptop','🖥':'laptop','🖨':'printer','🔊':'speaker','🔈':'speaker','🎵':'music','🎶':'music','🎸':'music','🎹':'music','🎮':'game','🕹':'game','📶':'wifi','🛜':'wifi','📷':'camera','📸':'camera','📹':'camera','🔒':'lock','🔐':'lock','🔑':'key','🗝':'key','📞':'phone','☎':'phone','📱':'phone','🛡':'shield','🏦':'bank','👛':'wallet','💳':'card','💰':'coins','💵':'coins','💶':'coins','💸':'coins','🪙':'coins','🩹':'medkit','🚑':'medkit','💊':'pill','💉':'syringe','🩺':'stethoscope','🦷':'tooth','🫀':'heartpulse','❤':'heart','🧡':'heart','💛':'heart','💚':'heart','💙':'heart','💜':'heart','🤍':'heart','💕':'heart','🚗':'car','🚙':'car','🚘':'car','⛽':'fuel','🚲':'bike','🛴':'bike','✈':'plane','🛫':'plane','🧳':'suitcase','🚚':'truck','🚛':'truck','⚓':'anchor','⛵':'anchor','🚤':'anchor','🍃':'leaf','🌿':'leaf','☘':'leaf','🪴':'plant','🌱':'plant','🌸':'flower','🌷':'flower','🌹':'flower','🌻':'flower','💐':'flower','🌳':'tree','🌲':'tree','🎄':'tree','⛏':'shovel','🐛':'bug','🐜':'bug','🦟':'bug','🪳':'bug','🕷':'bug','☀':'sun','🌞':'sun','🌙':'moon','🌛':'moon','☁':'cloud','⛅':'cloud','🌧':'cloud','☂':'umbrella','🌂':'umbrella','☔':'umbrella','❄':'snowflake','☃':'snowflake','⛄':'snowflake','⛰':'mountain','🏔':'mountain','🌊':'waves','🏊':'waves','🐟':'fish','🐠':'fish','🎣':'fish','🐶':'pet','🐱':'pet','🐕':'pet','🐈':'pet','🐾':'pet','👶':'baby','🍼':'baby','👨‍👩‍👧':'family','👪':'family','👤':'user','🧑':'user','💬':'chat','🗨':'chat','⭐':'star','🌟':'star','🏆':'trophy','🥇':'trophy','🎯':'target','🏋':'dumbbell','💪':'dumbbell','🎓':'school','🏫':'school','💼':'briefcase','📚':'book','📖':'book','📕':'book','📗':'book','📘':'book','✉':'mail','📧':'mail','📬':'mail','📮':'mail','📨':'mail','⏰':'clock','🕐':'clock','⌚':'clock','⏱':'clock','⌛':'hourglass','⏳':'hourglass','📍':'pin','📌':'pin','🏷':'tag','🎁':'gift','📅':'calendar','📆':'calendar','🗓':'calendar','🔔':'bell','🚨':'bell','🚩':'flag','🏁':'flag','🧰':'toolbox','♨':'boiler','⏲':'gauge'};
+const EMO_RE=/\p{Extended_Pictographic}|\p{Regional_Indicator}/u;
+function emoKey(e){ return String(e||'').replace(/[\uFE0E\uFE0F]/g,''); }
+function isEmo(id){ return !!id && typeof id==='string' && !P[id] && id.length<=16 && EMO_RE.test(id) && !/['"\\<>&\s]/.test(id); }
+function validIcon(id){ return !!P[id] || isEmo(id); }
+function firstEmoji(str){
+  const t=String(str||'').trim(); if(!t) return '';
+  let parts;
+  try{ parts=[...new Intl.Segmenter('ru',{granularity:'grapheme'}).segment(t)].map(x=>x.segment); }catch(e){ parts=Array.from(t); }
+  const g=parts.find(x=>EMO_RE.test(x));
+  return (g && isEmo(g)) ? g : '';
+}
+function iconFromEmoji(e){ return EMOJI_ICON[emoKey(e)]||EMOJI_ICON[e]||null; }
+/* Сетка выбора иконки — одна на все редакторы. q — строка поиска: слово фильтрует
+   библиотеку по названию и подсказкам, эмодзи даёт свою иконку или само эмодзи. */
+function iconPickHtml(cur,q,fn){
+  const e=firstEmoji(q), qq=e?'':norm(q).trim();
+  let ids;
+  if(e){ const m=iconFromEmoji(e); ids=m?[m]:[]; if(!m) ids.push(e); }
+  else if(qq){ const hint=iconSuggestList(qq); ids=ICON_LIB.filter(id=>norm(ICON_NAMES[id]||'').indexOf(qq)>=0||hint.indexOf(id)>=0); }
+  else ids=ICON_LIB.slice();
+  if(isEmo(cur) && ids.indexOf(cur)<0 && !qq) ids.unshift(cur);   /* своё эмодзи — первым */
+  if(!ids.length) return `<div class="ip-none">Ничего не нашлось. Попробуйте другое слово или вставьте эмодзи.</div>`;
+  return ids.map(id=>{ const nm=isEmo(id)?'эмодзи':(ICON_NAMES[id]||id);
+    return `<button type="button" class="ipg ${id===cur?'on':''}" title="${esc(nm)}" aria-label="${esc(nm)}" aria-pressed="${id===cur?'true':'false'}" onclick="${fn}('${id}')">${ic(id)}</button>`; }).join('');
+}
+/* подпись под полем поиска: что получилось из эмодзи */
+function iconQNote(q){
+  const e=firstEmoji(q); if(!e) return '';
+  const m=iconFromEmoji(e);
+  return m ? `${esc(e)} → иконка «${esc(ICON_NAMES[m]||m)}» в стиле приложения` : `Своей иконки для ${esc(e)} нет — останется эмодзи`;
+}
+function ic(id,style){
+  if(isEmo(id)) return `<span class="ic emo"${style?` style="${style}"`:''}>${id}</span>`;
+  return `<span class="ic"${style?` style="${style}"`:''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${P[id]||''}</svg></span>`;
+}
+const ICON_LIB=['roof','building','fence','brick','droplet','faucet','flame','boiler','pipe','extinguisher','wrench','screwdriver','gear','toolbox','drill','nut','gauge','battery','funnel','wind','fan','thermometer','radiator','plug','bolt','hammer','paint','brush','ruler','ladder','window','door','garage','box','truck','folder','documents','receipt','passport','clipboard','checklist','bed','sofa','wardrobe','table','chair','shelf','lamp','mirror','hanger','shirt','scissors','glasses','utensils','coffee','kettle','stove','sink','wine','cake','apple','carrot','basket','fridge','microwave','dishwasher','washer','iron','vacuum','shower','bath','toilet','tv','cart','broom','spray','bucket','trash','recycle','cpu','laptop','printer','speaker','wifi','bell','camera','lightbulb','lock','key','phone','shield','bank','wallet','card','coins','medkit','pill','syringe','stethoscope','tooth','heartpulse','heart','palette','car','fuel','bike','plane','suitcase','anchor','leaf','plant','flower','tree','shovel','bug','sun','moon','cloud','snowflake','mountain','waves','fish','umbrella','pet','baby','family','user','chat','star','trophy','target','dumbbell','game','music','school','briefcase','flag','book','mail','clock','hourglass','pin','tag','gift','home','inbox','calendar'];
+const ICON_NAMES={roof:'кровля',brick:'фасад',droplet:'вода',faucet:'смеситель',flame:'пожар',extinguisher:'огнетуш.',wrench:'ремонт',screwdriver:'отвёртка',gear:'механизм',drill:'дрель',nut:'крепёж',gauge:'счётчик',battery:'батарейки',funnel:'фильтр',wind:'вентил.',fan:'кондиц.',thermometer:'тепло',radiator:'радиатор',plug:'розетка',bolt:'электро',hammer:'молоток',paint:'покраска',ruler:'замер',ladder:'стремянка',window:'окно',door:'дверь',garage:'гараж',box:'коробка',folder:'папка',documents:'документы',bed:'спальня',sofa:'диван',wardrobe:'шкаф',table:'стол',chair:'стул',shelf:'полка',lamp:'лампа',mirror:'зеркало',utensils:'кухня',coffee:'кофе',fridge:'холодильник',microwave:'микроволновка',dishwasher:'посудомойка',washer:'стиралка',iron:'утюг',vacuum:'пылесос',shower:'душ',bath:'ванна',toilet:'санузел',tv:'техника',cart:'купить',broom:'уборка',trash:'мусор',cpu:'умный дом',wifi:'wi-fi',camera:'камера',lightbulb:'свет',lock:'замок',key:'ключи',phone:'звонок',shield:'страховка',medkit:'аптечка',pill:'лекарства',syringe:'прививки',stethoscope:'врач',tooth:'зубы',heartpulse:'здоровье',palette:'дизайн',car:'авто',leaf:'сад',plant:'растение',sun:'улица',umbrella:'дождь',pet:'питомец',baby:'малыш',star:'важное',flag:'флаг',book:'книги',mail:'почта',clock:'время',pin:'место',tag:'ярлык',gift:'подарки',home:'дом',inbox:'входящие',calendar:'выходные',snowflake:'зима',tree:'дерево',flower:'цветы',apple:'еда',carrot:'овощи',basket:'корзина',kettle:'чайник',stove:'плита',sink:'раковина',wine:'бокал',cake:'праздник',shirt:'одежда',hanger:'вешалка',scissors:'ножницы',glasses:'очки',spray:'химия',bucket:'ведро',brush:'кисть',recycle:'сортировка',toolbox:'инструменты',boiler:'котёл',pipe:'трубы',bell:'сигнализ.',fence:'забор',shovel:'лопата',building:'квартира',bank:'банк',wallet:'кошелёк',card:'карта',coins:'деньги',receipt:'счета',passport:'паспорт',clipboard:'планшет',checklist:'чек-лист',briefcase:'работа',school:'учёба',laptop:'ноутбук',printer:'принтер',speaker:'колонка',music:'музыка',game:'игры',dumbbell:'спорт',bike:'велосипед',trophy:'цель',target:'мишень',plane:'поездка',suitcase:'чемодан',truck:'доставка',fuel:'топливо',anchor:'море',waves:'бассейн',fish:'рыбалка',mountain:'горы',moon:'ночь',cloud:'облако',bug:'насекомые',heart:'любимое',family:'семья',user:'человек',chat:'общение',hourglass:'ожидание'};
 const ICON_HINTS=[
   [['кровл','крыш','водосток'],'roof'],[['фасад','стен','цокол'],'brick'],[['протеч','вод','сантех','труб'],'droplet'],
   [['пожар','огонь','дым'],'flame'],[['огнетуш'],'extinguisher'],[['вентил','вытяж'],'wind'],[['кондиц','сплит'],'fan'],
@@ -1095,7 +1284,8 @@ const ICON_HINTS=[
   [['утюг','глаж','глад'],'iron'],[['пылесос'],'vacuum'],[['холодильник'],'fridge'],[['микроволн','свч','духов'],'microwave'],[['посудомо'],'dishwasher'],
   [['душ'],'shower'],[['ванн'],'bath'],[['туалет','унитаз','санузел'],'toilet'],[['зеркал'],'mirror'],
   [['шкаф','гардероб'],'wardrobe'],[['стол'],'table'],[['стул','табурет'],'chair'],[['полк','стеллаж'],'shelf'],[['ламп','торшер','бра'],'lamp'],
-  [['важн','избран','звезд','звёзд'],'star'],[['книг','библиот'],'book'],[['почт','письм','конверт'],'mail'],[['час','время','срок'],'clock'],[['подар','праздн'],'gift'],[['ярлык','метк'],'tag']
+  [['важн','избран','звезд','звёзд'],'star'],[['книг','библиот'],'book'],[['почт','письм','конверт'],'mail'],[['час','время','срок'],'clock'],[['подар','праздн'],'gift'],[['ярлык','метк'],'tag'],
+  [['зим', 'снег', 'мороз', 'холод'],'snowflake'],[['дерев', 'обрез'],'tree'],[['цвет', 'клумб', 'роз'],'flower'],[['еда', 'продукт', 'фрукт'],'apple'],[['овощ', 'огород', 'грядк'],'carrot'],[['корзин'],'basket'],[['чайник'],'kettle'],[['плит', 'духовк', 'варочн'],'stove'],[['раковин', 'мойк'],'sink'],[['вин', 'бар', 'бокал'],'wine'],[['день рожд', 'торт', 'праздн'],'cake'],[['одежд', 'рубаш', 'вещи'],'shirt'],[['гардероб', 'вешал'],'hanger'],[['стрижк', 'парикмах', 'ножниц'],'scissors'],[['очки', 'оптик'],'glasses'],[['химия', 'чистящ', 'моющ'],'spray'],[['ведро', 'мыть пол'],'bucket'],[['кист', 'маляр'],'brush'],[['сортир', 'вторсыр', 'переработ'],'recycle'],[['инструмент'],'toolbox'],[['котёл', 'котел', 'бойлер', 'газов'],'boiler'],[['труб', 'канализ', 'водопровод'],'pipe'],[['сигнализ', 'звонок двер', 'датчик дым'],'bell'],[['забор', 'ограж', 'калитк'],'fence'],[['лопат', 'копать', 'снег убр'],'shovel'],[['квартир', 'подъезд', 'дом жил'],'building'],[['банк', 'кредит', 'ипотек'],'bank'],[['кошел', 'расход'],'wallet'],[['карта', 'оплат'],'card'],[['деньг', 'финанс', 'бюджет'],'coins'],[['счёт', 'счет', 'квитанц', 'чек', 'коммунал', 'жкх'],'receipt'],[['паспорт', 'виза'],'passport'],[['список', 'чек-лист', 'чеклист'],'checklist'],[['работ', 'офис'],'briefcase'],[['школ', 'учёб', 'учеб', 'курс'],'school'],[['ноутбук', 'компьют'],'laptop'],[['принтер', 'печат'],'printer'],[['колонк', 'алис', 'музык'],'speaker'],[['гитар', 'пианин'],'music'],[['игр', 'приставк'],'game'],[['спорт', 'трениров', 'зал'],'dumbbell'],[['велосип', 'самокат'],'bike'],[['цел', 'достиж'],'trophy'],[['поездк', 'отпуск', 'перелёт', 'перелет', 'путешеств'],'plane'],[['чемодан', 'багаж'],'suitcase'],[['доставк', 'переезд', 'груз'],'truck'],[['бензин', 'заправ', 'топлив'],'fuel'],[['лодк', 'море', 'яхт'],'anchor'],[['бассейн', 'пляж'],'waves'],[['рыб'],'fish'],[['горы', 'лыж', 'поход'],'mountain'],[['ноч', 'сон'],'moon'],[['облак', 'погод'],'cloud'],[['насеком', 'муравь', 'комар', 'таракан'],'bug'],[['любим', 'семь'],'heart'],[['семья', 'родител', 'дети'],'family'],[['мастер', 'сосед', 'человек'],'user'],[['общени', 'чат', 'переписк'],'chat'],[['ожидан', 'позже'],'hourglass']
 ];
 function iconSuggestList(name){ const s=(name||'').toLowerCase(); if(!s.trim()) return []; const r=[]; for(const [st,id] of ICON_HINTS){ if(st.some(x=>s.includes(x))&&r.indexOf(id)<0) r.push(id);} return r.slice(0,6); }
 /* 20 оттенков одной приглушённой тональности, по цветовому кругу */
@@ -1190,7 +1380,7 @@ const __bootAt=Date.now();
 let __updReady=false;
 function appIdle(){
   const a=document.activeElement;
-  return scrollLocks===0 && !drag && !hmOpen && !(a && (a.tagName==='INPUT'||a.tagName==='TEXTAREA'));
+  return scrollLocks===0 && !drag && !hmOpen && !(a && (a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.isContentEditable));
 }
 function applyUpdate(){
   if(!__updReady || !appIdle()) return false;
@@ -1511,7 +1701,7 @@ function svcDueCount(){ return dueObjs().length + recTasks().filter(r=>daysTo(r.
 function normObj(o){
   if(!o.id) o.id=noid();
   if(typeof o.t!=='string') o.t=String(o.t||'');
-  if(!o.icon || !P[o.icon]) o.icon='gear';
+  if(!validIcon(o.icon)) o.icon='gear';
   if(typeof o.ck!=='string') o.ck='';
   if(typeof o.spec!=='string') o.spec='';
   if(!Array.isArray(o.checks)) o.checks=[];
@@ -1520,23 +1710,29 @@ function normObj(o){
   const r=o.rec; r.n=Math.min(365,Math.max(1,num(r.n)||1));
   if(['d','w','m','y'].indexOf(r.unit)<0) r.unit='m';
   if(!validISO(r.next)) r.next=isoToday();
-  if(r.mode!=='fixed') r.mode='done';
+  /* 'req' — «по запросу» (правка 1.14): без срока, записи вносят, когда нужно (показания) */
+  if(r.mode!=='fixed' && r.mode!=='req') r.mode='done';
+  if(typeof o.metric!=='string') o.metric='';
   o.lead=('lead' in o) ? Math.min(90,num(o.lead)) : 3;
   o.needNote=!!o.needNote;
   if(!Array.isArray(o.log)) o.log=[];
   o.log=o.log.filter(e=>e&&num(e.ts));
   o.log.forEach(e=>{ if(!e.id) e.id='l'+num(e.ts).toString(36); if(!(e.st in OBJ_ST)) e.st='ok';
-    if(typeof e.note!=='string') e.note=''; if(!Array.isArray(e.chk)) e.chk=[]; if(!validISO(e.d)) e.d=toISO(new Date(e.ts)); });
+    if(typeof e.note!=='string') e.note=''; if(!Array.isArray(e.chk)) e.chk=[];
+    if(e.val!=null && typeof e.val!=='string') e.val=String(e.val); if(!validISO(e.d)) e.d=toISO(new Date(e.ts)); });
   o.log.sort((a,b)=>b.ts-a.ts);
   if(o.log.length>OBJ_LOG_CAP) o.log.length=OBJ_LOG_CAP;
   if(!o.ct) o.ct=0;
 }
 function objById(id){ return (STATE.objs||[]).find(o=>o.id===id)||null; }
 function objDays(o){ return daysTo(o.rec.next); }
-function objDue(o){ return objDays(o)<=o.lead; }
+function objReq(o){ return o.rec.mode==='req'; }
+function objDue(o){ return !objReq(o) && objDays(o)<=o.lead; }
 function dueObjs(){ return STATE.objs.filter(objDue).sort((a,b)=>objDays(a)-objDays(b)); }
 /* следующий срок после обслуживания в день d: от даты обслуживания или по графику */
-function objNextAfter(o,d){ return o.rec.mode==='fixed' ? nextRecDate(o.rec) : addPeriod(d,o.rec.n,o.rec.unit); }
+function objNextAfter(o,d){ return objReq(o) ? o.rec.next : o.rec.mode==='fixed' ? nextRecDate(o.rec) : addPeriod(d,o.rec.n,o.rec.unit); }
+/* «Давление, бар» → «давление, бар» для подписи рядом со значением */
+function objValTx(o,e){ return e&&e.val ? e.val+(o.metric?' · '+o.metric:'') : ''; }
 const PER_U={d:['день','дня','дней'],w:['неделю','недели','недель'],m:['месяц','месяца','месяцев'],y:['год','года','лет']};
 function periodLabel(r){ const f=PER_U[r.unit]||PER_U.m; return r.n===1 ? 'раз в '+f[0] : 'каждые '+r.n+' '+plural(r.n,f[0],f[1],f[2]); }
 function ensureSvcGroup(c){ let g=c.groups.find(x=>x.svc&&x.items); if(!g){ g=mkGroup({emo:'repeat',title:'Цикличные',items:[],svc:true}); c.groups.unshift(g); } return g; }
@@ -1930,7 +2126,7 @@ async function openBackups(){
 function renderBackups(){
   const box=document.getElementById('bkBody'); if(!box) return;
   if(!__bkList.length){ box.innerHTML=`<div class="empty">${ic('history')}<br>Копий пока нет.<br>Первая появится сегодня — приложение делает копию раз в день и хранит последние ${BK_SLOTS}.</div>`; return; }
-  let h=`<div class="ar-sec">Последние ${BK_SLOTS} дней</div>`;
+  let h=`<div class="prof-note" style="margin:0 2px 10px">Каждый день приложение само сохраняет копию всего списка в облако и хранит ${BK_SLOTS} последних. Стрелка ↑ — вернуть список к этому дню.</div><div class="ar-sec">Последние ${BK_SLOTS} дней</div>`;
   __bkList.forEach((b,i)=>{ const st=bkStats(b.data); const d=new Date(b.at||0);
     const when=b.id==='undo' ? 'До восстановления, '+fmtTs(b.at)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') : fmtD(b.day);
     h+=`<div class="ar-row"><span class="ar-emo" style="${chipStyle('var(--indigo-tx)')}">${ic(b.id==='undo'?'history':'archive')}</span>
@@ -1955,7 +2151,7 @@ async function restoreBackup(i){
 /* Один вход для «перерисовать всё, что открыто» */
 function renderAll(){
   render();
-  if(profileOpen){ renderAcct(); renderProfSettings(); renderProfileCats(); }
+  if(profileOpen) renderProfile();
   if(queuesOpen) renderQueuesBody();
   if(archiveOpen) renderArchiveBody();
   if(ovId) renderObjView();
@@ -2012,7 +2208,7 @@ function render(){
   document.getElementById('fab').classList.toggle('hidden', noFab);
   document.body.classList.toggle('nofab', noFab);
   if(loading){
-    hdrEl.innerHTML=`<div class="h-row"><div class="brand">${ic('home')} <span class="tx">Дом!</span></div>
+    hdrEl.innerHTML=`<div class="h-row">${brandBtn()}
       <div class="h-right">${avatarBtn()}</div></div>`;
     viewEl.classList.remove('editmode');
     viewEl.innerHTML=__slowCloud
@@ -2042,6 +2238,8 @@ function avatarBtn(){ return `<button class="av" onclick="openProfile(false)" id
 function queueBtn(n){ return n
   ? `<button class="q q1" onclick="openQueues()" aria-label="Очереди задач, в первой очереди ${n}">${ic('sortimp')} Очереди <span class="n">${n}</span></button>`
   : `<button class="q qall" onclick="openQueues()" aria-label="Очереди задач">${ic('sortimp')} Очереди</button>`; }
+/* Логотип — кнопка «на главную, в самый верх» (правка 1.14) */
+function brandBtn(){ return `<button type="button" class="brand" onclick="goHubTop()" aria-label="На главную">${ic('home')} <span class="tx">Дом!</span></button>`; }
 function edBar(){ return `<div class="edbar">${ic('pencil')} Режим правки<button type="button" onclick="toggleEdit()">Готово</button></div>`; }
 
 function renderHeader(){
@@ -2049,7 +2247,7 @@ function renderHeader(){
   if(active===null){
     /* Одна строка: слева логотип, справа «Очереди» → правка → меню «⋯» → аватар.
        Поиск/Отчёт/Архив спрятаны в меню, переключатель плитки/списка — у заголовка «Категории». */
-    hdrEl.innerHTML=`<div class="h-row"><div class="brand">${ic('home')} <span class="tx">Дом!</span></div>
+    hdrEl.innerHTML=`<div class="h-row">${brandBtn()}
       <div class="h-right">${queueBtn(urg)}
         <button class="hb edit" onclick="toggleEdit()" title="Режим правки" aria-label="Режим правки">${ic('pencil')}</button>
         <button class="hb" id="hmBtn" onclick="openHMenu(event)" title="Ещё" aria-label="Ещё: поиск, отчёт, архив" aria-haspopup="true">${ic('dots')}</button>
@@ -2079,11 +2277,12 @@ function renderHeader(){
         ${avatarBtn()}
       </div></div>
       ${editmode?edBar():''}
-      <div class="bar"><i style="width:${s.pct}%"></i></div>
-      <div class="bar-row"><span class="bar-lbl">${s.d} из ${s.t} · ${s.pct}%</span>
+      <div class="bar-row prog"><div class="bar"><i style="width:${s.pct}%"></i></div><span class="bar-lbl">${s.d} из ${s.t} · ${s.pct}%</span></div>
+      <div class="tg-row">
+        <button class="tgl srch" onclick="openSearch()" title="Поиск по задачам" aria-label="Поиск по задачам">${ic('search')}</button>
         <span class="h-toggles">
-          <button class="tgl" onclick="openSearch()" title="Поиск по задачам" aria-label="Поиск по задачам">${ic('search')}</button>
           <button class="tgl ${sortPri?'on':''}" onclick="toggleSortPri()">${ic('sortimp')} очередь</button>
+          <button class="tgl" onclick="openViewCurrent()" title="Посмотреть списком" aria-label="Посмотреть списком">${ic('list')} список</button>
           <button class="tgl ${hideDone?'on':''} ${s.d?'':'hidden'}" onclick="toggleHideDone()">${hideDone?'показать ✓':'скрыть ✓'}</button>
         </span></div>`;
   }
@@ -2096,8 +2295,8 @@ function renderHub(){
   const svcDue=svcDueCount(), on=STATE.objs.length;
   h+=`<div class="pin svc" role="button" tabindex="0" onclick="openService()"><span class="ico" style="${chipStyle('var(--svc)')}">${ic('gear')}</span><span class="nm">Обслуживание<small>${on?on+' '+plural(on,'объект','объекта','объектов')+' · фильтры, техника, ТО':'Фильтры, техника, ТО — с историей'}</small></span><span class="badge ${svcDue?'':'zero'}"${svcDue?' style="background:var(--svc)"':''}>${svcDue}</span></div>`;
   /* подошёл срок — объекты поднимаются на самый верх главного экрана */
-  const due=dueObjs();
-  if(due.length) h=`<div class="duebox"><div class="duebox-h" role="button" tabindex="0" onclick="openService()">${ic('clock')} Пора обслужить · ${due.length}</div><div class="olist">${due.slice(0,5).map(objRow).join('')}</div>${due.length>5?`<div class="rep-more" role="button" tabindex="0" onclick="openService()">ещё ${due.length-5} — открыть «Обслуживание»</div>`:''}</div>`+h;
+  const hid=dueHidden(), due=dueObjs().filter(o=>!hid.has(dueSig(o)));
+  if(due.length) h=`<div class="duebox"><div class="duebox-h"><span class="dt" role="button" tabindex="0" onclick="openService()">${ic('clock')} Пора обслужить · ${due.length}</span><button type="button" class="due-x" onclick="hideDueBox()" title="Скрыть до наступления срока">Скрыть</button></div><div class="olist">${due.slice(0,5).map(objRow).join('')}</div>${due.length>5?`<div class="rep-more" role="button" tabindex="0" onclick="openService()">ещё ${due.length-5} — открыть «Обслуживание»</div>`:''}</div>`+h;
   const list=hubView==='list';
   h+=`<div class="sect-l"><span>Категории</span>
     <span class="viewseg">
@@ -2118,6 +2317,19 @@ function renderHub(){
   h+=`</div>`;
   viewEl.innerHTML=h;
 }
+/* «Пора обслужить» на главной можно скрыть (правка 1.14). Запоминаем отпечатки
+   «объект|срок|фаза»: фаза меняется с 'soon' (поднят заранее, за lead дней) на 'due'
+   (срок наступил) — отпечаток другой, и блок появляется снова. После обслуживания
+   меняется срок — тоже новый отпечаток. В «Обслуживании» всё видно как прежде.
+   Настройка устройства (localStorage), у каждого своя. */
+function dueSig(o){ return o.id+'|'+o.rec.next+'|'+(objDays(o)<=0?'due':'soon'); }
+function dueHidden(){ try{ const a=JSON.parse(localStorage.getItem('due_hide')||'[]'); return new Set(Array.isArray(a)?a:[]); }catch(e){ return new Set(); } }
+function hideDueBox(){
+  /* сохраняем отпечатки ВСЕХ подошедших сейчас — заодно выбрасываются устаревшие */
+  try{ localStorage.setItem('due_hide',JSON.stringify(dueObjs().map(dueSig))); }catch(e){}
+  render();
+  showToast('Скрыто до срока обслуживания', ()=>{ try{ localStorage.removeItem('due_hide'); }catch(e){} render(); });
+}
 function hubCardTap(key){ if(justDragged||tapSuppressed()) return; if(editmode){ openCatEditor(key); } else { openCat(key); } }
 /* Избранное: как в Asana — звезда поднимает карточку наверх, следующая встаёт за ней */
 function toggleFav(e,key){ e.stopPropagation(); const c=catByKey(key); if(!c) return;
@@ -2136,7 +2348,7 @@ function toggleFav(e,key){ e.stopPropagation(); const c=catByKey(key); if(!c) re
 function itemRow(it,sub){
   const pd=PRI[it.pri]||PRI['']; /* защитно: битое pri роняло весь render() */
   const stripe=(it.pri&&pd.c)?`<span class="pri-stripe" style="background:${pd.c}"></span>`:'';
-  const note=it.n?`<span class="note">${esc(it.n)}</span>`:'';
+  const note=it.n?`<span class="note">${noteHtml(it.n)}</span>`:'';
   const rec=(it.rec&&it.rec.next)?`<span class="recline${daysTo(it.rec.next)<0?' late':''}">${ic('repeat')} ${fmtD(it.rec.next)} · ${dueLabel(daysTo(it.rec.next))}</span>`:'';
   return `<div class="item${it.done?' checked':''}" role="button" tabindex="0" data-id="${it.id}" onpointerdown="onItemPointerDown(event,'${it.id}')" onclick="itemClick(event,'${it.id}')">
     ${stripe}
@@ -2145,8 +2357,7 @@ function itemRow(it,sub){
     <span class="irow-btns">
       <button class="iqb wkflame ${it.wk?'wkon':''}" title="Взять на выходные" aria-label="Взять на выходные" aria-pressed="${it.wk?'true':'false'}" onclick="quickWk(event,'${it.id}')">${ic('flame')}</button>
     </span>
-    <button class="act del" title="Удалить" aria-label="Удалить" onclick="delItem(event,'${it.id}')">${ic('x')}</button>
-    <button class="drag" aria-label="Перетащить" onpointerdown="onHandleDown(event,'${it.id}')">≡</button>
+    <button class="act del" title="Удалить" aria-label="Удалить" onclick="delItem(event,'${it.id}')">${ic('trash')}</button>
   </div>`;
 }
 function groupsHtml(c){
@@ -2189,9 +2400,10 @@ function renderCat(key){
   const c=catByKey(key); if(!c){ active=null; renderHub(); return; }
   /* В режиме правки верхняя кнопка открывает карточку категории — название, иконку
      и цвет теперь можно менять, не уходя на главный экран (правка 1.5). */
+  /* «Посмотреть списком» переехал в строку кнопок шапки (правка 1.14) — место освободили */
   const top = editmode
     ? `<button class="viewcat" style="border-color:var(--amber);color:var(--pamber)" onclick="openCatEditor('${c.key}')">${ic('pencil')} Название, иконка и цвет категории</button>`
-    : `<button class="viewcat" onclick="openViewCurrent()">${ic('list')} Посмотреть списком</button>`;
+    : '';
   viewEl.innerHTML=top+groupsHtml(c);
 }
 function wkSeg(){
@@ -2238,7 +2450,17 @@ function renderWeekend(){
   viewEl.innerHTML=h;
 }
 function objRow(o){
-  const d=objDays(o), last=o.log[0];
+  const last=o.log[0];
+  if(objReq(o)){
+    const lastTx=last ? 'последняя запись '+fmtD(last.d)+(last.val?': '+last.val:'') : 'записей пока нет';
+    return `<div class="orow" role="button" tabindex="0" onclick="openObjView('${o.id}')">
+    <span class="oico" style="${chipStyle('var(--svc)')}">${ic(o.icon)}</span>
+    <div class="lw"><span class="lbl">${esc(o.t||'Без названия')}</span>
+      <span class="odue">${ic('gauge')} по запросу${o.metric?' · '+esc(o.metric):''}</span>
+      <span class="osub">${esc(lastTx)}</span></div>
+    <button class="odone" title="Внести данные" aria-label="Внести данные" onclick="event.stopPropagation();openObjDone('${o.id}')">${ic('plus')}</button></div>`;
+  }
+  const d=objDays(o);
   const cls=d<0?' late':(d<=o.lead?' soon':'');
   const lastTx=last ? 'последнее '+fmtD(last.d)+(last.st!=='ok'?' — '+OBJ_ST[last.st].lbl.toLowerCase():'') : 'ещё не обслуживали';
   return `<div class="orow${cls}" role="button" tabindex="0" onclick="openObjView('${o.id}')">
@@ -2256,9 +2478,12 @@ function renderService(){
   if(!objs.length) h+=`<div class="empty">${ic('gear')}<br>Здесь живут вещи, за которыми нужно следить:<br>фильтры, котёл, кондиционер, огнетушители.<br>У каждой — период, чек-лист осмотра и история.</div>`;
   const sec=(title,col,icon,l)=>{ if(!l.length) return;
     h+=`<div class="wkgrp-h" style="color:${col}">${ic(icon)} ${title} · ${l.length}</div><div class="olist">${l.map(objRow).join('')}</div>`; };
-  sec('Просрочено','var(--pri-red)','clock',objs.filter(o=>objDays(o)<0));
-  sec('Пора обслужить','var(--pri-org)','clock',objs.filter(o=>{ const d=objDays(o); return d>=0 && d<=o.lead; }));
-  sec('По графику','var(--svc)','gear',objs.filter(o=>objDays(o)>o.lead));
+  const sch=objs.filter(o=>!objReq(o));
+  sec('Просрочено','var(--pri-red)','clock',sch.filter(o=>objDays(o)<0));
+  sec('Пора обслужить','var(--pri-org)','clock',sch.filter(o=>{ const d=objDays(o); return d>=0 && d<=o.lead; }));
+  sec('По графику','var(--svc)','gear',sch.filter(o=>objDays(o)>o.lead));
+  /* без срока: показания, замеры — вносятся, когда нужно (правка 1.14) */
+  sec('По запросу','var(--svc)','gauge',objs.filter(objReq).sort((a,b)=>(a.t||'').localeCompare(b.t||'','ru')));
   h+=add;
   if(rs.length){
     h+=`<div class="wkgrp-h">${ic('repeat','color:var(--svc)')} Повторяющиеся задачи · ${rs.length}</div>
@@ -2282,10 +2507,12 @@ function renderObjView(){
   if(!o){ closeObjView(); return; }   /* удалили на другом устройстве */
   document.getElementById('ovTitle').textContent=o.t||'Объект';
   const d=objDays(o), cls=d<0?' late':(d<=o.lead?' soon':'');
-  const cat=catByKey(o.ck);
+  const cat=catByKey(o.ck), rq=objReq(o);
+  document.getElementById('ovDoneB').textContent=rq?'Внести данные':'Обслужить';
   let h=`<div class="ov-meta">
-    <span class="ov-chip due${cls}">${ic('clock')} ${fmtD(o.rec.next)} · ${dueLabel(d)}</span>
-    <span class="ov-chip">${ic('repeat')} ${periodLabel(o.rec)}${o.rec.mode==='fixed'?', по графику':''}</span>
+    ${rq?`<span class="ov-chip due">${ic('gauge')} По запросу</span>${o.metric?`<span class="ov-chip">${esc(o.metric)}</span>`:''}`
+      :`<span class="ov-chip due${cls}">${ic('clock')} ${fmtD(o.rec.next)} · ${dueLabel(d)}</span>
+    <span class="ov-chip">${ic('repeat')} ${periodLabel(o.rec)}${o.rec.mode==='fixed'?', по графику':''}</span>`}
     ${cat?`<span class="ov-chip">${ic(cat.icon,'color:'+catColor(cat))} ${esc(cat.title||cat.tab)}</span>`:''}</div>`;
   if(o.checks.length) h+=`<div class="fld-lbl">Чек-лист осмотра</div><div class="ov-block"><ul class="ov-chk">${o.checks.map(x=>`<li>${ic('check')}<span>${esc(x.t)}</span></li>`).join('')}</ul></div>`;
   if(o.spec) h+=`<div class="fld-lbl">Паспорт</div><div class="ov-block">${esc(o.spec)}</div>`;
@@ -2293,10 +2520,10 @@ function renderObjView(){
   h+=o.log.length ? o.log.map(e=>{
       const n=o.checks.length ? e.chk.filter(id=>o.checks.some(x=>x.id===id)).length : 0;
       return `<div class="log-row"><button class="lx" title="Удалить запись" aria-label="Удалить запись" onclick="objLogDel('${o.id}','${e.id}')">${ic('x')}</button>
-        <span class="ld">${fmtD(e.d)}</span><span class="st-chip" style="background:${OBJ_ST[e.st].c}">${OBJ_ST[e.st].lbl}</span>
+        <span class="ld">${fmtD(e.d)}</span>${e.val?` <span class="lval">${esc(e.val)}</span>${o.metric?` <span class="lc">${esc(o.metric)}</span>`:''}`:''}<span class="st-chip" style="background:${OBJ_ST[e.st].c}">${OBJ_ST[e.st].lbl}</span>
         ${o.checks.length?`<span class="lc"> · чек-лист ${n}/${o.checks.length}</span>`:''}
         ${e.note?`<div class="ln">${esc(e.note)}</div>`:''}</div>`; }).join('')
-    : `<div class="empty" style="padding:14px">Записей пока нет. Нажмите «Обслужить», когда сделаете.</div>`;
+    : `<div class="empty" style="padding:14px">Записей пока нет. Нажмите «${rq?'Внести данные':'Обслужить'}», когда понадобится.</div>`;
   document.getElementById('ovBody').innerHTML=h;
 }
 function ovEdit(){ const id=ovId; closeObjView(); setTimeout(()=>openObjEditor(id),140); }
@@ -2309,17 +2536,25 @@ function objLogDel(oid,lid){
 
 /* --- редактор объекта --- */
 let oeId=null, oeIcon='gear', oeMode='done', oeNeedOn=false, oeChk=[];
-function oeIconsHtml(){ return ICON_LIB.map(id=>`<button type="button" class="ipg ${id===oeIcon?'on':''}" title="${ICON_NAMES[id]||id}" aria-label="${ICON_NAMES[id]||id}" aria-pressed="${id===oeIcon?'true':'false'}" onclick="oeSetIcon('${id}')">${ic(id)}</button>`).join(''); }
-function oeSetIcon(id){ oeIcon=id; document.getElementById('oeIcons').innerHTML=oeIconsHtml(); }
-function oeSuggest(){ const l=iconSuggestList(document.getElementById('oeName').value); document.getElementById('oeSug').innerHTML=l.map(id=>`<button type="button" class="ips" onclick="oeSetIcon('${id}')">${ic(id)}</button>`).join(''); }
+function oeSetIcon(id){ oeIcon=id; const q=document.getElementById('oeIconQ').value;
+  document.getElementById('oeIcons').innerHTML=iconPickHtml(oeIcon,q,'oeSetIcon');
+  document.getElementById('oeIconQN').innerHTML=iconQNote(q); }
+function oeIconFind(){ const e=firstEmoji(document.getElementById('oeIconQ').value); oeSetIcon(e?(iconFromEmoji(e)||e):oeIcon); }
+function oeSuggest(){ const nm=document.getElementById('oeName').value, le=leadEmoji(nm);
+  if(le){ const id=iconFromEmoji(le)||le; if(id!==oeIcon) oeSetIcon(id); }
+  const l=iconSuggestList(nm); document.getElementById('oeSug').innerHTML=l.map(id=>`<button type="button" class="ips" onclick="oeSetIcon('${id}')">${ic(id)}</button>`).join(''); }
 function oeRenderMode(){
   const b=(v,l)=>`<button type="button" class="${oeMode===v?'on':''}" aria-pressed="${oeMode===v?'true':'false'}" onclick="oeSetMode('${v}')">${l}</button>`;
-  document.getElementById('oeMode').innerHTML=b('done','От обслуживания')+b('fixed','По графику');
-  document.getElementById('oeModeNote').textContent=oeMode==='fixed'
+  document.getElementById('oeMode').innerHTML=b('done','От обслуживания')+b('fixed','По графику')+b('req','По запросу');
+  document.getElementById('oeModeNote').textContent=oeMode==='req'
+    ? 'Без срока: например, показания счётчика или давление котла. Нажимаете «Внести данные», когда нужно, — запись уходит в историю.'
+    : oeMode==='fixed'
     ? 'Срок идёт по календарю от прошлой плановой даты, даже если обслужили позже.'
     : 'Следующий срок считается от даты, когда реально обслужили.';
+  document.getElementById('oePerBlk').style.display=oeMode==='req'?'none':'';
+  document.getElementById('oeMetricL').textContent=oeMode==='req'?'Что записываем':'Что записываем при обслуживании (необязательно)';
 }
-function oeSetMode(v){ oeMode=v==='fixed'?'fixed':'done'; oeRenderMode(); }
+function oeSetMode(v){ oeMode=(v==='fixed'||v==='req')?v:'done'; oeRenderMode(); }
 function oeToggleNeed(){ oeNeedOn=!oeNeedOn; document.getElementById('oeNeed').classList.toggle('on',oeNeedOn); }
 /* чек-лист правится в DOM; перед перерисовкой забираем введённое обратно в oeChk */
 function oeReadChecks(){ oeChk.forEach(x=>{ const el=document.getElementById('oeC_'+x.id); if(el) x.t=el.value; }); }
@@ -2334,7 +2569,7 @@ function openObjEditor(id){
   document.getElementById('oeTitle').textContent=o?'Объект обслуживания':'Новый объект';
   const del=document.getElementById('oeDelB'); del.innerHTML=ic('trash'); del.style.display=o?'':'none';
   document.getElementById('oeName').value=o?o.t:'';
-  oeIcon=o?o.icon:'gear';
+  oeIcon=o?o.icon:'gear'; resetIconQ('oeIconQ');
   document.getElementById('oeN').value=o?o.rec.n:3;
   document.getElementById('oeU').value=o?o.rec.unit:'m';
   oeMode=o?o.rec.mode:'done';
@@ -2342,6 +2577,7 @@ function openObjEditor(id){
   document.getElementById('oeLead').value=o?o.lead:3;
   document.getElementById('oeCat').innerHTML=`<option value="">— не привязан —</option>`+alphaCats().map(c=>`<option value="${c.key}"${o&&o.ck===c.key?' selected':''}>${esc(c.title||c.tab)}</option>`).join('');
   document.getElementById('oeSpec').value=o?o.spec:'';
+  document.getElementById('oeMetric').value=o?o.metric:'';
   oeNeedOn=o?o.needNote:false; document.getElementById('oeNeed').classList.toggle('on',oeNeedOn);
   oeChk=o?o.checks.map(x=>({id:x.id,t:x.t})):[];
   oeRenderChecks(); oeRenderMode(); oeSetIcon(oeIcon); oeSuggest();
@@ -2350,7 +2586,7 @@ function openObjEditor(id){
 }
 function closeObjEditor(){ closeSheet(document.getElementById('osheet')); }
 function saveObjEditor(){
-  const t=document.getElementById('oeName').value.trim();
+  const t=stripLeadEmoji(document.getElementById('oeName').value);
   if(!t){ document.getElementById('oeName').focus(); return; }
   oeReadChecks();
   const nx=document.getElementById('oeNext').value;
@@ -2362,6 +2598,7 @@ function saveObjEditor(){
   o.checks=oeChk.map(x=>({id:x.id,t:x.t.trim()})).filter(x=>x.t);
   o.rec={n:Math.min(365,Math.max(1,parseInt(document.getElementById('oeN').value,10)||1)), unit:document.getElementById('oeU').value||'m',
     next:validISO(nx)?nx:isoToday(), mode:oeMode};
+  o.metric=document.getElementById('oeMetric').value.trim().slice(0,60);
   const ld=parseInt(document.getElementById('oeLead').value,10);
   o.lead=isNaN(ld)?3:Math.min(90,Math.max(0,ld));   /* пустое поле — умолчание, а не «в день срока» */
   o.needNote=oeNeedOn;
@@ -2382,11 +2619,18 @@ function openObjDone(id){
   const o=objById(id); if(!o) return;
   odId=id; odSt='ok'; odChk=new Set(); odTaskOn=true;
   document.getElementById('odName').textContent=o.t;
+  const rq=objReq(o);
+  document.getElementById('odH').textContent=rq?'Внести данные':'Обслуживание';
+  document.getElementById('odValF').style.display=(rq||o.metric)?'':'none';
+  document.getElementById('odValF').classList.remove('bad');
+  document.getElementById('odValL').textContent=o.metric?(o.metric[0].toUpperCase()+o.metric.slice(1)):'Показание';
+  document.getElementById('odVal').value='';
   document.getElementById('odNote').value='';
   document.getElementById('odDate').value=isoToday();
   document.getElementById('odNoteF').classList.remove('bad');
   odRenderChecks(); odRenderSt(); odRenderNext();
   openSheet(document.getElementById('odsheet'));
+  if(rq) setTimeout(()=>document.getElementById('odVal').focus(),90);
 }
 function closeObjDone(){ closeSheet(document.getElementById('odsheet')); }
 function odRenderChecks(){
@@ -2408,19 +2652,27 @@ function odToggleTask(){ odTaskOn=!odTaskOn; document.getElementById('odTask').c
 function odRenderNext(){
   const o=objById(odId); if(!o) return;
   const d=document.getElementById('odDate').value, iso=validISO(d)?d:isoToday();
+  const el=document.getElementById('odNext');
+  el.style.display=objReq(o)?'none':'';
+  if(objReq(o)) return;
   const nx=objNextAfter(o,iso);
-  document.getElementById('odNext').textContent='Следующее обслуживание — '+fmtD(nx)+' ('+dueLabel(daysTo(nx))+')'+(o.rec.mode==='fixed'?', по графику.':'.');
+  el.textContent='Следующее обслуживание — '+fmtD(nx)+' ('+dueLabel(daysTo(nx))+')'+(o.rec.mode==='fixed'?', по графику.':'.');
 }
 function odConfirm(){
   const o=objById(odId);
   if(!o){ closeObjDone(); return; }   /* удалили на другом устройстве */
   const note=document.getElementById('odNote').value.trim();
+  const val=(objReq(o)||o.metric) ? document.getElementById('odVal').value.trim().slice(0,40) : '';
+  /* «по запросу» без значения и без комментария записывать нечего */
+  if(objReq(o) && !val && !note){
+    document.getElementById('odValF').classList.add('bad'); document.getElementById('odVal').focus(); return; }
   if(((o.needNote)||odSt!=='ok') && !note){
     document.getElementById('odNoteF').classList.add('bad'); document.getElementById('odNote').focus(); return; }
   const dv=document.getElementById('odDate').value, d=validISO(dv)?dv:isoToday();
   /* задним числом — полдень того дня, чтобы история сортировалась по дате обслуживания */
   const ts=d===isoToday()?Date.now():parseISO(d).getTime()+12*3600000;
   const e={id:nlid(),ts,d,note,st:odSt,chk:o.checks.filter(x=>odChk.has(x.id)).map(x=>x.id)};
+  if(val) e.val=val;
   const prevNext=o.rec.next;
   o.log.unshift(e); o.log.sort((a,b)=>b.ts-a.ts); if(o.log.length>OBJ_LOG_CAP) o.log.length=OBJ_LOG_CAP;
   o.rec.next=objNextAfter(o,d);
@@ -2432,7 +2684,7 @@ function odConfirm(){
     statCreated(1);
   }
   save(); closeObjDone(); renderAll();
-  showToast('Записано. Следующее — '+fmtD(o.rec.next), ()=>{
+  showToast(objReq(o) ? ('Записано'+(val?': '+val:'')) : ('Записано. Следующее — '+fmtD(o.rec.next)), ()=>{
     const x=objById(o.id); if(!x) return;
     x.log=x.log.filter(l=>l.id!==e.id); x.rec.next=prevNext; markDone({id:doneId},false);
     if(taskId){ const f=findItem(taskId); if(f){ f.g.items.splice(f.g.items.indexOf(f.it),1); STATE.stats.created=Math.max(0,num(STATE.stats.created)-1); } }
@@ -2474,6 +2726,7 @@ function leaveHub(){ if(active===null) hubScroll=window.scrollY||window.pageYOff
 function openCat(k){ leaveHub(); active=k; editmode=false; window.scrollTo({top:0}); render(); }
 function openWeekend(){ leaveHub(); active='__wk__'; editmode=false; window.scrollTo({top:0}); render(); }
 function openService(){ leaveHub(); active='__svc__'; editmode=false; window.scrollTo({top:0}); render(); }
+function goHubTop(){ closeHMenu(); hubScroll=0; if(active!==null||editmode){ active=null; editmode=false; render(); } window.scrollTo({top:0,behavior:'smooth'}); }
 function goHub(){ active=null; editmode=false; render();
   /* Возвращаем прокрутку сразу после render(): высота страницы к этому моменту уже
      пересчитана. Повтор на следующем кадре — страховка, если браузер отложил раскладку
@@ -2566,7 +2819,7 @@ function openSvcLog(){
   const box=document.getElementById('lsBody');
   /* общий журнал: история объектов + старые записи цикличных задач */
   const all=STATE.svcLog.map(e=>({ts:e.ts,t:e.t,sub:e.cat,note:e.note,st:null}));
-  STATE.objs.forEach(o=>o.log.forEach(e=>all.push({ts:e.ts,t:o.t,sub:'',note:e.note,st:e.st})));
+  STATE.objs.forEach(o=>o.log.forEach(e=>all.push({ts:e.ts,t:o.t,sub:objValTx(o,e),note:e.note,st:e.st})));
   all.sort((a,b)=>b.ts-a.ts);
   box.innerHTML=all.length
     ? all.map(e=>`<div class="log-row"><span class="ld">${fmtTs(e.ts)}</span> — ${esc(e.t)}${e.sub?` <span class="lc">· ${esc(e.sub)}</span>`:''}${e.st?`<span class="st-chip" style="background:${OBJ_ST[e.st].c}">${OBJ_ST[e.st].lbl}</span>`:''}${e.note?`<div class="ln">${esc(e.note)}</div>`:''}</div>`).join('')
@@ -2579,9 +2832,10 @@ function quickWk(e,id){ e.stopPropagation(); if(tapSuppressed()) return; const f
 /* Крестик виден только в режиме правки — там легко промахнуться, поэтому спрашиваем.
    Тост «Отменить» после удаления остаётся: подтверждение его не заменяет (правка 4). */
 function delItem(e,id){ e.stopPropagation();
-  const f=findItem(id); if(!f) return;
-  if(!confirm('Удалить задачу «'+(f.it.t||'')+'»?')) return;
+  if(!confirmDelTask(id)) return;
   removeTask(id); }
+/* Любое удаление задачи спрашивает «точно?» (правка 1.14) — из правки, из карточки, из меню */
+function confirmDelTask(id){ const f=findItem(id); return !!f && confirm('Удалить задачу «'+(f.it.t||'')+'»?'); }
 function duplicateTask(id){
   const f=findItem(id); if(!f) return;
   const cp=JSON.parse(JSON.stringify(f.it)); cp.id=nid(); cp.ct=Date.now();
@@ -2606,8 +2860,9 @@ function cmMoveOpen(){
   document.getElementById('cmMove').style.display='';
   document.getElementById('cmMoveList').innerHTML=alphaCats().map(c=>{
     const cur=c.key===f.c.key;
-    return `<button class="cm-mv${cur?' cur':''}" ${cur?'disabled':`onclick="cmMoveTo('${c.key}')"`}>${ic(c.icon,'color:'+catColor(c))}<span>${esc(c.title||c.tab)}</span>${cur?'<small>здесь</small>':''}</button>`;
+    return `<button class="cm-mv${cur?' cur':''}" ${cur?'disabled':`onclick="cmMoveTo('${c.key}')"`}>${ic(c.icon,'color:'+catColor(c))}<span>${esc(c.title||c.tab)}</span>${cur?'<small class="here">сейчас здесь</small>':''}</button>`;
   }).join('');
+  const cu=document.querySelector('#cmMoveList .cur'); if(cu) cu.scrollIntoView({block:'nearest'});
 }
 function cmMoveBack(){ document.getElementById('cmMove').style.display='none'; document.getElementById('cmActions').style.display=''; }
 function cmMoveTo(key){
@@ -2655,7 +2910,7 @@ function duplicateCategory(key){
   afterCatChange();
   showToast('Категория скопирована: '+cp.title);
 }
-function cmDelete(){ const id=cmId; closeTaskMenu(); if(id) removeTask(id); }
+function cmDelete(){ const id=cmId; if(!id||!confirmDelTask(id)) return; closeTaskMenu(); removeTask(id); }
 /* --- окно «Очереди» (все уровни: 1…4 очередь + без очереди) --- */
 let queuesOpen=false;
 function openQueues(){ queuesOpen=true; renderQueuesBody(); openSheet(document.getElementById('usheet')); }
@@ -2704,12 +2959,12 @@ function closeArchive(){ archiveOpen=false; closeSheet(document.getElementById('
 /* Только то, что уже в архиве. Убирать В архив отсюда нельзя (правка 16) —
    это делается в карточке категории (карандаш) и в профиле. */
 function renderArchiveBody(){
-  const box=document.getElementById('arBody'); if(!box) return;
+  const box=document.getElementById('arBody'); if(box) box.innerHTML=archiveHtml();
+}
+/* одна разметка на окно «Архив» (меню «⋯») и раздел профиля */
+function archiveHtml(){
   const arch=archCats(); let h='';
-  if(!arch.length){
-    box.innerHTML=`<div class="empty">${ic('archive')}<br>Архив пуст.<br>Убрать категорию в архив можно в её карточке —<br>откройте категорию карандашом или через профиль.</div>`;
-    return;
-  }
+  if(!arch.length) return `<div class="empty">${ic('archive')}<br>Архив пуст.<br>Убрать категорию в архив можно в её карточке —<br>долгое нажатие на плитке или карандаш.</div>`;
   h+=`<div class="ar-sec">В архиве · ${arch.length}</div>`;
   arch.forEach(c=>{ const s=catStats(c);
     h+=`<div class="ar-row"><span class="ar-emo" style="${chipStyle(catColor(c))}">${ic(c.icon)}</span>
@@ -2718,7 +2973,7 @@ function renderArchiveBody(){
       <button class="ar-b del" title="Удалить навсегда" aria-label="Удалить навсегда" onclick="arDelete('${c.key}')">${ic('trash')}</button></div>`;
   });
   h+=`<div class="rep-more" style="text-align:left;padding:8px 2px 0">Задачи из архива не попадают в очереди, отчёт и «Обслуживание». Найти их можно в поиске — галочка «в архиве».</div>`;
-  box.innerHTML=h;
+  return h;
 }
 /* archiveCategory/restoreCategory/deleteArchived сами перерисовывают всё открытое (afterCatChange) */
 function arRestore(key){
@@ -2751,6 +3006,7 @@ function openSheet(el){
   const card=el.querySelector('.sheet-card'); if(card) card.classList.remove('full'); /* всегда открываем в обычном размере */
   el.classList.remove('fullback');
   el.classList.remove('hidden'); lockScroll(true);
+  hideToast();   /* тост висел поверх кнопок «Отмена»/«ОК» нового окна (правка 1.14) */
   requestAnimationFrame(()=>el.classList.add('show'));
 }
 /* Тап по «грипу» (полоска вверху окна) разворачивает окно на весь экран и обратно — как в Todoist */
@@ -2834,11 +3090,13 @@ function toggleMovePanel(e){
   if(e&&e.stopPropagation) e.stopPropagation();
   const p=document.getElementById('mvPanel');
   if(p.classList.contains('show')){ p.classList.remove('show'); return; }
+  const f=tsId&&findItem(tsId), here=f?f.c.key:null;
   p.innerHTML=alphaCats().map(c=>{
-    const cur=c.key===tsTargetCat;
-    return `<div class="mv-item${cur?' cur':''}" role="button" tabindex="0" onclick="mvPick('${c.key}')">${ic(c.icon,'color:'+catColor(c))}${esc(c.title||c.tab)}${cur?' ✓':''}</div>`;
+    const cur=c.key===here, sel=!cur && c.key===tsTargetCat;
+    return `<div class="mv-item${cur?' cur':''}${sel?' sel':''}" role="button" tabindex="0" onclick="mvPick('${c.key}')">${ic(c.icon,'color:'+catColor(c))}<span class="mvn">${esc(c.title||c.tab)}</span>${cur?'<small>сейчас здесь</small>':''}${sel?'<small>перенести сюда</small>':''}</div>`;
   }).join('');
   p.classList.add('show');
+  const on=p.querySelector('.sel')||p.querySelector('.cur'); if(on) on.scrollIntoView({block:'nearest'});
 }
 function mvPick(key){
   const p=document.getElementById('mvPanel'); p.classList.remove('show');
@@ -2866,7 +3124,8 @@ function openTaskEdit(id){
   document.getElementById('tsBtns').classList.remove('hidden');
   hideMoveUI();
   document.getElementById('tsName').value=f.it.t||'';
-  document.getElementById('tsNote').value=f.it.n||'';
+  tsPaintDone(f.it);
+  rtSet(document.getElementById('tsNote'),f.it.n||'');
   renderTsPri(); document.getElementById('tsWk').classList.toggle('on',tsWk); tsSetRecUI(f.it.rec||null); renderTsCat();
   openSheet(document.getElementById('tsheet'));
 }
@@ -2877,7 +3136,8 @@ function openTaskNew(catKey,gid){
   document.getElementById('tsBtns').classList.add('hidden');
   hideMoveUI();
   document.getElementById('tsName').value='';
-  document.getElementById('tsNote').value='';
+  tsPaintDone(null);
+  rtSet(document.getElementById('tsNote'),'');
   renderTsPri(); document.getElementById('tsWk').classList.remove('on'); tsSetRecUI(null); renderTsCat();
   openSheet(document.getElementById('tsheet'));
   setTimeout(()=>document.getElementById('tsName').focus(),80);
@@ -2885,7 +3145,7 @@ function openTaskNew(catKey,gid){
 function closeTaskSheet(){ hideMoveUI(); closeSheet(document.getElementById('tsheet')); }
 function saveTaskSheet(){
   const t=document.getElementById('tsName').value.trim();
-  const n=document.getElementById('tsNote').value.trim();
+  const n=rtGet(document.getElementById('tsNote')).trim();
   if(!t){ document.getElementById('tsName').focus(); return; }
   const rec=tsReadRec();
   if(tsMode==='edit' && !findItem(tsId)){
@@ -2922,7 +3182,27 @@ function saveTaskSheet(){
 }
 function deleteTaskFromSheet(){
   if(tsMode!=='edit'||!tsId) return;
-  const id=tsId; closeTaskSheet(); removeTask(id);   /* удаление с отменой через тост */
+  const id=tsId; if(!confirmDelTask(id)) return;
+  closeTaskSheet(); removeTask(id);   /* удаление с отменой через тост */
+}
+/* Галочка у заголовка в карточке задачи — как в Todoist (правка 1.14). Срабатывает
+   сразу, а не по «ОК»; остальные поля карточки сохраняются как обычно, по «ОК». */
+function tsPaintDone(it){
+  const row=document.getElementById('tsTrow'), box=document.getElementById('tsBox');
+  row.classList.toggle('nobox',!it);
+  row.classList.toggle('checked',!!(it&&it.done));
+  box.setAttribute('aria-checked',(it&&it.done)?'true':'false');
+}
+function tsToggleDone(){
+  if(tsMode!=='edit') return;
+  const id=tsId, f=findItem(id); if(!f) return;
+  if(f.it.rec && !f.it.done){
+    /* цикличная выполняется через журнал: сначала сохраняем карточку, потом окно отметки */
+    saveTaskSheet();
+    if(document.getElementById('tsheet').dataset.open!=='1') setTimeout(()=>openSvcDone(id),160);
+    return;
+  }
+  f.it.done=!f.it.done; markDone(f.it,f.it.done); save(); renderAll(); tsPaintDone(f.it);
 }
 function duplicateFromSheet(){
   if(tsMode!=='edit'||!tsId) return;
@@ -2974,33 +3254,251 @@ function noteKey(e){
   const ins='\n'+pref;
   setNoteValue(ta, v.slice(0,p)+ins+v.slice(p), p+ins.length);
 }
-/* Кнопки панели в развёрнутом окне: маркер ставится/снимается у выделенных строк */
-function noteWrap(mark){
-  const ta=document.getElementById('nsText'); if(!ta) return;
-  const v=ta.value;
-  const a=v.lastIndexOf('\n',Math.max(0,ta.selectionStart-1))+1;
-  let b=v.indexOf('\n',ta.selectionEnd); if(b<0) b=v.length;
-  const lines=v.slice(a,b).split('\n');
-  let k=0;
-  const out=lines.map(l=>{
-    const mm=LIST_RE.exec(l); const body=mm?l.slice(mm[0].length):l.replace(/^[ \t]+/,'');
-    if(!mark) return body;
-    if(!body.trim() && lines.length>1) return body;
-    k++; return (mark==='1. ') ? (k+'. '+body) : (mark+body);
-  }).join('\n');
-  setNoteValue(ta, v.slice(0,a)+out+v.slice(b), a+out.length);
-  ta.focus();
+/* ---------- ОПИСАНИЕ С ФОРМАТИРОВАНИЕМ, как в Заметках (правка 1.14) ---------- */
+/* В данных по-прежнему ТЕКСТ (никакого HTML в STATE): одна строка — один абзац,
+   разметка лёгкая и читается глазами — в поиске, в бэкапе, в старой версии:
+     «# » заголовок, «## » подзаголовок, «• » список, «1. » нумерация,
+     «☐ »/«☑ » чек-лист (☑ — отмечен, зачёркнут), **жирный**, *курсив*,
+     __подчёркнутый__, ~~зачёркнутый~~.
+   Описания из прошлых версий («• », «☐ », «1. ») читаются без миграции.
+   Редактор — contenteditable: каждый абзац — <div data-t="тип">, тип —
+   h1|h2|ul|ol|ck (нет атрибута — обычный текст), отметка чек-листа — data-on="1". */
+const RT_LINE=/^[ \t]*(?:(#{1,2}) |(•|[-*]) |(\d+)[.)] |(☐|☑) )/;
+function rtParseLine(l){
+  const m=RT_LINE.exec(l);
+  if(!m) return {t:'',x:l};
+  const x=l.slice(m[0].length);
+  if(m[1]) return {t:m[1].length===1?'h1':'h2',x};
+  if(m[2]) return {t:'ul',x};
+  if(m[3]) return {t:'ol',x,n:+m[3]};
+  return {t:'ck',x,on:m[4]==='☑'};
 }
+/* **жирный** → <b> и т.д.; сначала экранируем — в описание мог попасть любой текст */
+function rtInlineHtml(t){
+  return esc(t)
+    .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
+    .replace(/__(.+?)__/g,'<u>$1</u>')
+    .replace(/~~(.+?)~~/g,'<s>$1</s>')
+    .replace(/(^|[^*\w])\*(?!\s)([^*]+?)\*(?![*\w])/g,'$1<i>$2</i>');
+}
+function rtSet(ed,text){
+  const lines=String(text||'').replace(/\r/g,'').split('\n');
+  ed.innerHTML=(text?lines:['']).map(l=>{ const p=rtParseLine(l);
+    return `<div${p.t?` data-t="${p.t}"`:''}${p.on?' data-on="1"':''}>${rtInlineHtml(p.x)||'<br>'}</div>`; }).join('');
+  rtEmpty(ed); rtPaintBar(ed);
+}
+/* DOM → текст с разметкой. Начертание берём и из тегов, и из inline-стилей:
+   execCommand в разных браузерах даёт то <b>, то <span style="font-weight:…">. */
+function rtInline(node){
+  let out='';
+  node.childNodes.forEach(n=>{
+    if(n.nodeType===3){ out+=n.nodeValue.replace(/ /g,' ').replace(/​/g,''); return; }
+    if(n.nodeType!==1) return;
+    const tag=n.tagName;
+    if(tag==='BR'){ out+='\n'; return; }
+    let inner=rtInline(n);
+    if(tag==='DIV'||tag==='P'||tag==='LI'){ out+=(out&&!out.endsWith('\n')?'\n':'')+inner; return; }
+    const st=n.style||{}, td=(st.textDecoration||'')+' '+(st.textDecorationLine||''), fw=st.fontWeight;
+    const marks=[];
+    if(tag==='B'||tag==='STRONG'||fw==='bold'||(+fw>=600)) marks.push('**');
+    if(tag==='I'||tag==='EM'||st.fontStyle==='italic') marks.push('*');
+    if(tag==='U'||td.indexOf('underline')>=0) marks.push('__');
+    if(tag==='S'||tag==='STRIKE'||tag==='DEL'||td.indexOf('line-through')>=0) marks.push('~~');
+    if(marks.length && inner.indexOf('\n')<0){
+      /* пробелы по краям выносим за маркеры: «** жирный**» парсер не узнал бы */
+      const m=/^(\s*)([\s\S]*?)(\s*)$/.exec(inner);
+      if(m[2]) inner=m[1]+marks.join('')+m[2]+marks.slice().reverse().join('')+m[3];
+    }
+    out+=inner;
+  });
+  return out;
+}
+function rtGet(ed){
+  rtNorm(ed);
+  const out=[]; let n=0;
+  ed.childNodes.forEach(b=>{
+    if(b.nodeType!==1) return;
+    const t=b.getAttribute('data-t')||'';
+    n = t==='ol' ? n+1 : 0;
+    rtInline(b).split('\n').forEach((x,i)=>{
+      let pre='';
+      if(i===0){
+        if(t==='h1') pre='# '; else if(t==='h2') pre='## '; else if(t==='ul') pre='• ';
+        else if(t==='ol') pre=n+'. '; else if(t==='ck') pre=(b.getAttribute('data-on')==='1'?'☑ ':'☐ ');
+      }
+      out.push(pre+x.replace(/\s+$/,''));
+    });
+  });
+  while(out.length && !out[out.length-1].trim()) out.pop();
+  return out.join('\n');
+}
+/* Корень редактора держим списком <div>-абзацев: голый текст, <br> и вложенные блоки,
+   которые браузер иногда оставляет после вставки/удаления, заворачиваем в абзацы.
+   Каретку возвращаем на место — узлы при переносе сохраняют идентичность. */
+function rtNorm(ed){
+  const sel=window.getSelection(), an=sel&&sel.rangeCount?sel.anchorNode:null, ao=sel?sel.anchorOffset:0;
+  let moved=false, cur=null;
+  [...ed.childNodes].forEach(n=>{
+    const blk=n.nodeType===1 && (n.tagName==='DIV'||n.tagName==='P');
+    if(blk){ cur=null;
+      if(n.tagName==='P'){ const d=document.createElement('div'); while(n.firstChild) d.appendChild(n.firstChild); [...n.attributes].forEach(a=>d.setAttribute(a.name,a.value)); n.replaceWith(d); moved=true; }
+      return; }
+    if(n.nodeType===3 && !n.nodeValue.length){ n.remove(); return; }
+    if(!cur){ cur=document.createElement('div'); ed.insertBefore(cur,n); }
+    cur.appendChild(n); moved=true;
+  });
+  if(moved && an && an.isConnected){ try{ sel.collapse(an,Math.min(ao,an.nodeType===3?an.length:an.childNodes.length)); }catch(e){} }
+  rtEmpty(ed);
+}
+function rtEmpty(ed){ ed.classList.toggle('empty', !ed.textContent.replace(/​/g,'').trim() && !ed.querySelector('[data-t]')); }
+function rtBlockOf(ed,node){
+  while(node && node.parentNode!==ed) node=node.parentNode;
+  return node && node.nodeType===1 ? node : null;
+}
+function rtCurBlock(ed){ const s=window.getSelection(); return (s&&s.rangeCount&&ed.contains(s.anchorNode))?rtBlockOf(ed,s.anchorNode):null; }
+/* текст абзаца ДО каретки — для «- », «[] » в начале строки */
+function rtTextBefore(blk){
+  const s=window.getSelection(); if(!s||!s.rangeCount) return '';
+  const r=document.createRange(); r.setStart(blk,0);
+  try{ r.setEnd(s.anchorNode,s.anchorOffset); }catch(e){ return ''; }
+  return r.toString();
+}
+function rtCaretToStart(blk){
+  const s=window.getSelection(); if(!s) return;
+  let n=blk; while(n.firstChild && n.firstChild.nodeType===1 && n.firstChild.tagName!=='BR') n=n.firstChild;
+  try{ s.collapse(n.firstChild&&n.firstChild.nodeType===3?n.firstChild:n,0); }catch(e){}
+}
+/* срезаем k первых символов абзаца (набранный маркер «- ») */
+function rtCut(blk,k){
+  const w=document.createTreeWalker(blk,NodeFilter.SHOW_TEXT);
+  let t; while(k>0 && (t=w.nextNode())){ const c=Math.min(k,t.length); t.deleteData(0,c); k-=c; }
+  if(!blk.textContent.length && !blk.querySelector('br')) blk.appendChild(document.createElement('br'));
+}
+function rtSetType(blk,t){
+  if(t) blk.setAttribute('data-t',t); else blk.removeAttribute('data-t');
+  if(t!=='ck') blk.removeAttribute('data-on');
+}
+let __rtEnter=null;
+function rtKey(e){
+  const ed=e.currentTarget;
+  if(e.isComposing) return;
+  const s=window.getSelection(); if(!s||!s.rangeCount) return;
+  const blk=rtCurBlock(ed);
+  if(e.key==='Enter' && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey){
+    __rtEnter=null; if(!blk) return;
+    const t=blk.getAttribute('data-t')||'';
+    /* пустой пункт списка + Enter — выходим из списка, как в Заметках */
+    if((t==='ul'||t==='ol'||t==='ck') && s.isCollapsed && !blk.textContent.replace(/​/g,'').trim()){
+      e.preventDefault(); rtSetType(blk,''); rtPaintBar(ed); return; }
+    __rtEnter={blk,t,atStart:s.isCollapsed && !rtTextBefore(blk).length && !!blk.textContent.length};
+    return;
+  }
+  /* Backspace в начале заголовка/пункта снимает тип, а не склеивает с предыдущей строкой */
+  if(e.key==='Backspace' && blk && s.isCollapsed && blk.getAttribute('data-t') && !rtTextBefore(blk).length){
+    e.preventDefault(); rtSetType(blk,''); rtPaintBar(ed);
+  }
+}
+function rtInput(e){
+  const ed=e.currentTarget;
+  if(e.inputType==='insertParagraph' && __rtEnter){
+    const was=__rtEnter; __rtEnter=null;
+    rtNorm(ed);
+    const cur=rtCurBlock(ed);
+    /* браузер копирует атрибуты абзаца в новый: после заголовка — обычный текст,
+       новый пункт чек-листа — не отмеченный */
+    if(cur && cur!==was.blk && !was.atStart){
+      if(was.t==='h1'||was.t==='h2') rtSetType(cur,'');
+      else if(cur.getAttribute('data-t')==='ck') cur.removeAttribute('data-on');
+    }
+    rtPaintBar(ed); rtEmpty(ed); return;
+  }
+  if(e.inputType==='insertText' && e.data===' '){
+    const blk=rtCurBlock(ed);
+    if(blk && !blk.getAttribute('data-t')){
+      const before=rtTextBefore(blk).replace(/ /g,' ');
+      const m=/^(?:(#{1,2})|([-*•])|(\[ ?\])|(\d+[.)]))\s$/.exec(before);
+      if(m){
+        rtCut(blk,before.length);
+        rtSetType(blk, m[1]?(m[1].length===1?'h1':'h2'):m[2]?'ul':m[3]?'ck':'ol');
+        rtCaretToStart(blk);
+      }
+    }
+  }
+  rtNorm(ed); rtPaintBar(ed);
+}
+/* вставка — только текст: чужое оформление со страниц не тащим */
+function rtPaste(e){
+  const t=(e.clipboardData||window.clipboardData); if(!t) return;
+  e.preventDefault();
+  document.execCommand('insertText',false,t.getData('text/plain')||'');
+}
+/* тап по квадратику чек-листа — отметить/снять, строка зачёркивается */
+function rtClick(e){
+  const ed=e.currentTarget, blk=rtBlockOf(ed,e.target);
+  if(!blk || blk.getAttribute('data-t')!=='ck') return;
+  const r=blk.getBoundingClientRect();
+  if(e.clientX-r.left>26) return;
+  e.preventDefault();
+  if(blk.getAttribute('data-on')==='1') blk.removeAttribute('data-on'); else blk.setAttribute('data-on','1');
+}
+function rtCmd(e,c){
+  e.preventDefault();
+  const bar=e.currentTarget.closest('.rt-bar'), ed=document.getElementById(bar.dataset.ed); if(!ed) return;
+  const s=window.getSelection();
+  if(document.activeElement!==ed || !s.rangeCount || !ed.contains(s.anchorNode)){
+    ed.focus();
+    if(!s.rangeCount || !ed.contains(s.anchorNode)){ const r=document.createRange(); r.selectNodeContents(ed); r.collapse(false); s.removeAllRanges(); s.addRange(r); }
+  }
+  rtNorm(ed);
+  if(c==='b'||c==='i'||c==='u'||c==='s'){
+    try{ document.execCommand('styleWithCSS',false,false); }catch(x){}
+    document.execCommand({b:'bold',i:'italic',u:'underline',s:'strikeThrough'}[c],false,null);
+  } else {
+    if(!ed.firstElementChild){ ed.innerHTML='<div><br></div>'; rtCaretToStart(ed.firstElementChild); }
+    const r=s.getRangeAt(0);
+    let a=rtBlockOf(ed,r.startContainer)||ed.firstElementChild, b=rtBlockOf(ed,r.endContainer)||a;
+    const list=[]; for(let n=a; n; n=n.nextElementSibling){ list.push(n); if(n===b) break; }
+    const all=list.every(x=>x.getAttribute('data-t')===c);
+    list.forEach(x=>rtSetType(x, all?'':c));
+  }
+  rtNorm(ed); rtPaintBar(ed);
+}
+/* подсветка кнопок панели по месту каретки */
+function rtPaintBar(ed){
+  const bar=document.querySelector('.rt-bar[data-ed="'+ed.id+'"]'); if(!bar) return;
+  const blk=rtCurBlock(ed), t=blk?(blk.getAttribute('data-t')||''):'';
+  const q=k=>{ try{ return document.queryCommandState(k); }catch(e){ return false; } };
+  const on={h1:t==='h1',h2:t==='h2',ul:t==='ul',ol:t==='ol',ck:t==='ck'};
+  if(document.activeElement===ed){ on.b=q('bold')&&t!=='h1'&&t!=='h2'; on.i=q('italic'); on.u=q('underline'); on.s=q('strikeThrough'); }
+  bar.querySelectorAll('button').forEach(x=>x.classList.toggle('on',!!on[x.dataset.c]));
+}
+document.addEventListener('selectionchange',()=>{ const a=document.activeElement; if(a && a.classList && a.classList.contains('rt')) rtPaintBar(a); });
+['tsNote','nsText'].forEach(id=>{ const ed=document.getElementById(id); if(!ed) return;
+  ed.addEventListener('keydown',rtKey); ed.addEventListener('input',rtInput);
+  ed.addEventListener('paste',rtPaste); ed.addEventListener('click',rtClick);
+  ed.addEventListener('blur',()=>rtPaintBar(ed)); });
+try{ document.execCommand('defaultParagraphSeparator',false,'div'); }catch(e){}
+/* Превью в строке задачи: та же разметка, но компактно (строки, без редактора) */
+function noteHtml(text){
+  return String(text||'').split('\n').map(l=>{ const p=rtParseLine(l), x=rtInlineHtml(p.x);
+    if(p.t==='h1'||p.t==='h2') return `<span class="nh">${x}</span>`;
+    if(p.t==='ul') return `<span class="nk">•</span> ${x}`;
+    if(p.t==='ol') return `<span class="nk">${p.n}.</span> ${x}`;
+    if(p.t==='ck') return p.on?`<span class="nk">☑</span> <s class="nd">${x}</s>`:`<span class="nk">☐</span> ${x}`;
+    return x; }).join('\n');
+}
+/* разметка без маркеров — для поиска */
+function notePlain(text){ return String(text||'').split('\n').map(l=>rtParseLine(l).x).join('\n').replace(/\*\*|__|~~|\*/g,''); }
 function openNoteEditor(){
-  const ta=document.getElementById('nsText');
-  ta.value=document.getElementById('tsNote').value;
+  const ed=document.getElementById('nsText');
+  rtSet(ed, rtGet(document.getElementById('tsNote')));
   openSheet(document.getElementById('nsheet'));
   /* сразу разворачиваем на весь экран — ради этого окно и открывают */
   const card=document.querySelector('#nsheet .sheet-card');
   if(card){ card.classList.add('full'); document.getElementById('nsheet').classList.add('fullback'); }
-  setTimeout(()=>{ ta.focus(); const n=ta.value.length; try{ ta.setSelectionRange(n,n); }catch(e){} },90);
+  setTimeout(()=>{ ed.focus(); const s=window.getSelection(), r=document.createRange(); r.selectNodeContents(ed); r.collapse(false); s.removeAllRanges(); s.addRange(r); rtPaintBar(ed); },90);
 }
-function saveNoteEditor(){ document.getElementById('tsNote').value=document.getElementById('nsText').value; closeNoteEditor(); }
+function saveNoteEditor(){ rtSet(document.getElementById('tsNote'), rtGet(document.getElementById('nsText'))); closeNoteEditor(); }
 function closeNoteEditor(){ closeSheet(document.getElementById('nsheet')); }
 
 /* ---------- SHEET: быстрый ввод (FAB) ---------- */
@@ -3050,7 +3548,7 @@ function openViewSheet(key){
     if(typeof g.sub==='string'){ html+=`<div class="vg" style="color:${catColor(c)};opacity:.7">${esc(g.sub)}</div>`; return; }
     html+=`<div class="vg" style="color:${catColor(c)}">${ic(g.emo||'box')} ${esc(g.title||'')}</div>`;
     (g.items||[]).forEach(it=>{ total++; if(it.done)done++;
-      html+=`<div class="vi${it.done?' off':''}"><span class="mk" style="color:${it.done?'var(--indigo-tx)':'var(--line)'}">${it.done?'✓':'○'}</span><span>${esc(it.t)}${it.n?`<span class="vn">${esc(it.n)}</span>`:''}</span></div>`; });
+      html+=`<div class="vi${it.done?' off':''}"><span class="mk" style="color:${it.done?'var(--indigo-tx)':'var(--line)'}">${it.done?'✓':'○'}</span><span>${esc(it.t)}${it.n?`<span class="vn">${noteHtml(it.n)}</span>`:''}</span></div>`; });
   });
   document.getElementById('vsBody').innerHTML = total ? (`<div class="bar-lbl" style="margin:0 0 6px">Сделано ${done} из ${total}</div>`+html) : '<div class="empty">Пусто</div>';
   openSheet(document.getElementById('vsheet'));
@@ -3088,27 +3586,44 @@ function renderSearch(){
       g.items.forEach(it=>{
         if(it.done && !incDone) return;
         /* ищем и по названию категории/подкатегории — так чаще всего и ищут */
-        if(norm((it.t||'')+' '+(it.n||'')).indexOf(q)>=0 || cn.indexOf(q)>=0 || gn.indexOf(q)>=0) res.push({it,c,arch});
+        if(norm((it.t||'')+' '+notePlain(it.n)).indexOf(q)>=0 || cn.indexOf(q)>=0 || gn.indexOf(q)>=0) res.push({it,c,arch});
       });
     });
   });
   scan(STATE.cats,false);
   if(incArch) scan(archCats(),true);
   /* объекты обслуживания: название, паспорт, чек-лист, комментарии в истории */
-  const objs=STATE.objs.filter(o=>norm([o.t,o.spec,...o.checks.map(x=>x.t),...o.log.map(e=>e.note)].join(' ')).indexOf(q)>=0);
+  const objs=STATE.objs.filter(o=>norm([o.t,o.spec,o.metric,...o.checks.map(x=>x.t),...o.log.map(e=>e.note+' '+(e.val||''))].join(' ')).indexOf(q)>=0);
   if(!res.length && !objs.length){ box.innerHTML=`<div class="empty" style="padding:22px 12px">Ничего не найдено.</div>`; return; }
   /* без ограничения запрос из одной буквы отрисовывал вообще все задачи */
   const shown=res.slice(0,SEARCH_CAP);
   let h=objs.map(o=>`<div class="vi" role="button" tabindex="0" onclick="searchOpenObj('${o.id}')" style="cursor:pointer">
     <span class="mk" style="color:var(--svc)">${ic(o.icon)}</span>
-    <span><span>${esc(o.t)}</span><span class="vn">${ic('gear','color:var(--svc)')} Обслуживание · ${fmtD(o.rec.next)}</span></span></div>`).join('');
+    <span><span>${esc(o.t)}</span><span class="vn">${ic('gear','color:var(--svc)')} Обслуживание · ${objReq(o)?'по запросу':fmtD(o.rec.next)}</span></span></div>`).join('');
   h+=shown.map(r=>`<div class="vi" role="button" tabindex="0" onclick="searchOpen('${r.it.id}',${r.arch?1:0})" style="cursor:pointer">
     <span class="mk" style="color:${r.it.done?'var(--indigo-tx)':'var(--line)'}">${r.it.done?'✓':'○'}</span>
-    <span><span>${esc(r.it.t)}</span><span class="vn">${ic(r.c.icon,'color:'+catColor(r.c))} ${esc(r.c.title||r.c.tab)}${r.arch?' · в архиве':''}</span></span></div>`).join('');
+    <span class="vt"><span>${esc(r.it.t)}</span><span class="vn">${ic(r.c.icon,'color:'+catColor(r.c))} ${esc(r.c.title||r.c.tab)}${r.arch?' · в архиве':''}</span></span>
+    ${r.arch?'':`<button type="button" class="fs-go" title="Перейти в категорию к задаче" aria-label="Перейти в категорию к задаче" onclick="event.stopPropagation();searchGo('${r.it.id}')">Перейти ${ic('arrowR')}</button>`}</div>`).join('');
   if(res.length>shown.length) h+=`<div class="rep-more">Показаны первые ${shown.length} из ${res.length} — уточните запрос.</div>`;
   box.innerHTML=h;
 }
 function searchOpenObj(id){ closeSearch(); setTimeout(()=>openObjView(id),140); }
+/* «Перейти к задаче» (правка 1.14): открываем её категорию, разворачиваем подкатегорию,
+   прокручиваем к строке и подсвечиваем. Выполненная при «скрыть ✓» — показываем выполненные. */
+function searchGo(id){
+  const f=findItem(id); if(!f) return;
+  closeSearch();
+  if(f.it.done && hideDone){ hideDone=false; try{ localStorage.setItem('hide_done','0'); }catch(e){} }
+  openState[f.c.key+'-'+f.g.gid]=true;
+  openCat(f.c.key);
+  setTimeout(()=>flashItem(id),60);
+}
+function flashItem(id){
+  const el=document.querySelector('#view .item[data-id="'+id+'"]'); if(!el) return;
+  el.scrollIntoView({block:'center',behavior:'smooth'});
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  setTimeout(()=>el.classList.remove('flash'),2600);
+}
 function searchOpen(id,arch){
   if(arch){ alert('Задача в архивной категории. Верните категорию из архива (меню «…» → Архив или профиль), чтобы её открыть.'); return; }
   closeSearch(); setTimeout(()=>openTaskEdit(id),140);
@@ -3116,14 +3631,26 @@ function searchOpen(id,arch){
 
 /* ---------- SHEET: редактор категории / подкатегории / заголовка ---------- */
 let esMode='cat', esCatKey=null, esGid=null, esNew=false, esIcon='box', esColor=CAT_COLORS[0];
-function buildIconGrid(){ document.getElementById('iconGrid').innerHTML=ICON_LIB.map(id=>`<button type="button" class="ipg ${id===esIcon?'on':''}" title="${ICON_NAMES[id]||id}" aria-label="${ICON_NAMES[id]||id}" aria-pressed="${id===esIcon?'true':'false'}" onclick="setEIcon('${id}')">${ic(id)}</button>`).join(''); }
+function buildIconGrid(){ const q=document.getElementById('eIconQ').value;
+  document.getElementById('iconGrid').innerHTML=iconPickHtml(esIcon,q,'setEIcon');
+  document.getElementById('eIconQN').innerHTML=iconQNote(q); }
+/* вставили эмодзи — сразу выбираем: свою иконку, если она есть, иначе само эмодзи */
+function esIconFind(){ const e=firstEmoji(document.getElementById('eIconQ').value); if(e) esIcon=iconFromEmoji(e)||e; buildIconGrid(); }
+function resetIconQ(id){ const el=document.getElementById(id); if(el) el.value=''; }
 function setEIcon(id){ esIcon=id; buildIconGrid(); }
-function suggestIcon(){ const s=iconSuggestList(document.getElementById('eName').value); document.getElementById('iconSug').innerHTML=s.map(id=>`<button type="button" class="ips" onclick="setEIcon('${id}')">${ic(id)}</button>`).join(''); }
+/* Эмодзи в начале названия («🔥 Котельная») — сразу становится иконкой, а из названия
+   при сохранении убирается (stripLeadEmoji) */
+function leadEmoji(name){ const t=String(name||'').trim(), e=firstEmoji(t); return (e && t.indexOf(e)===0) ? e : ''; }
+function stripLeadEmoji(name){ const e=leadEmoji(name); return e ? (name.trim().slice(e.length).trim()||name.trim()) : name.trim(); }
+function suggestIcon(){ const nm=document.getElementById('eName').value, le=leadEmoji(nm);
+  if(le && document.getElementById('esIconBlock').style.display!=='none'){ const id=iconFromEmoji(le)||le; if(id!==esIcon){ esIcon=id; buildIconGrid(); } }
+  const s=iconSuggestList(nm); document.getElementById('iconSug').innerHTML=s.map(id=>`<button type="button" class="ips" onclick="setEIcon('${id}')">${ic(id)}</button>`).join(''); }
 function buildColorRow(){ document.getElementById('colorRow').innerHTML=CAT_COLORS.map(col=>`<button type="button" class="col-sw ${col===esColor?'on':''}" style="background:${col}" aria-label="Цвет ${col}" aria-pressed="${col===esColor?'true':'false'}" onclick="setEColor('${col}')"></button>`).join(''); }
 function setEColor(col){ esColor=col; buildColorRow(); }
 function showIconBlock(on){ document.getElementById('esIconBlock').style.display=on?'':'none'; }
 function showColorBlock(on){ document.getElementById('esColorBlock').style.display=on?'':'none'; }
 function openCatEditor(catKey){
+  resetIconQ('eIconQ');
   esMode='cat'; esNew=!catKey; esCatKey=catKey||null; esGid=null;
   const c=catKey?catByKey(catKey):null;
   esIcon=c?(c.icon||'box'):'box'; esColor=c?(c.color||CAT_COLORS[0]):pickColor(STATE.cats);
@@ -3138,6 +3665,7 @@ function openCatEditor(catKey){
 }
 function openGroupEditor(e,catKey,gid){
   if(e&&e.stopPropagation) e.stopPropagation();
+  resetIconQ('eIconQ');
   esMode='group'; esNew=(gid===null||gid===undefined); esCatKey=catKey; esGid=esNew?null:gid;
   const c=catByKey(catKey); const g=(!esNew&&c)?groupByGid(c,gid):null;
   esIcon=g?(g.emo||'box'):'box';
@@ -3174,7 +3702,8 @@ function esDelete(){
   if(deleteCategory(key)) closeESheet();
 }
 function saveESheet(){
-  const name=document.getElementById('eName').value.trim();
+  let name=document.getElementById('eName').value.trim();
+  if(esMode==='cat'||esMode==='group') name=stripLeadEmoji(name);
   if(!name){ document.getElementById('eName').focus(); return; }
   if(esMode==='wk'){
     STATE.wkTitle=name.slice(0,30);
@@ -3251,14 +3780,65 @@ function groupToCategory(catKey,gid,move){
 }
 
 /* ---------- ПРОФИЛЬ ---------- */
-let profileOpen=false;
+/* Правка 1.14: всё лежало одной длинной лентой, нужное приходилось искать внизу.
+   Теперь главный экран профиля — аккаунт и меню разделов, раздел открывается тут же:
+   profPage = null (меню) | 'set' | 'cats' | 'arch' | 'cloud'. */
+let profileOpen=false, profPage=null, __profWelcome=false;
+const PROF_PAGES={set:'Настройки',cats:'Категории',arch:'Архив категорий',cloud:'Облако и резервные копии'};
 function openProfile(welcome){
   if(!profileOpen){ profileOpen=true; lockScroll(true); }
-  const hint=document.getElementById('profHint');
-  if(welcome){ hint.style.display='block'; hint.textContent='Добро пожаловать! Список общий: всё, что вы добавите, увидят и близкие с доступом.'; }
-  else hint.style.display='none';
-  renderAcct(); renderProfSettings(); renderProfileCats(); renderStorage();
+  profPage=null; __profWelcome=!!welcome;
+  renderProfile();
   document.getElementById('profile').classList.remove('hidden'); document.getElementById('profile').scrollTop=0;
+}
+function profGo(pg){ profPage=PROF_PAGES[pg]?pg:null; __profWelcome=false; renderProfile(); document.getElementById('profile').scrollTop=0; }
+function pmRow(fn,icon,col,title,sub,cls){
+  return `<button type="button" class="pm-row${cls?' '+cls:''}" onclick="${fn}"><span class="pm-ic" style="${chipStyle(col)}">${ic(icon)}</span><span class="pm-tx">${title}${sub?`<small>${sub}</small>`:''}</span>${ic('chevR')}</button>`;
+}
+function renderProfile(){
+  const head=document.getElementById('profHead'), body=document.getElementById('profBody'); if(!head||!body) return;
+  if(!profPage){
+    head.innerHTML=`<h2>Профиль</h2><button class="x" onclick="closeProfile()">Закрыть</button>`;
+    const thLbl={light:'светлая',dark:'тёмная',system:'как в системе'}[theme]||'';
+    const nc=realCats().length, na=archCats().length;
+    const used=stateBytes(), pct=Math.min(100,Math.round(used/STORE_LIMIT*100));
+    const bad=(cloudState==='error')||__lsFailed;
+    const cloudSub=(bad?'Не сохранено в облако — откройте':(cloudState==='saving'?'Сохраняю…':cloudState==='wait'?(cloudNote?'Нет связи — правки на устройстве':'Жду облако…'):'Всё сохранено'))+' · занято '+pct+'%';
+    body.innerHTML=(__profWelcome?`<div class="prof-hint">Добро пожаловать! Список общий: всё, что вы добавите, увидят и близкие с доступом.</div>`:'')+
+      `<div id="profAcct"></div>
+      <div class="prof-sec">Разделы</div>
+      <div class="pm-grp">
+        ${pmRow("profGo('set')",'gear','var(--indigo-tx)','Настройки','Тема '+thLbl+' · новые '+(newTop?'сверху':'снизу')+' · очередь '+(sortPri?'вкл':'выкл'))}
+        ${pmRow("profGo('cats')",'grid','var(--indigo-tx)','Категории',nc+' '+plural(nc,'категория','категории','категорий')+' · порядок, названия, иконки')}
+        ${pmRow("profGo('arch')",'archive','var(--muted)','Архив категорий',na?(na+' в архиве'):'пусто')}
+        ${pmRow("profGo('cloud')",'cloud',bad?'var(--red)':'var(--svc)','Облако и резервные копии',cloudSub,bad?'bad':'')}
+      </div>
+      <button class="prof-logout" onclick="doSignOut()">Выйти из аккаунта</button>`;
+    renderAcct(); return;
+  }
+  head.innerHTML=`<button class="x back" onclick="profGo(null)">${ic('chevL')} Профиль</button><button class="x" onclick="closeProfile()">Закрыть</button>`;
+  let h=`<h2 class="prof-title">${PROF_PAGES[profPage]}</h2>`;
+  if(profPage==='set') h+=`<div id="profSet"></div>`;
+  else if(profPage==='cats') h+=`<div class="prof-note">Порядок — перетаскиванием за ≡ (так же он меняется на главном экране в режиме правки). Карандаш — название, иконка и цвет.</div><div id="profCats"></div>`;
+  else if(profPage==='arch') h+=`<div id="profArch"></div>`;
+  else if(profPage==='cloud') h+=`<div id="profStore"></div>
+    <div class="prof-sec">Синхронизация</div>
+    <div class="pm-grp">
+      ${pmRow('cloudSaveAll()','arrowUp','var(--indigo-tx)','Сохранить в облако все задачи','Отправить список с этого устройства в облако — он заменит облачную версию')}
+      ${pmRow('cloudLoadAll()','arrowDown','var(--indigo-tx)','Загрузить из облака все задачи','Заменить список на этом устройстве версией из облака')}
+    </div>
+    <div class="prof-note">Обычно ничего нажимать не нужно: правки уходят в облако сами. Эти кнопки — на случай, если устройства разошлись.</div>
+    <div class="prof-sec">Резервные копии</div>
+    <div class="pm-grp">
+      ${pmRow('openBackups()','history','var(--svc)','Автокопии за '+BK_SLOTS+' дней','Приложение каждый день само сохраняет копию в облако — можно вернуть список на любой из этих дней')}
+      ${pmRow('exportBackup()','documents','var(--svc)','Скачать копию в файл','Файл со всем списком — на телефон или компьютер')}
+      ${pmRow('importBackupPick()','folder','var(--svc)','Загрузить копию из файла','Вернуть список из скачанного раньше файла')}
+    </div>`;
+  body.innerHTML=h;
+  if(profPage==='set') renderProfSettings();
+  else if(profPage==='cats') renderProfileCats();
+  else if(profPage==='arch') document.getElementById('profArch').innerHTML=archiveHtml();
+  else if(profPage==='cloud') renderStorage();
 }
 /* Аккаунт показываем как есть из Google — своё поле «Ваше имя» убрали (правка 13):
    оно жило только в localStorage этого устройства и ничего не давало. */
@@ -3282,22 +3862,76 @@ function setSeg(title,note,opts,cur,fn){
 function renderProfSettings(){
   const el=document.getElementById('profSet'); if(!el) return;
   el.innerHTML=
+    `<div class="prof-sec" style="margin-top:4px">Внешний вид · на этом устройстве</div>`+
     setSeg('Тема','Светлая, тёмная или как в системе',[['light','Светлая'],['dark','Тёмная'],['system','Как в системе']],theme,'setTheme')+
+    setSeg('Категории на главной','Плитками или списком',[['tiles','Плитки'],['list','Список']],hubView,'setHubViewR')+
+    setSeg('Выходные','По категориям или сплошным списком по очереди',[['cats','По категориям'],['list','Списком']],wkView,'setWkViewR')+
+    setSeg('Скрывать выполненные','Прятать задачи с галочкой во всех списках',[[true,'Вкл'],[false,'Выкл']],hideDone,'setHideDone')+
+    `<div class="prof-sec">Порядок задач · общий для всех устройств</div>`+
     setSeg('Новые задачи','Куда попадает задача при добавлении — в начало или в конец списка',[[true,'Сверху'],[false,'Снизу']],newTop,'setNewTop')+
-    setSeg('Сортировать по очереди','1 → 2 → 3 → 4 → без очереди. Тот же тумблер, что в шапке категории',[[true,'Вкл'],[false,'Выкл']],sortPri,'setSortPri')+
-    setSeg('Скрывать выполненные','Прятать задачи с галочкой во всех списках',[[true,'Вкл'],[false,'Выкл']],hideDone,'setHideDone');
+    setSeg('Сортировать по очереди','1 → 2 → 3 → 4 → без очереди. Тот же тумблер, что в шапке категории',[[true,'Вкл'],[false,'Выкл']],sortPri,'setSortPri');
 }
-function closeProfile(){ if(!profileOpen) return; profileOpen=false; document.getElementById('profile').classList.add('hidden'); lockScroll(false); render(); }
+function setHubViewR(v){ setHubView(v==='list'?'list':'tiles'); renderAll(); }
+function setWkViewR(v){ setWkView(v); renderAll(); }
+function closeProfile(){ if(!profileOpen) return; profileOpen=false; profPage=null; document.getElementById('profile').classList.add('hidden'); lockScroll(false); render(); }
 function renderStorage(){
   const el=document.getElementById('profStore'); if(!el) return;
   const used=stateBytes(); const pct=Math.min(100, Math.round(used/STORE_LIMIT*100));
   const warn=pct>=80;
   const bad=(cloudState==='error')||__lsFailed;
-  el.innerHTML=`<div class="prof-sec">Облачное хранилище</div>
-    <div class="prof-store"><div class="tc-bar"><i style="width:${Math.max(pct,2)}%${warn?';background:var(--red)':''}"></i></div>
+  el.innerHTML=`<div class="prof-store"><div class="tc-bar"><i style="width:${Math.max(pct,2)}%${warn?';background:var(--red)':''}"></i></div>
     <div class="tc-lbl">${Math.round(used/1024)} КБ из ~977 КБ (${pct}%) — лимит облачного документа</div>
     ${warn?'<div class="tc-lbl" style="color:var(--red);font-weight:700">⚠️ Больше 80% — удалите старые выполненные задачи</div>':''}
     <div class="tc-lbl"${bad?' style="color:var(--red);font-weight:700"':''} role="button" tabindex="0" onclick="cloudDotTap()">${esc(cloudLabel())}</div></div>`;
+}
+/* ---------- ОБЛАКО: сохранить / загрузить всё, копия из файла (правка 1.14) ---------- */
+/* Ручные кнопки на случай, когда устройства разошлись. Обе спрашивают подтверждение и
+   перед заменой кладут то, что пропадёт, в автокопию «До восстановления» (home_bk_undo):
+   её видно в «Автокопиях», и замену можно откатить. */
+function cloudReady(){ return !!(window.CLOUD && window.CLOUD.pull && window.CLOUD.backupPut && __primed && __authedUser); }
+function errCode(e){ return (e&&e.code)||'нет связи'; }
+async function cloudSaveAll(){
+  if(!cloudReady()){ alert('Нет связи с облаком. Попробуйте, когда появится интернет.'); return; }
+  if(!confirm('Сохранить в облако все задачи с этого устройства?\n\nОблачная версия будет заменена этой. Правки с других устройств, которые ещё не попали в облако, пропадут.\nТекущая облачная версия сохранится в автокопиях как «До восстановления».')) return;
+  try{ const d=await window.CLOUD.pull(); if(d&&d.data) await window.CLOUD.backupPut('undo',{day:'undo',data:d.data,at:Date.now()}); }
+  catch(e){ alert('Не получилось связаться с облаком ('+errCode(e)+'). Ничего не изменено.'); return; }
+  __forceNext=true; save(); renderAll();
+  showToast('Все задачи отправлены в облако');
+}
+async function cloudLoadAll(){
+  if(!cloudReady()){ alert('Нет связи с облаком. Попробуйте, когда появится интернет.'); return; }
+  if(__pushing||__pushTimer){ alert('Сейчас идёт сохранение в облако — повторите через пару секунд.'); return; }
+  if(!confirm('Загрузить из облака все задачи?\n\nВсё, что сейчас на этом устройстве, будет заменено версией из облака. Правки, которые ещё не успели уйти в облако, пропадут (они сохранятся в автокопиях как «До восстановления»).')) return;
+  let d; try{ d=await window.CLOUD.pull(); }catch(e){ alert('Не получилось связаться с облаком ('+errCode(e)+'). Ничего не изменено.'); return; }
+  if(!d||!d.data){ alert('В облаке нет списка. Ничего не изменено.'); return; }
+  const R=parseState(d.data); if(!R){ alert('Список в облаке не читается. Ничего не изменено.'); return; }
+  if(isDirty()){ try{ await window.CLOUD.backupPut('undo',{day:'undo',data:JSON.stringify(STATE),at:Date.now()}); }catch(e){} }
+  __cloudSeq++;
+  STATE=R; syncModelRef(); setBase(d.data);
+  localUpdatedAt=Math.max(d.updatedAt||0,1); persistLocal();
+  if(active && active!=='__wk__' && active!=='__svc__' && !catByKey(active)) active=null;
+  setCloud('ok'); renderAll();
+  showToast('Список загружен из облака');
+  if(isDirty()) pushCloud();   /* migrate() дописал поля старой версии — сохраняем нормализованное */
+}
+function importBackupPick(){ const inp=document.getElementById('impFile'); inp.value=''; inp.click(); }
+async function importBackupFile(inp){
+  const f=inp.files&&inp.files[0]; if(!f) return;
+  let raw;
+  try{ raw=JSON.parse(await f.text()); }catch(e){ alert('Это не файл копии «Дом!»: он не читается.'); return; }
+  /* файл из «Скачать копию» — это весь STATE; принимаем и документ облака {data:"…"} */
+  if(raw && typeof raw.data==='string'){ try{ raw=JSON.parse(raw.data); }catch(e){} }
+  if(!raw || !Array.isArray(raw.cats)){ alert('В файле нет списка «Дом!».'); return; }
+  const M=migrate(raw), str=JSON.stringify(M);
+  if(utf8Bytes(str)>STORE_LIMIT){ alert('Копия больше лимита облака (~1 МБ) — загрузить её нельзя.'); return; }
+  const st=bkStats(str)||{cats:0,t:0};
+  if(!confirm('Заменить весь список копией из файла «'+f.name+'»?\n'+st.cats+' '+plural(st.cats,'категория','категории','категорий')+' · '+st.t+' '+plural(st.t,'задача','задачи','задач')+'.\n\nСписок изменится на всех устройствах. Текущий сохранится в автокопиях как «До восстановления».')) return;
+  if(!cloudReady()){ alert('Нет связи с облаком — загрузить копию сейчас нельзя.'); return; }
+  try{ await window.CLOUD.backupPut('undo',{day:'undo',data:JSON.stringify(STATE),at:Date.now()}); }
+  catch(e){ alert('Не удалось сохранить текущий список перед заменой ('+errCode(e)+'). Ничего не изменено.'); return; }
+  STATE=M; syncModelRef(); active=null;
+  __forceNext=true; save(); renderAll();
+  showToast('Список загружен из файла');
 }
 
 function renderProfileCats(){
@@ -3320,19 +3954,7 @@ function renderProfileCats(){
       <span class="pc-name">${esc(STATE.wkTitle)}</span>
       <button title="Переименовать" aria-label="Переименовать раздел выходных" onclick="openWkEditor()">${ic('pencil')}</button>
     </div>`);
-  const arch=archCats();
-  if(arch.length){
-    h.push(`<div class="prof-sec" style="display:flex;align-items:center;gap:7px">${ic('archive')} Архив категорий</div>`);
-    arch.forEach(c=>{
-      const s=catStats(c);
-      h.push(`<div class="prof-cat arch">
-        <span class="pc-emo" style="${chipStyle(catColor(c))};opacity:.7">${ic(c.icon)}</span>
-        <span class="pc-name">${esc(c.title||c.tab||'Категория')}<small style="display:block;font-weight:500;font-size:11px;color:var(--muted)">${s.t} задач · в поиске по галочке «в архиве»</small></span>
-        <button class="restore" title="Вернуть из архива" onclick="restoreCategory('${c.key}')">${ic('arrowUp')}</button>
-        <button class="del" title="Удалить навсегда" onclick="deleteArchived('${c.key}')">${ic('trash')}</button>
-      </div>`);
-    });
-  }
+  /* архив — отдельный раздел профиля (правка 1.14) */
   box.innerHTML=h.join('');
 }
 function deleteArchived(key){
@@ -3398,10 +4020,14 @@ function openWkEditor(){
    Поэтому НА САМИХ окнах (не глобально — см. выше) пропускаем движение, только когда
    под пальцем есть блок, который реально может прокрутиться в эту сторону. Его край
    тоже не отдаём наружу, иначе пружина возвращается на упоре. */
-let __shY=0;
-function sheetTouchStart(e){ if(e.touches.length===1) __shY=e.touches[0].clientY; }
+let __shY=0, __shX0=0, __shY0=0, __shMoved=false;
+function sheetTouchStart(e){ if(e.touches.length===1){ __shY=__shY0=e.touches[0].clientY; __shX0=e.touches[0].clientX; __shMoved=false; } }
 function sheetTouchMove(e){
   if(e.touches.length!==1 || drag) return;   /* щипок и драг задачи — не наше */
+  /* Дрожание пальца при обычном тапе — ещё не жест. Раньше preventDefault уходил уже на
+     первом пикселе, и на iPhone такой тап по «Отмена»/«Назад» иногда не становился
+     кликом (правка 1.14). */
+  if(!__shMoved){ const t=e.touches[0]; if(Math.abs(t.clientY-__shY0)<8 && Math.abs(t.clientX-__shX0)<8) return; __shMoved=true; }
   /* в полях ввода палец двигает курсор и ручки выделения — не мешаем */
   const tg=e.target; if(tg && (tg.tagName==='INPUT'||tg.tagName==='TEXTAREA'||tg.tagName==='SELECT'||tg.isContentEditable)) return;
   /* направление — от прошлого движения, а не от начала касания: палец может развернуться */
