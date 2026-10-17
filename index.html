@@ -3320,7 +3320,10 @@ function rtGet(ed){
     if(b.nodeType!==1) return;
     const t=b.getAttribute('data-t')||'';
     n = t==='ol' ? n+1 : 0;
-    rtInline(b).split('\n').forEach((x,i)=>{
+    /* <br> в конце абзаца — заглушка пустой строки, а не перенос: без этого каждая
+       пустая строка описания удваивалась при сохранении */
+    let tx=rtInline(b); if(tx.endsWith('\n')) tx=tx.slice(0,-1);
+    tx.split('\n').forEach((x,i)=>{
       let pre='';
       if(i===0){
         if(t==='h1') pre='# '; else if(t==='h2') pre='## '; else if(t==='ul') pre='• ';
