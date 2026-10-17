@@ -1303,6 +1303,10 @@ function priChips(cur,handler){ let h=''; ['','red','orange','fast','green'].for
 /* ---------- ДОСТУП ---------- */
 function doSignIn(){ document.getElementById('pwErr').textContent=''; if(window.AUTH) window.AUTH.signIn(); }
 function doSignOut(){
+  /* Выход стирает кэш устройства — а с ним и правки, которые ещё не дошли до облака
+     (офлайн, облако отвергло запись). Раньше они пропадали молча (правка 1.15). */
+  if(__primed && BASE!=null && isDirty() &&
+     !confirm('Не все правки с этого устройства успели сохраниться в облако (нет связи?).\nЕсли выйти сейчас, они пропадут.\n\nВыйти всё равно?')) return;
   /* Локальный кэш — не личный: localStorage привязан к origin, а не к аккаунту.
      Стираем его при выходе, иначе весь семейный список остаётся на устройстве. */
   __signingOut=true; stopCloud(); wipeLocal();
@@ -1334,6 +1338,7 @@ function showLogin(){
   document.getElementById('pwErr').textContent='';
   document.getElementById('gsi').style.display='flex';
   document.getElementById('signout').style.display='none';
+  if(window.AUTH && window.AUTH.warm) window.AUTH.warm();   /* окно входа должно открыться сразу по тапу */
 }
 function showDenied(email){
   stopCloud(); wipeLocal();
@@ -1445,6 +1450,12 @@ function ensureInbox(s){
   if(ib.title==='Inbox'||!ib.title){ ib.title='Входящие'; ib.tab='Входящие'; }
 }
 function num(v){ const n=Number(v); return Number.isFinite(n)&&n>0?Math.round(n):0; }
+/* Защита от испорченных данных (правка 1.15): id/ключи подставляются в onclick="f('…')",
+   цвет — в style="…". Свои генераторы дают только буквы и цифры; кавычка или «<» из
+   повреждённого файла копии ломали бы разметку. Замена детерминированная — на всех
+   устройствах получится один и тот же id, слияние не размножит записи. */
+function safeId(x){ return String(x).replace(/[^A-Za-z0-9_]/g,'_'); }
+const COLOR_RE=/^#[0-9a-fA-F]{3,8}$/;
 /* Время создания задачи. У задач, созданных до этой версии, поля `ct` нет —
    достаём его из id: nid() = 'i' + Date.now().toString(36) + счётчик + случайные 4 символа.
    Значение вне разумного диапазона (чужой id, импорт) считаем неизвестным. */
@@ -1455,13 +1466,15 @@ function ctFromId(id){
   return (Number.isFinite(t) && t>CT_MIN && t<Date.now()+31536000000) ? t : 0;
 }
 function normItems(g){ if(!g.items) return;
+  if(!Array.isArray(g.items)) g.items=[];
+  if(g.items.some(it=>!it||typeof it!=='object')) g.items=g.items.filter(it=>it&&typeof it==='object');
   g.items.forEach(it=>{
     /* pri валидируем, а не только доопределяем: чужое значение роняло PRI[it.pri].c,
        а вместе с ним — весь render() (белый экран без выхода) */
     if(!(it.pri in PRI)) it.pri='';
     if(it.wk===undefined) it.wk=false;
     if(it.done===undefined) it.done=false;
-    if(!it.id) it.id=nid();
+    if(!it.id) it.id=nid(); else it.id=safeId(it.id);
     if(!num(it.ct)) it.ct=ctFromId(it.id);
     if(it.rec && !it.rec.next) delete it.rec;
     /* rec.mode — от чего считать следующий срок: 'done' (от нажатия галочки, как было
@@ -1473,10 +1486,11 @@ function normItems(g){ if(!g.items) return;
 function normCat(c,all){
   c.groups=Array.isArray(c.groups)?c.groups:[];
   c.tab=c.tab||c.title||''; c.title=c.title||c.tab||'';
-  if(!c.key) c.key=ncid();
+  if(!c.key) c.key=ncid(); else c.key=safeId(c.key);
   if(!c.icon) c.icon=(c.kind==='inbox')?'inbox':'box';
-  if(!c.color) c.color=(c.kind==='inbox')?'#c06f22':pickColor(all);
-  c.groups.forEach(g=>{ if(!g.gid) g.gid=ngid(); normItems(g); });
+  if(!COLOR_RE.test(c.color||'')) c.color=(c.kind==='inbox')?'#c06f22':pickColor(all);
+  c.groups=c.groups.filter(g=>g&&typeof g==='object');
+  c.groups.forEach(g=>{ if(!g.gid) g.gid=ngid(); else g.gid=safeId(g.gid); normItems(g); });
 }
 function lsFlag(k){ try{ return localStorage.getItem(k)!=='0'; }catch(e){ return true; } }
 function migrate(raw){
@@ -1516,6 +1530,7 @@ function migrate(raw){
      настройки этого устройства, дальше — из облака. */
   if(!s.prefs || typeof s.prefs!=='object') s.prefs={sortPri:lsFlag('sort_pri'), newTop:lsFlag('new_top')};
   s.prefs.sortPri = s.prefs.sortPri!==false; s.prefs.newTop = s.prefs.newTop!==false;
+  sortItemsIn(s);
   return s;
 }
 let STATE, MODEL=[];
@@ -1547,10 +1562,8 @@ function save(){
      отстающими часами правка получала метку МЕНЬШЕ уже принятой из облака, второе
      устройство видело «старее моего» и молча возвращало свой снапшот обратно. */
   localUpdatedAt=Math.max(localUpdatedAt+1, Date.now());
-  try{ const str=JSON.stringify(STATE);
-    localStorage.setItem(KEY,str); localStorage.setItem(KEY+"_ts",String(localUpdatedAt));
-    __lsFailed=false; measureBytes(str);
-  }catch(e){ __lsFailed=true; paintCloudDot(); }
+  sortItemsIn(STATE);
+  const str=writeLocal(); if(str) measureBytes(str); else paintCloudDot();
   __pushBlocked=false;   /* новая правка — новая попытка, даже если прошлую облако отвергло */
   pushCloud();
 }
@@ -1559,11 +1572,22 @@ function save(){
    устройство (mergeStates). Хранится рядом с кэшем: правки, сделанные офлайн и не
    доехавшие до облака, переживают перезапуск и сливаются при первой связи. */
 let BASE=null; try{ BASE=localStorage.getItem(KEY+'_base'); }catch(e){}
-function setBase(str){ BASE=str; try{ localStorage.setItem(KEY+'_base',str); }catch(e){} }
+/* Список, метка и база пишутся на устройство ВСЕГДА вместе, из одной вкладки (правка 1.15).
+   localStorage общий для всех вкладок/окон «Дом!» на компьютере: раньше одна вкладка
+   писала список, другая — базу, и после перезапуска в паре оказывались список одной и
+   база другой. Слияние принимало разницу за «правки» и откатывало чужие изменения. */
+function writeLocal(){
+  try{ const str=JSON.stringify(STATE);
+    localStorage.setItem(KEY,str); localStorage.setItem(KEY+"_ts",String(localUpdatedAt));
+    if(BASE!=null) localStorage.setItem(KEY+'_base',BASE);
+    __lsFailed=false; return str;
+  }catch(e){ __lsFailed=true; return null; }
+}
+function setBase(str){ BASE=str; writeLocal(); }
 function isDirty(){ return BASE==null || JSON.stringify(STATE)!==BASE; }
 function parseState(str){ try{ return migrate(JSON.parse(str)); }catch(e){ return null; } }
 /* сохранить STATE на устройстве, НЕ запуская отправку в облако (для пришедших версий) */
-function persistLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(STATE)); localStorage.setItem(KEY+"_ts",String(localUpdatedAt)); __lsFailed=false; }catch(e){ __lsFailed=true; } }
+function persistLocal(){ writeLocal(); }
 function wipeLocal(){
   try{ localStorage.removeItem(KEY); localStorage.removeItem(KEY+"_ts"); localStorage.removeItem(KEY+'_base'); localStorage.removeItem(AUTH_HINT); }catch(e){}
   BASE=null;
@@ -1635,8 +1659,16 @@ function sortByPri(a){ return a.slice().sort(cmpPri); }
 /* Сортируем САМ массив, а не копию для показа: тогда «что вижу — то и лежит в данных».
    Раньше вне правки список сортировался по очереди, а в правке показывался хранимый
    порядок — при нажатии «править» задачи перетасовывались (правка 7). Сортировка
-   стабильная, поэтому ручной порядок внутри одной очереди сохраняется. */
-function sortGroupItems(g){ if(g&&g.items) g.items.sort(sortPri?cmpPri:cmpDone); }
+   стабильная, поэтому ручной порядок внутри одной очереди сохраняется.
+   Правка 1.15: сортируем при СОХРАНЕНИИ и при разборе любой версии (migrate), а НЕ при
+   показе. Сортировка в render() тихо меняла данные: галочка из «Очередей»/«Выходных»
+   уходила в облако, а устройство с открытой категорией пересортировывало её и отправляло
+   обратно — две записи на одну правку, а «тихо грязное» состояние при слиянии могло
+   перебить ручную перестановку с другого устройства. Порядок берётся из s.prefs. */
+function sortItemsIn(s){
+  const f=(s.prefs&&s.prefs.sortPri===false)?cmpDone:cmpPri;
+  (s.cats||[]).concat(Array.isArray(s.archive)?s.archive:[]).forEach(c=>(c.groups||[]).forEach(g=>{ if(Array.isArray(g.items)) g.items.sort(f); }));
+}
 function plural(n,a,b,c){ const n10=n%10, n100=n%100;
   if(n10===1 && n100!==11) return a;
   if(n10>=2 && n10<=4 && (n100<10||n100>=20)) return b;
@@ -1699,13 +1731,13 @@ function svcDueCount(){ return dueObjs().length + recTasks().filter(r=>daysTo(r.
    log:[{id,ts,d,note,st,chk}] — история, новые сверху, кап OBJ_LOG_CAP}.
    Это НЕ задачи: в cats они не лежат, в счётчики задач/очереди-приоритеты не входят. */
 function normObj(o){
-  if(!o.id) o.id=noid();
+  if(!o.id) o.id=noid(); else o.id=safeId(o.id);
   if(typeof o.t!=='string') o.t=String(o.t||'');
   if(!validIcon(o.icon)) o.icon='gear';
   if(typeof o.ck!=='string') o.ck='';
   if(typeof o.spec!=='string') o.spec='';
   if(!Array.isArray(o.checks)) o.checks=[];
-  o.checks=o.checks.filter(x=>x&&typeof x.t==='string'&&x.t.trim()); o.checks.forEach(x=>{ if(!x.id) x.id=nkid(); });
+  o.checks=o.checks.filter(x=>x&&typeof x.t==='string'&&x.t.trim()); o.checks.forEach(x=>{ x.id=x.id?safeId(x.id):nkid(); });
   if(!o.rec || typeof o.rec!=='object') o.rec={n:3,unit:'m',next:isoToday(),mode:'done'};
   const r=o.rec; r.n=Math.min(365,Math.max(1,num(r.n)||1));
   if(['d','w','m','y'].indexOf(r.unit)<0) r.unit='m';
@@ -1717,7 +1749,7 @@ function normObj(o){
   o.needNote=!!o.needNote;
   if(!Array.isArray(o.log)) o.log=[];
   o.log=o.log.filter(e=>e&&num(e.ts));
-  o.log.forEach(e=>{ if(!e.id) e.id='l'+num(e.ts).toString(36); if(!(e.st in OBJ_ST)) e.st='ok';
+  o.log.forEach(e=>{ e.id=e.id?safeId(e.id):'l'+num(e.ts).toString(36); if(!(e.st in OBJ_ST)) e.st='ok';
     if(typeof e.note!=='string') e.note=''; if(!Array.isArray(e.chk)) e.chk=[];
     if(e.val!=null && typeof e.val!=='string') e.val=String(e.val); if(!validISO(e.d)) e.d=toISO(new Date(e.ts)); });
   o.log.sort((a,b)=>b.ts-a.ts);
@@ -1869,7 +1901,7 @@ function mergeStates(B,L,R){
   M.doneLog=logs('doneLog',e=>e.id+'|'+e.ts).sort((a,b)=>a.ts-b.ts).slice(-1000);
   M.svcLog=logs('svcLog',e=>e.ts+'|'+e.t).sort((a,b)=>b.ts-a.ts).slice(0,300);
   const s=migrate(orderLike(M,L));
-  if(orphans.length){ const g=ensureInboxGroup(getInboxOf(s)); orphans.forEach(it=>g.items.push(it)); }
+  if(orphans.length){ const g=ensureInboxGroup(getInboxOf(s)); orphans.forEach(it=>g.items.push(it)); sortItemsIn(s); }
   return s;
 }
 function getInboxOf(s){ return s.cats.find(c=>c.kind==='inbox'); }
@@ -1935,19 +1967,22 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape' && hmOpen) closeHMe
    при первом снапшоте. Раньше setDoc вставал в очередь и при появлении связи
    слепо затирал то, что успели записать с другого устройства.
    __forceNext — записать без слияния (восстановление из копии). */
-let __pushing=false, __pushAgain=false, __retryTimer=null, __forceNext=false;
+let __pushing=false, __pushAgain=false, __retryTimer=null, __forceNext=false, __restarting=false;
 function pushCloud(){
   /* На старте из кэша Firebase ещё грузится: правка сохранена локально, а в облако
      уйдёт с первым снапшотом. Не ошибка. */
   if(!window.CLOUD || !__primed){ setCloud('wait'); return; }
   setCloud('saving');
   clearTimeout(__pushTimer); clearTimeout(__retryTimer);
-  __pushTimer=setTimeout(doPush, 900);
+  /* 400 мс (было 900): серию быстрых тапов это всё ещё собирает в одну запись,
+     а правка появляется на другом устройстве на полсекунды раньше */
+  __pushTimer=setTimeout(doPush, 400);
 }
 function doPush(){
   __pushTimer=null;
   if(!window.CLOUD || !__primed) return;
   if(__pushing){ __pushAgain=true; return; }   /* одна транзакция за раз */
+  if(__restarting) return;   /* связь перезапускается — reviveCloud() отправит сам, когда закончит */
   __pushing=true;
   const localStr=JSON.stringify(STATE), base=BASE, ts=localUpdatedAt, force=__forceNext; __forceNext=false;
   window.CLOUD.sync(cur=>{
@@ -2004,7 +2039,7 @@ document.addEventListener('visibilitychange',()=>{
   if(__updReady) applyUpdate();   /* свёрнуто — лучший момент подхватить новую версию */
 });
 window.addEventListener('pagehide', flushPush);
-function stopCloud(){ if(__cloudUnsub){ try{ __cloudUnsub(); }catch(e){} __cloudUnsub=null; } clearTimeout(__pushTimer); clearTimeout(__primeTimer); clearTimeout(__retryTimer); }
+function stopCloud(){ if(__cloudUnsub){ try{ __cloudUnsub(); }catch(e){} __cloudUnsub=null; } clearTimeout(__pushTimer); clearTimeout(__primeTimer); clearTimeout(__retryTimer); clearTimeout(__pullRetry); }
 function onCloudSnapshot(d,fromCache){
   if(__signingOut) return;
   __cloudSeq++;
@@ -2056,24 +2091,59 @@ function onCloudSnapshot(d,fromCache){
    сервера и прогоняем через onCloudSnapshot (он идемпотентен: data===BASE — ничего).
    __cloudSeq: если за время чтения пришёл снапшот или прошла наша запись — ответ
    устарел, его НЕ применяем (иначе откатили бы свою же только что записанную правку). */
-let __cloudSeq=0, __pullAt=0, __pullBusy=false;
+let __cloudSeq=0, __pullAt=0, __pullBusy=false, __pullRetry=null, __pullFails=0, __reviveAt=0;
 function pullCloud(force){
-  if(!window.CLOUD || !window.CLOUD.pull || !__cloudUnsub || __signingOut || __pullBusy) return;
+  if(!window.CLOUD || !window.CLOUD.pull || !__cloudUnsub || __signingOut || __pullBusy || __restarting) return;
   if(!force && Date.now()-__pullAt<5000) return;
   if(__pushing || __pushTimer) return;   /* своя запись в пути — её ответ и так придёт снапшотом */
-  __pullAt=Date.now(); __pullBusy=true;
-  const seq=__cloudSeq;
+  __pullAt=Date.now(); __pullBusy=true; clearTimeout(__pullRetry);
+  const seq=__cloudSeq, base=BASE;
   window.CLOUD.pull().then(d=>{
-    __pullBusy=false;
+    __pullBusy=false; __pullFails=0;
     if(seq!==__cloudSeq || __pushing || __pushTimer || !__cloudUnsub) return;
+    /* Сервер отдал чужую версию, а подписка о ней промолчала — значит, подписка
+       «умерла» (сон Mac, долгий фон на iPhone). Данные берём из этого ответа, а саму
+       связь перезапускаем, чтобы дальше правки снова приходили сами (правка 1.15). */
+    if(d && d.data!==base && d.writer!==myId) reviveCloud();
     onCloudSnapshot(d,false);
-  }).catch(()=>{ __pullBusy=false; });
+  }).catch(()=>{ __pullBusy=false;
+    /* Сразу после пробуждения сеть часто ещё не готова: раньше неудачная сверка не
+       повторялась до следующего переключения окна или 2-минутного таймера */
+    if(document.visibilityState==='visible' && __pullFails++<4){ clearTimeout(__pullRetry); __pullRetry=setTimeout(()=>pullCloud(true), 3000*__pullFails); }
+  });
 }
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') pullCloud(); });
+/* Перезапуск связи с облаком (disableNetwork → enableNetwork): полуживое соединение
+   после сна Firestore сам замечает очень не сразу. Не чаще раза в 20 с и не во время
+   своей записи (её транзакция бы оборвалась). */
+function reviveCloud(){
+  if(!window.CLOUD || !window.CLOUD.restart || !__cloudUnsub || __pushing || __restarting || __signingOut) return false;
+  if(Date.now()-__reviveAt<20000) return false;
+  __reviveAt=Date.now(); __restarting=true;
+  window.CLOUD.restart().catch(()=>{}).then(()=>{ __restarting=false;
+    /* запись, отложенная на время перезапуска, уходит сразу после него; иначе — сверка */
+    if(__primed && isDirty() && !__pushBlocked && !__pushing) pushCloud(); else pullCloud(true); });
+  return true;
+}
+let __hiddenAt=0;
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){ __hiddenAt=Date.now(); return; }
+  /* вернулись после долгого фона (iPhone замораживает свёрнутое приложение) — связь
+     почти наверняка порвана: перезапускаем её и сразу сверяемся с сервером */
+  const long=__hiddenAt && Date.now()-__hiddenAt>30000; __hiddenAt=0;
+  if(!(long && reviveCloud())) pullCloud(true);
+});
 window.addEventListener('focus',()=>pullCloud());
 window.addEventListener('pageshow',()=>pullCloud());
-window.addEventListener('online',()=>pullCloud(true));
-setInterval(()=>{ if(document.visibilityState==='visible') pullCloud(); }, 120000);
+window.addEventListener('online',()=>{ if(!reviveCloud()) pullCloud(true); });
+/* Сверка раз в 45 с, пока приложение на экране (было 2 мин): если подписка умерла,
+   а вы смотрите на экран компьютера и отмечаете задачи на телефоне, дольше этого
+   изменения не задержатся. Чтение — один маленький документ. */
+setInterval(()=>{ if(document.visibilityState==='visible') pullCloud(); }, 45000);
+/* Сон компьютера: таймеры стоят, и после пробуждения тик приходит с большим
+   опозданием — по нему узнаём, что «проснулись», и сразу оживляем связь */
+let __tickAt=Date.now();
+setInterval(()=>{ const now=Date.now(), gap=now-__tickAt; __tickAt=now;
+  if(gap>40000 && document.visibilityState==='visible' && !reviveCloud()) pullCloud(true); }, 10000);
 function startCloud(){
   const go=()=>{ if(!window.CLOUD || __cloudUnsub) return;
     __cloudUnsub=window.CLOUD.subscribe(onCloudSnapshot, (e)=>{
@@ -2365,7 +2435,7 @@ function groupsHtml(c){
   if(c.intro) h+=`<div class="intro">${esc(c.intro)}</div>`;
   c.groups.forEach((g,gi)=>{
     if(typeof g.sub==='string'){
-      h+=`<div class="sub" data-gi="${gi}" style="color:${col}"><span class="sub-tx">${esc(g.sub)}</span>
+      h+=`<div class="sub" data-gi="${gi}" data-gid="${g.gid}" style="color:${col}"><span class="sub-tx">${esc(g.sub)}</span>
         <span class="sub-acts">
           <button title="Править" aria-label="Править" onclick="openSubEditor(event,'${c.key}','${g.gid}')">${ic('pencil')}</button>
           <button class="del" title="Удалить" aria-label="Удалить" onclick="deleteGroup(event,'${c.key}','${g.gid}')">${ic('x')}</button>
@@ -2377,10 +2447,9 @@ function groupsHtml(c){
        подкатегорий свёрнутым оказывался соседний блок. */
     const gk=c.key+'-'+g.gid; const closed=openState[gk]===false?' closed':'';
     const gt=g.items?g.items.length:0, gd=g.items?g.items.filter(i=>i.done).length:0;
-    sortGroupItems(g);
-    let disp=(g.items||[]).slice();
+    let disp=(g.items||[]).slice();   /* порядок уже в данных (sortItemsIn в save/migrate) */
     if(hideDone) disp=disp.filter(it=>!it.done);
-    h+=`<div class="grp${closed}" data-gk="${gk}" data-gi="${gi}"><div class="ghead" role="button" tabindex="0" aria-expanded="${closed?'false':'true'}" onclick="toggleGroup('${gk}')">
+    h+=`<div class="grp${closed}" data-gk="${gk}" data-gi="${gi}" data-gid="${g.gid}"><div class="ghead" role="button" tabindex="0" aria-expanded="${closed?'false':'true'}" onclick="toggleGroup('${gk}')">
       <span class="e" style="color:${col}">${ic(g.emo||'box')}</span><span class="t">${esc(g.title)}</span>
       <span class="g-acts">
         <button title="Править" aria-label="Править" onclick="openGroupEditor(event,'${c.key}','${g.gid}')">${ic('pencil')}</button>
@@ -2535,7 +2604,7 @@ function objLogDel(oid,lid){
 }
 
 /* --- редактор объекта --- */
-let oeId=null, oeIcon='gear', oeMode='done', oeNeedOn=false, oeChk=[];
+let oeId=null, oeIcon='gear', oeMode='done', oeNeedOn=false, oeChk=[], oeOrig=null;
 function oeSetIcon(id){ oeIcon=id; const q=document.getElementById('oeIconQ').value;
   document.getElementById('oeIcons').innerHTML=iconPickHtml(oeIcon,q,'oeSetIcon');
   document.getElementById('oeIconQN').innerHTML=iconQNote(q); }
@@ -2581,27 +2650,36 @@ function openObjEditor(id){
   oeNeedOn=o?o.needNote:false; document.getElementById('oeNeed').classList.toggle('on',oeNeedOn);
   oeChk=o?o.checks.map(x=>({id:x.id,t:x.t})):[];
   oeRenderChecks(); oeRenderMode(); oeSetIcon(oeIcon); oeSuggest();
+  oeOrig=o?oeRead():null;   /* по «Сохранить» пишем только поля, изменённые в редакторе */
   openSheet(document.getElementById('osheet'));
   if(!o) setTimeout(()=>document.getElementById('oeName').focus(),80);
 }
 function closeObjEditor(){ closeSheet(document.getElementById('osheet')); }
-function saveObjEditor(){
-  const t=stripLeadEmoji(document.getElementById('oeName').value);
-  if(!t){ document.getElementById('oeName').focus(); return; }
+/* все поля редактора объекта — одним объектом (и при открытии, и при сохранении) */
+function oeRead(){
   oeReadChecks();
-  const nx=document.getElementById('oeNext').value;
+  const nx=document.getElementById('oeNext').value, ld=parseInt(document.getElementById('oeLead').value,10);
+  return { t:stripLeadEmoji(document.getElementById('oeName').value), icon:oeIcon, ck:document.getElementById('oeCat').value||'',
+    spec:document.getElementById('oeSpec').value.trim(),
+    checks:oeChk.map(x=>({id:x.id,t:x.t.trim()})).filter(x=>x.t),
+    rec:{n:Math.min(365,Math.max(1,parseInt(document.getElementById('oeN').value,10)||1)), unit:document.getElementById('oeU').value||'m',
+      next:validISO(nx)?nx:isoToday(), mode:oeMode},
+    metric:document.getElementById('oeMetric').value.trim().slice(0,60),
+    lead:isNaN(ld)?3:Math.min(90,Math.max(0,ld)),   /* пустое поле — умолчание, а не «в день срока» */
+    needNote:oeNeedOn };
+}
+function saveObjEditor(){
+  const v=oeRead();
+  if(!v.t){ document.getElementById('oeName').focus(); return; }
   let o=oeId?objById(oeId):null;
   if(oeId && !o){ alert('Этот объект удалили на другом устройстве.'); closeObjEditor(); return; }
+  /* Существующий объект: только поля, изменённые в редакторе (правка 1.15) — иначе
+     срок, сдвинутый отметкой «обслужено» с другого устройства, откатывался бы назад */
+  const was=o?oeOrig:null;
   if(!o){ o={id:noid(),ct:Date.now(),log:[]}; STATE.objs.push(o); }
-  o.t=t; o.icon=oeIcon; o.ck=document.getElementById('oeCat').value||'';
-  o.spec=document.getElementById('oeSpec').value.trim();
-  o.checks=oeChk.map(x=>({id:x.id,t:x.t.trim()})).filter(x=>x.t);
-  o.rec={n:Math.min(365,Math.max(1,parseInt(document.getElementById('oeN').value,10)||1)), unit:document.getElementById('oeU').value||'m',
-    next:validISO(nx)?nx:isoToday(), mode:oeMode};
-  o.metric=document.getElementById('oeMetric').value.trim().slice(0,60);
-  const ld=parseInt(document.getElementById('oeLead').value,10);
-  o.lead=isNaN(ld)?3:Math.min(90,Math.max(0,ld));   /* пустое поле — умолчание, а не «в день срока» */
-  o.needNote=oeNeedOn;
+  Object.keys(v).forEach(k=>{
+    if(k==='rec' && was && o.rec){ Object.keys(v.rec).forEach(r=>{ if(v.rec[r]!==was.rec[r]) o.rec[r]=v.rec[r]; }); return; }
+    if(!was || jstr(v[k])!==jstr(was[k])) o[k]=v[k]; });
   normObj(o);
   save(); closeObjEditor(); renderAll();
 }
@@ -2984,7 +3062,7 @@ function arRestore(key){
 function arDelete(key){ deleteArchived(key); }
 
 /* ---------- SHEET: задача ---------- */
-let tsMode='new', tsId=null, tsCatKey=null, tsGid=null, tsPri='', tsWk=false, tsTargetCat=null;
+let tsMode='new', tsId=null, tsCatKey=null, tsGid=null, tsPri='', tsWk=false, tsTargetCat=null, tsOrig=null;
 /* Счётчик, а не флаг: поверх профиля может открыться bottom-sheet —
    его закрытие не должно разблокировать фон, пока профиль ещё открыт. */
 let scrollLocks=0;
@@ -3127,6 +3205,8 @@ function openTaskEdit(id){
   tsPaintDone(f.it);
   rtSet(document.getElementById('tsNote'),f.it.n||'');
   renderTsPri(); document.getElementById('tsWk').classList.toggle('on',tsWk); tsSetRecUI(f.it.rec||null); renderTsCat();
+  /* что было в карточке при открытии: по «ОК» пишем только поля, которые здесь поменяли */
+  tsOrig={t:document.getElementById('tsName').value.trim(), n:rtGet(document.getElementById('tsNote')).trim(), pri:tsPri, wk:tsWk, rec:jstr(tsReadRec())};
   openSheet(document.getElementById('tsheet'));
 }
 function openTaskNew(catKey,gid){
@@ -3160,8 +3240,12 @@ function saveTaskSheet(){
     return;
   }
   if(tsMode==='edit'){
-    const f=findItem(tsId); if(f){ f.it.t=t; f.it.n=n; f.it.pri=tsPri; f.it.wk=tsWk;
-      if(rec) f.it.rec=rec; else delete f.it.rec;
+    /* Только изменённые в карточке поля (правка 1.15). Раньше «ОК» переписывал все поля
+       значениями на момент открытия: очередь, «на выходные» или срок, поменянные за это
+       время на другом устройстве, молча откатывались. */
+    const f=findItem(tsId); if(f){ const o=tsOrig||{};
+      if(t!==o.t) f.it.t=t; if(n!==o.n) f.it.n=n; if(tsPri!==o.pri) f.it.pri=tsPri; if(tsWk!==o.wk) f.it.wk=tsWk;
+      if(jstr(rec)!==o.rec){ if(rec) f.it.rec=rec; else delete f.it.rec; }
       if(tsTargetCat && tsTargetCat!==f.c.key){ // перенос в другую категорию → в «Задачи»
         const dst=catByKey(tsTargetCat); if(dst){ f.g.items=f.g.items.filter(x=>x!==f.it); addTaskTo(ensureInboxGroup(dst),f.it); }
       }
@@ -3633,7 +3717,7 @@ function searchOpen(id,arch){
 }
 
 /* ---------- SHEET: редактор категории / подкатегории / заголовка ---------- */
-let esMode='cat', esCatKey=null, esGid=null, esNew=false, esIcon='box', esColor=CAT_COLORS[0];
+let esMode='cat', esCatKey=null, esGid=null, esNew=false, esIcon='box', esColor=CAT_COLORS[0], esOrig={};
 function buildIconGrid(){ const q=document.getElementById('eIconQ').value;
   document.getElementById('iconGrid').innerHTML=iconPickHtml(esIcon,q,'setEIcon');
   document.getElementById('eIconQN').innerHTML=iconQNote(q); }
@@ -3664,6 +3748,7 @@ function openCatEditor(catKey){
   /* архив/удаление — только у существующей обычной категории (Inbox трогать нельзя) */
   document.getElementById('esCatActs').style.display=(c && c.kind!=='inbox') ? '' : 'none';
   buildIconGrid(); buildColorRow(); suggestIcon();
+  esOrig={name:stripLeadEmoji(document.getElementById('eName').value.trim()), icon:esIcon, color:esColor};
   openSheet(document.getElementById('esheet'));
 }
 function openGroupEditor(e,catKey,gid){
@@ -3678,6 +3763,7 @@ function openGroupEditor(e,catKey,gid){
   showIconBlock(true); showColorBlock(false);
   buildIconGrid(); suggestIcon();
   document.getElementById('esCatActs').style.display='none';
+  esOrig={name:stripLeadEmoji(document.getElementById('eName').value.trim()), icon:esIcon};
   openSheet(document.getElementById('esheet'));
 }
 function openSubEditor(e,catKey,gid){
@@ -3714,13 +3800,15 @@ function saveESheet(){
     if(esNew){ const key=ncid();
       /* новая категория сразу с приёмником «Без категории» — как и все остальные (правка 5) */
       STATE.cats.push({key, icon:esIcon, color:esColor, tab:name.slice(0,14), title:name, intro:'', groups:[mkGroup({emo:'inbox',title:INB_TITLE,items:[],inb:true})]}); active=key; editmode=false;
-    } else { const c=catByKey(esCatKey); if(c){ c.icon=esIcon; c.color=esColor; c.tab=name.slice(0,14); c.title=name; } }
+    } else { const c=catByKey(esCatKey);
+      /* только изменённое здесь: правка с другого устройства, пришедшая пока окно было открыто, не откатывается */
+      if(c){ if(esIcon!==esOrig.icon) c.icon=esIcon; if(esColor!==esOrig.color) c.color=esColor; if(name!==esOrig.name){ c.tab=name.slice(0,14); c.title=name; } } }
   } else if(esMode==='sub'){
     const c=catByKey(esCatKey);
     if(c){ if(esNew){ c.groups.push(mkGroup({sub:name})); } else { const g=groupByGid(c,esGid); if(g) g.sub=name; } }
   } else {
     const c=catByKey(esCatKey);
-    if(c){ if(esNew){ c.groups.push(mkGroup({emo:esIcon,title:name,items:[]})); } else { const g=groupByGid(c,esGid); if(g){ g.emo=esIcon; g.title=name; } } }
+    if(c){ if(esNew){ c.groups.push(mkGroup({emo:esIcon,title:name,items:[]})); } else { const g=groupByGid(c,esGid); if(g){ if(esIcon!==esOrig.icon) g.emo=esIcon; if(name!==esOrig.name) g.title=name; } } }
   }
   save(); closeESheet(); renderAll();
 }
@@ -4200,31 +4288,35 @@ function applyItemDrop(d){ const src=findItem(d.id); if(!src){ renderAll(); retu
   from.splice(origIdx,0,src.it); renderAll(); /* цели нет — вернуть на исходное место, ничего не менять */ }
 /* подкатегории / заголовки */
 function onGroupHandleDown(e,catKey,gi){ e.preventDefault(); e.stopPropagation(); const el=e.target.closest('.grp,.sub'); beginGroupDrag(catKey,gi,el,e.clientX,e.clientY); }
-function beginGroupDrag(catKey,gi,el,x,y){ const c=catByKey(catKey); if(!c||!el) return;
+/* Перетаскивание держится за key/gid, а не за объекты: пришедший во время драга снапшот
+   из облака подменяет STATE целиком, и бросок в старые объекты молча пропадал (правка 1.15) */
+function beginGroupDrag(catKey,gi,el,x,y){ const c=catByKey(catKey); if(!c||!el||!el.dataset.gid) return;
   const r=el.getBoundingClientRect(); const clone=mkClone(el,r); document.body.appendChild(clone);
   const ph=document.createElement('div'); ph.className='drag-ph grp'; ph.style.height=r.height+'px'; el.parentNode.insertBefore(ph,el); el.style.display='none';
-  beginDragCommon(); drag={kind:'group',c,srcObj:c.groups[gi],el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
+  beginDragCommon(); drag={kind:'group',ck:catKey,gid:el.dataset.gid,el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
 function groupDragOver(x,y){ if(overPh(x,y)) return; const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
   const over=el.closest('.grp')||el.closest('.sub');
-  if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.gi!=null){ const rect=over.getBoundingClientRect(); const after=midAfter(rect,y); if(after===null) return; placePh(over,after?over.nextSibling:over); drag.target={refObj:drag.c.groups[parseInt(over.dataset.gi,10)],after}; } }
-function applyGroupDrop(d){ const arr=d.c.groups; const si=arr.indexOf(d.srcObj); if(si<0){ renderAll(); return; } arr.splice(si,1); const t=d.target;
-  if(t&&t.refObj){ let i=arr.indexOf(t.refObj); if(i<0)i=arr.length; else if(t.after)i++; arr.splice(i,0,d.srcObj); } else arr.splice(Math.min(si,arr.length),0,d.srcObj);
+  if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.gid){ const rect=over.getBoundingClientRect(); const after=midAfter(rect,y); if(after===null) return; placePh(over,after?over.nextSibling:over); drag.target={refGid:over.dataset.gid,after}; } }
+function applyGroupDrop(d){ const c=catByKey(d.ck), src=c&&groupByGid(c,d.gid); if(!src){ renderAll(); return; }
+  const t=d.target; if(!t||!t.refGid||t.refGid===d.gid){ renderAll(); return; }   /* цели нет — ничего не меняем */
+  const arr=c.groups, ref=groupByGid(c,t.refGid); if(!ref){ renderAll(); return; }
+  arr.splice(arr.indexOf(src),1);
+  let i=arr.indexOf(ref); if(t.after)i++; arr.splice(i,0,src);
   save(); renderAll(); }
 /* категории (в профиле) */
 function onCatHandleDown(e,key){ e.preventDefault(); e.stopPropagation(); const el=e.target.closest('.prof-cat'); beginCatDrag(key,el,e.clientX,e.clientY); }
 function beginCatDrag(key,el,x,y){ if(!el) return; const r=el.getBoundingClientRect(); const clone=mkClone(el,r); document.body.appendChild(clone);
   const ph=document.createElement('div'); ph.className='drag-ph'; ph.style.height=r.height+'px'; ph.style.margin='0 0 8px'; el.parentNode.insertBefore(ph,el); el.style.display='none';
-  beginDragCommon(); drag={kind:'cat',srcObj:catByKey(key),container:el.parentNode,el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
+  beginDragCommon(); drag={kind:'cat',key,container:el.parentNode,el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
 function catDragOver(x,y){ if(overPh(x,y)) return; const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
   const over=el.closest('.prof-cat');
-  if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.key&&drag.container.contains(over)){ const tc=catByKey(over.dataset.key); if(tc&&tc.kind==='inbox') return; const rect=over.getBoundingClientRect(); const after=midAfter(rect,y); if(after===null) return; placePh(over,after?over.nextSibling:over); drag.target={refObj:tc,after}; } }
+  if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.key&&drag.container.contains(over)){ const tc=catByKey(over.dataset.key); if(tc&&tc.kind==='inbox') return; const rect=over.getBoundingClientRect(); const after=midAfter(rect,y); if(after===null) return; placePh(over,after?over.nextSibling:over); drag.target={refKey:tc.key,after}; } }
 /* Перестановка категории — одна логика и для профиля, и для плиток хаба */
 function reorderCat(d){
-  const arr=STATE.cats; const si=arr.indexOf(d.srcObj);
-  if(si<0){ renderAll(); return; }
-  arr.splice(si,1); const t=d.target;
-  if(t&&t.refObj){ let i=arr.indexOf(t.refObj); if(i<0)i=arr.length; else if(t.after)i++; if(i===0)i=1; arr.splice(i,0,d.srcObj); }
-  else arr.splice(Math.min(si,arr.length),0,d.srcObj);
+  const src=catByKey(d.key), t=d.target, ref=t&&t.refKey&&catByKey(t.refKey);
+  if(!src || !ref || ref===src){ renderAll(); return; }   /* цели нет — ничего не меняем */
+  const arr=STATE.cats; arr.splice(arr.indexOf(src),1);
+  let i=arr.indexOf(ref); if(t.after)i++; if(i===0)i=1; arr.splice(i,0,src);
   ensureInbox(STATE); save(); renderAll();
 }
 function applyCatDrop(d){ reorderCat(d); }
@@ -4239,7 +4331,7 @@ function onHubCardDown(e,key){
 function beginHubDrag(key,x,y,el){ if(!el) el=document.querySelector('.hcard[data-key="'+key+'"]'); if(!el) return;
   const r=el.getBoundingClientRect(); const clone=mkClone(el,r); document.body.appendChild(clone);
   const ph=document.createElement('div'); ph.className='drag-ph'; ph.style.height=r.height+'px'; ph.style.margin='0'; el.parentNode.insertBefore(ph,el); el.style.display='none';
-  beginDragCommon(); drag={kind:'hub',srcObj:catByKey(key),container:el.parentNode,el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
+  beginDragCommon(); drag={kind:'hub',key,container:el.parentNode,el,clone,ph,startX:x,startY:y,target:null}; attachDrag(); }
 function hubDragOver(x,y){ if(overPh(x,y)) return; const el=document.elementFromPoint(x,y); if(!el||!el.closest) return;
   const over=el.closest('.hcard');
   if(over&&over!==drag.el&&!over.classList.contains('drag-clone')&&over.dataset.key&&drag.container.contains(over)){
@@ -4248,7 +4340,7 @@ function hubDragOver(x,y){ if(overPh(x,y)) return; const el=document.elementFrom
     const cx=rect.left+rect.width/2, dz=Math.min(14,rect.width*0.2);
     if(Math.abs(x-cx)<=dz) return;
     const after=x>cx;
-    placePh(over,after?over.nextSibling:over); drag.target={refObj:catByKey(over.dataset.key),after};
+    placePh(over,after?over.nextSibling:over); drag.target={refKey:over.dataset.key,after};
   } }
 function applyHubDrop(d){ reorderCat(d); }
 
@@ -4272,8 +4364,8 @@ try{ const a=sessionStorage.getItem('upd_active'); if(a){ sessionStorage.removeI
 <!-- ===== Firebase: вход + облачная синхронизация ===== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, getDocFromServer, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, getDocFromServer, onSnapshot, runTransaction, disableNetwork, enableNetwork } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyDob_HdG-ihclIacDESG3sdISugCXAC43U",
     authDomain: "abkhazia-checklist.firebaseapp.com",
@@ -4284,14 +4376,24 @@ try{ const a=sessionStorage.getItem('upd_active'); if(a){ sessionStorage.removeI
   };
   try {
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    /* Быстрый старт (правка 1.15). getAuth() на iPhone и в Safari сразу грузит скрытую
+       страницу Google (iframe + gapi) и не отвечает «кто вошёл», пока она не загрузится, —
+       а Firestore ждёт этого ответа: при каждом открытии связь с облаком начиналась с
+       паузы (замер в Safari на Mac — 0,13–1,06 с, на телефоне в мобильной сети дольше). Этот iframe нужен ТОЛЬКО для окна входа. Поэтому: тот же набор, что в
+       getAuth(), но загрузчик окна входа не «прогревается» сам (_shouldInitProactively),
+       а прогревается, когда показан экран входа (AUTH.warm из showLogin). Без прогрева
+       Safari блокировал бы окно входа: оно открывалось бы уже после загрузки iframe,
+       слишком поздно после тапа. Внутренние поля — SDK зафиксирован (10.12.0). */
+    class LazyPopupResolver extends browserPopupRedirectResolver { get _shouldInitProactively(){ return false; } }
+    const auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence], popupRedirectResolver: LazyPopupResolver });
     const db = getFirestore(app);
     const ref = doc(db, "checklists", "home");   // ← ОТДЕЛЬНЫЙ документ «Дом!» (не 'shared')
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     window.AUTH = {
       signIn: async () => { try { await signInWithPopup(auth, provider); } catch(e){ if(window.onSignInError) window.onSignInError(e && e.code); } },
-      signOut: () => signOut(auth)
+      signOut: () => signOut(auth),
+      warm: () => { try { const r = auth._popupRedirectResolver; if (r && r._initialize) r._initialize(auth).catch(() => {}); } catch(e){} }
     };
     window.CLOUD = {
       push: (payload) => setDoc(ref, payload),
@@ -4323,9 +4425,14 @@ try{ const a=sessionStorage.getItem('upd_active'); if(a){ sessionStorage.removeI
       /* fromCache обязателен: «документа нет» из кэша = «нет связи», а не «облако пустое» */
       /* разовое чтение С СЕРВЕРА, мимо кэша (сверка при возврате в приложение) */
       pull: async () => { const s = await getDocFromServer(ref); return s.exists() ? s.data() : null; },
+      /* перезапуск всех соединений Firestore: «полуживую» после сна подписку SDK сам
+         замечает очень не сразу; после enableNetwork подписка переподключается сама */
+      restart: async () => { try { await disableNetwork(db); } finally { await enableNetwork(db); } },
       subscribe: (cb, errCb) => onSnapshot(ref, snap => cb(snap.exists() ? snap.data() : null, snap.metadata.fromCache), (e) => { if(errCb) errCb(e); })
     };
     onAuthStateChanged(auth, (user) => { if (window.onAuthChange) window.onAuthChange(user || null); });
+    /* экран входа уже на виду (первый визит, нет подсказки) — прогреваем окно входа сразу */
+    if (!document.documentElement.classList.contains('boot') && !document.getElementById('lock').classList.contains('hidden')) window.AUTH.warm();
     window.dispatchEvent(new Event('cloud-ready'));
   } catch(e) { /* нет сети / модуль не загрузился */ }
 </script>
