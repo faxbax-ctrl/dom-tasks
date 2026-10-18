@@ -56,7 +56,7 @@ if(location.hostname==='faxbax-ctrl.github.io'){
 :root{
   color-scheme:light;
   --bg:#eaeef3; --card:#ffffff; --ink:#1c2333; --muted:#5f6880; --line:#e3e8f1;
-  --indigo:#37478f; --indigo-tx:#37478f; --indigo-soft:#e8ebf8;
+  --indigo:#37478f; --indigo-tx:#37478f; --indigo-soft:#e8ebf8; --chip-lift:0%;
   --svc:#2f8a7e;
   --amber:#dd8636; --amber-soft:#fbeede; --pamber:#c06f22;
   --pri-red:#db4f3c; --pri-org:#e5983a; --pri-fast:#3f6fd6; --pri-green:#5f9a76;
@@ -66,7 +66,7 @@ if(location.hostname==='faxbax-ctrl.github.io'){
 :root[data-theme="dark"]{
   color-scheme:dark;
   --bg:#12161f; --card:#1b212c; --ink:#e8ecf4; --muted:#98a2b8; --line:#2b3344;
-  --indigo:#5f72d8; --indigo-tx:#9fb0ff; --indigo-soft:#232b42;
+  --indigo:#5f72d8; --indigo-tx:#9fb0ff; --indigo-soft:#232b42; --chip-lift:42%;
   --svc:#4fb3a4;
   --amber:#c8803c; --amber-soft:#33261a; --pamber:#e2a765;
   --pri-red:#e0705d; --pri-org:#dda04c; --pri-fast:#6b93e8; --pri-green:#6faa86;
@@ -229,7 +229,9 @@ body:not(.nofab) main{padding-bottom:92px}
 .item *,.hcard *,.pin *,.ghead *,.sub *{-webkit-user-select:none;user-select:none}
 .item:active{background:var(--bg)}
 .pri-stripe{position:absolute;left:2px;top:9px;bottom:9px;width:3px;border-radius:99px}
-.box{flex:none;width:22px;height:22px;border:2px solid var(--line);border-radius:6px;margin-top:1px;display:flex;align-items:center;justify-content:center;background:var(--card);color:#fff;font-size:13px;transition:all .15s}
+.box{flex:none;position:relative;width:22px;height:22px;border:2px solid var(--line);border-radius:6px;margin-top:1px;display:flex;align-items:center;justify-content:center;background:var(--card);color:#fff;font-size:13px;transition:all .15s}
+/* зона нажатия 44×44 вокруг квадрата 22×22 (правка 1.17): промах по галочке открывал карточку */
+.box::after{content:'';position:absolute;inset:-11px}
 .box .ic{font-size:14px;opacity:0;transform:scale(.5);transition:all .15s}
 .item.checked .box{background:var(--indigo);border-color:var(--indigo-tx)}
 .item.checked .box .ic{opacity:1;transform:none}
@@ -526,7 +528,7 @@ body:not(.nofab) main{padding-bottom:92px}
 .rep-l{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:5px}
 .rep-more{font-size:12px;color:var(--muted);font-weight:600;text-align:center;padding:2px 0 4px}
 /* архив */
-.qsort{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-family:inherit;font-weight:700;font-size:12.5px;padding:9px 13px;border-radius:99px;cursor:pointer;margin:0 0 4px}
+.qsort{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-family:inherit;font-weight:700;font-size:12.5px;padding:9px 13px;border-radius:99px;cursor:pointer;margin:0 0 4px;align-self:flex-start}
 .qsort .ic{font-size:16px}
 .qsort:active{background:var(--bg)}
 .ar-sec{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:14px 2px 8px}
@@ -691,12 +693,18 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
 .note .nh{font-weight:800;color:var(--ink)}
 .note .nk{color:var(--indigo-tx);font-weight:800}
 .note s.nd{color:var(--done)}
+/* Квадратик чек-листа рисуем сами (правка 1.17): в шрифтах iOS нет «☐», и Safari на
+   iPhone показывал вместо него квадрат с вопросом — в кнопке, в подсказке и в превью */
+.nkb{display:inline-flex;align-items:center;justify-content:center;width:.95em;height:.95em;box-sizing:border-box;border:1.6px solid var(--indigo-tx);border-radius:3px;vertical-align:-.12em;color:var(--card)}
+.nkb.on{background:var(--indigo-tx)}
+.nkb .ic{font-size:.7em}
+.nkb .ic svg{stroke-width:3.4}
 
 /* ---- «На выходных»: плитки по категориям / сплошной список по срочности ---- */
 .wk-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 10px}
 .wk-bar .lb{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 .wkflat .item{padding-left:13px}
-.wkflat .catn{display:block;font-size:10.5px;color:var(--muted);font-weight:600;margin-top:2px}
+.wkflat .catn,.item .catn{display:block;font-size:10.5px;color:var(--muted);font-weight:600;margin-top:2px}
 .wkflat .pri-h{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;margin:14px 4px 7px}
 .wkflat .pri-h:first-child{margin-top:2px}
 
@@ -787,11 +795,11 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
         <button type="button" class="expandb" onclick="openNoteEditor()" title="Развернуть на весь экран"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7.5 7.5"/><path d="M3 21l7.5-7.5"/></svg></span>Развернуть</button>
       </div>
       <div class="rt-bar" data-ed="tsNote" role="toolbar" aria-label="Форматирование">
-        <button type="button" data-c="h1" title="Заголовок" onpointerdown="rtCmd(event,'h1')" onmousedown="event.preventDefault()">H1</button><button type="button" data-c="h2" title="Подзаголовок" onpointerdown="rtCmd(event,'h2')" onmousedown="event.preventDefault()">H2</button><button type="button" data-c="b" title="Жирный" onpointerdown="rtCmd(event,'b')" onmousedown="event.preventDefault()"><b>B</b></button><button type="button" data-c="i" title="Курсив" onpointerdown="rtCmd(event,'i')" onmousedown="event.preventDefault()"><i>I</i></button><button type="button" data-c="u" title="Подчёркнутый" onpointerdown="rtCmd(event,'u')" onmousedown="event.preventDefault()"><u>U</u></button><button type="button" data-c="s" title="Зачёркнутый" onpointerdown="rtCmd(event,'s')" onmousedown="event.preventDefault()"><s>S</s></button><button type="button" data-c="ul" title="Список" onpointerdown="rtCmd(event,'ul')" onmousedown="event.preventDefault()">•</button><button type="button" data-c="ol" title="Нумерация" onpointerdown="rtCmd(event,'ol')" onmousedown="event.preventDefault()">1.</button><button type="button" data-c="ck" title="Чек-лист" onpointerdown="rtCmd(event,'ck')" onmousedown="event.preventDefault()">☐</button>
+        <button type="button" data-c="h1" title="Заголовок" onpointerdown="rtCmd(event,'h1')" onmousedown="event.preventDefault()">H1</button><button type="button" data-c="h2" title="Подзаголовок" onpointerdown="rtCmd(event,'h2')" onmousedown="event.preventDefault()">H2</button><button type="button" data-c="b" title="Жирный" onpointerdown="rtCmd(event,'b')" onmousedown="event.preventDefault()"><b>B</b></button><button type="button" data-c="i" title="Курсив" onpointerdown="rtCmd(event,'i')" onmousedown="event.preventDefault()"><i>I</i></button><button type="button" data-c="u" title="Подчёркнутый" onpointerdown="rtCmd(event,'u')" onmousedown="event.preventDefault()"><u>U</u></button><button type="button" data-c="s" title="Зачёркнутый" onpointerdown="rtCmd(event,'s')" onmousedown="event.preventDefault()"><s>S</s></button><button type="button" data-c="ul" title="Список" onpointerdown="rtCmd(event,'ul')" onmousedown="event.preventDefault()">•</button><button type="button" data-c="ol" title="Нумерация" onpointerdown="rtCmd(event,'ol')" onmousedown="event.preventDefault()">1.</button><button type="button" data-c="ck" title="Чек-лист" onpointerdown="rtCmd(event,'ck')" onmousedown="event.preventDefault()" aria-label="Чек-лист"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></span></button>
       </div>
       <div id="tsNote" class="rt" contenteditable="true" spellcheck="true" data-ph="Детали, количество, напоминание…"></div>
     </div>
-    <div class="note-hint">Как в Заметках: <b>H1/H2</b> — заголовки, <b>B I U S</b> — начертание, <b>☐</b> — чек-лист (тап по квадратику зачёркивает пункт). Быстро: <b>-</b> и пробел — список, <b>[]</b> — галочка, <b>1.</b> — нумерация, <b>#</b> — заголовок.</div>
+    <div class="note-hint">Быстро: <b>-</b> и пробел — список, <b>[]</b> — чек-лист <span class="nkb"></span> (тап по квадратику отмечает пункт), <b>1.</b> — нумерация, <b>#</b> — заголовок.</div>
     <div class="fld-lbl">Очередь</div><div class="pri-row" id="tsPri"></div>
     <div class="wktog" id="tsWk" onclick="tsToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">На выходные<small>Показать в общей витрине выходных</small></span><span class="toggle"></span></div>
     <div class="wktog" id="tsRec" onclick="tsToggleRec()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span><span class="wl">Повторять<small>Цикличная задача — попадёт в «Обслуживание»</small></span><span class="toggle"></span></div>
@@ -1017,7 +1025,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
   <div class="sheet-card split"><div class="grip"></div>
     <div class="ts-head"><h3>Описание</h3><button class="ts-del" style="color:var(--muted)" onclick="closeNoteEditor()">Отмена</button></div>
     <div class="rt-bar" data-ed="nsText" role="toolbar" aria-label="Форматирование">
-        <button type="button" data-c="h1" title="Заголовок" onpointerdown="rtCmd(event,'h1')" onmousedown="event.preventDefault()">H1</button><button type="button" data-c="h2" title="Подзаголовок" onpointerdown="rtCmd(event,'h2')" onmousedown="event.preventDefault()">H2</button><button type="button" data-c="b" title="Жирный" onpointerdown="rtCmd(event,'b')" onmousedown="event.preventDefault()"><b>B</b></button><button type="button" data-c="i" title="Курсив" onpointerdown="rtCmd(event,'i')" onmousedown="event.preventDefault()"><i>I</i></button><button type="button" data-c="u" title="Подчёркнутый" onpointerdown="rtCmd(event,'u')" onmousedown="event.preventDefault()"><u>U</u></button><button type="button" data-c="s" title="Зачёркнутый" onpointerdown="rtCmd(event,'s')" onmousedown="event.preventDefault()"><s>S</s></button><button type="button" data-c="ul" title="Список" onpointerdown="rtCmd(event,'ul')" onmousedown="event.preventDefault()">•</button><button type="button" data-c="ol" title="Нумерация" onpointerdown="rtCmd(event,'ol')" onmousedown="event.preventDefault()">1.</button><button type="button" data-c="ck" title="Чек-лист" onpointerdown="rtCmd(event,'ck')" onmousedown="event.preventDefault()">☐</button>
+        <button type="button" data-c="h1" title="Заголовок" onpointerdown="rtCmd(event,'h1')" onmousedown="event.preventDefault()">H1</button><button type="button" data-c="h2" title="Подзаголовок" onpointerdown="rtCmd(event,'h2')" onmousedown="event.preventDefault()">H2</button><button type="button" data-c="b" title="Жирный" onpointerdown="rtCmd(event,'b')" onmousedown="event.preventDefault()"><b>B</b></button><button type="button" data-c="i" title="Курсив" onpointerdown="rtCmd(event,'i')" onmousedown="event.preventDefault()"><i>I</i></button><button type="button" data-c="u" title="Подчёркнутый" onpointerdown="rtCmd(event,'u')" onmousedown="event.preventDefault()"><u>U</u></button><button type="button" data-c="s" title="Зачёркнутый" onpointerdown="rtCmd(event,'s')" onmousedown="event.preventDefault()"><s>S</s></button><button type="button" data-c="ul" title="Список" onpointerdown="rtCmd(event,'ul')" onmousedown="event.preventDefault()">•</button><button type="button" data-c="ol" title="Нумерация" onpointerdown="rtCmd(event,'ol')" onmousedown="event.preventDefault()">1.</button><button type="button" data-c="ck" title="Чек-лист" onpointerdown="rtCmd(event,'ck')" onmousedown="event.preventDefault()" aria-label="Чек-лист"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></span></button>
       </div>
     <div id="nsText" class="rt rt-full" contenteditable="true" spellcheck="true" data-ph="Пишите свободно. «- » и пробел — список, «[] » — галочка."></div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeNoteEditor()">Отмена</button><button class="btn-main" onclick="saveNoteEditor()">Сохранить</button></div>
@@ -1662,7 +1670,10 @@ function adoptInboxGroup(c){
 function catColor(c){ return c&&c.color?c.color:'var(--indigo-tx)'; }
 /* Куда класть новую/перенесённую задачу — вверх или вниз списка (настройка профиля) */
 function addTaskTo(g,it){ if(!g) return; if(!g.items) g.items=[]; if(newTop) g.items.unshift(it); else g.items.push(it); }
-function chipStyle(col){ return `background:color-mix(in srgb, ${col} 13%, var(--card));color:${col}`; }
+/* Текст/иконка цветом категории. В тёмной теме тёмные цвета (#37478f, #4a5568…) почти
+   сливались с фоном — подмешиваем белый на --chip-lift (0% в светлой теме, правка 1.17) */
+function catTx(col){ return `color-mix(in srgb, ${col}, #fff var(--chip-lift,0%))`; }
+function chipStyle(col){ return `background:color-mix(in srgb, ${col} 13%, var(--card));color:${catTx(col)}`; }
 function eachItem(fn){ STATE.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>fn(it,g,c)); })); }
 /* Ранний выход: вызывается на каждый тап, полный обход всего STATE тут не нужен */
 function findItem(id){
@@ -1720,8 +1731,14 @@ function daysTo(s){ if(!validISO(s)) return 0; const n=new Date(); const t0=new 
 function addPeriod(iso,n,unit){ const d=parseISO(validISO(iso)?iso:isoToday());
   if(unit==='d') d.setDate(d.getDate()+n);
   else if(unit==='w') d.setDate(d.getDate()+7*n);
-  else if(unit==='m') d.setMonth(d.getMonth()+n);
-  else d.setFullYear(d.getFullYear()+n);
+  else {
+    /* Месяц/год — с прижатием к последнему дню (правка 1.17): голый setMonth переполнялся,
+       31.01 + 1 мес давало 03.03, и дальше срок навсегда уезжал на 3-е число;
+       29.02 + 1 год — 01.03. Теперь 31.01 → 28.02, 29.02 → 28.02. */
+    const day=d.getDate(); d.setDate(1);
+    if(unit==='m') d.setMonth(d.getMonth()+n); else d.setFullYear(d.getFullYear()+n);
+    d.setDate(Math.min(day, new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));
+  }
   return toISO(d); }
 function dueLabel(d){ return d<0 ? ('просрочено '+(-d)+' дн.') : d===0 ? 'сегодня' : d===1 ? 'завтра' : ('через '+d+' дн.'); }
 /* Следующий срок цикличной задачи после отметки «выполнено».
@@ -2429,6 +2446,8 @@ function toggleFav(e,key){ e.stopPropagation(); const c=catByKey(key); if(!c) re
   }
   save(); renderAll(); }
 
+/* подпись «из какой категории» под задачей в сквозных списках (выходные, очереди) */
+function catLine(c){ return `<span class="catn">${ic(c.icon,'color:'+catTx(catColor(c))+';font-size:12px')} ${esc(c.title||c.tab)}</span>`; }
 /* sub — необязательная подпись под заголовком (в витрине выходных это категория) */
 function itemRow(it,sub){
   const pd=PRI[it.pri]||PRI['']; /* защитно: битое pri роняло весь render() */
@@ -2446,7 +2465,7 @@ function itemRow(it,sub){
   </div>`;
 }
 function groupsHtml(c){
-  const col=catColor(c); let h='';
+  const col=catTx(catColor(c)); let h='';
   if(c.intro) h+=`<div class="intro">${esc(c.intro)}</div>`;
   c.groups.forEach((g,gi)=>{
     if(typeof g.sub==='string'){
@@ -2513,20 +2532,20 @@ function renderWeekend(){
       const l=flat.filter(x=>(x.it.pri||'')===pr && !x.it.done);
       if(!l.length) return; any=true;
       h+=`<div class="pri-h" style="color:${pr?PRI[pr].c:'var(--muted)'}">${priGlyph(pr)} ${PRI[pr].lbl} · ${l.length}</div><div class="grp"><div class="items">`;
-      l.forEach(x=>h+=itemRow(x.it,`<span class="catn">${ic(x.cat.icon,'color:'+catColor(x.cat)+';font-size:12px')} ${esc(x.cat.title||x.cat.tab)}</span>`));
+      l.forEach(x=>h+=itemRow(x.it,catLine(x.cat)));
       h+=`</div></div>`;
     });
     const done=flat.filter(x=>x.it.done);
     if(done.length){ any=true;
       h+=`<div class="pri-h" style="color:var(--done)">${ic('check')} Выполнено · ${done.length}</div><div class="grp"><div class="items">`;
-      done.forEach(x=>h+=itemRow(x.it,`<span class="catn">${ic(x.cat.icon,'color:'+catColor(x.cat)+';font-size:12px')} ${esc(x.cat.title||x.cat.tab)}</span>`));
+      done.forEach(x=>h+=itemRow(x.it,catLine(x.cat)));
       h+=`</div></div>`;
     }
     if(!any) h+=`<div class="empty">${ic('check')}<br>Всё сделано.</div>`;
     h+=`</div>`;
   } else {
     groups.forEach(({cat,items})=>{
-      h+=`<div class="wkgrp-h">${ic(cat.icon,'color:'+catColor(cat))} ${esc(cat.title||cat.tab)}</div><div class="grp"><div class="items">`;
+      h+=`<div class="wkgrp-h">${ic(cat.icon,'color:'+catTx(catColor(cat)))} ${esc(cat.title||cat.tab)}</div><div class="grp"><div class="items">`;
       items.forEach(it=>h+=itemRow(it));
       h+=`</div></div>`;
     });
@@ -2597,7 +2616,7 @@ function renderObjView(){
     ${rq?`<span class="ov-chip due">${ic('gauge')} По запросу</span>${o.metric?`<span class="ov-chip">${esc(o.metric)}</span>`:''}`
       :`<span class="ov-chip due${cls}">${ic('clock')} ${fmtD(o.rec.next)} · ${dueLabel(d)}</span>
     <span class="ov-chip">${ic('repeat')} ${periodLabel(o.rec)}${o.rec.mode==='fixed'?', по графику':''}</span>`}
-    ${cat?`<span class="ov-chip">${ic(cat.icon,'color:'+catColor(cat))} ${esc(cat.title||cat.tab)}</span>`:''}</div>`;
+    ${cat?`<span class="ov-chip">${ic(cat.icon,'color:'+catTx(catColor(cat)))} ${esc(cat.title||cat.tab)}</span>`:''}</div>`;
   if(o.checks.length) h+=`<div class="fld-lbl">Чек-лист осмотра</div><div class="ov-block"><ul class="ov-chk">${o.checks.map(x=>`<li>${ic('check')}<span>${esc(x.t)}</span></li>`).join('')}</ul></div>`;
   if(o.spec) h+=`<div class="fld-lbl">Паспорт</div><div class="ov-block">${esc(o.spec)}</div>`;
   h+=`<div class="fld-lbl">История · ${o.log.length}</div>`;
@@ -2953,7 +2972,7 @@ function cmMoveOpen(){
   document.getElementById('cmMove').style.display='';
   document.getElementById('cmMoveList').innerHTML=alphaCats().map(c=>{
     const cur=c.key===f.c.key;
-    return `<button class="cm-mv${cur?' cur':''}" ${cur?'disabled':`onclick="cmMoveTo('${c.key}')"`}>${ic(c.icon,'color:'+catColor(c))}<span>${esc(c.title||c.tab)}</span>${cur?'<small class="here">сейчас здесь</small>':''}</button>`;
+    return `<button class="cm-mv${cur?' cur':''}" ${cur?'disabled':`onclick="cmMoveTo('${c.key}')"`}>${ic(c.icon,'color:'+catTx(catColor(c)))}<span>${esc(c.title||c.tab)}</span>${cur?'<small class="here">сейчас здесь</small>':''}</button>`;
   }).join('');
   const cu=document.querySelector('#cmMoveList .cur'); if(cu) cu.scrollIntoView({block:'nearest'});
 }
@@ -2961,7 +2980,11 @@ function cmMoveBack(){ document.getElementById('cmMove').style.display='none'; d
 function cmMoveTo(key){
   const f=cmId&&findItem(cmId); const dst=catByKey(key); if(!f||!dst){ closeTaskMenu(); return; }
   f.g.items=f.g.items.filter(x=>x!==f.it);
+  /* опустевшая служебная «Цикличные» в старой категории больше не нужна */
+  if(f.g.svc && !f.g.items.length) f.c.groups=f.c.groups.filter(g=>g!==f.g);
   const g=ensureInboxGroup(dst); addTaskTo(g,f.it);
+  /* цикличная едет в «Цикличные» новой категории — как при переносе из карточки (правка 1.17) */
+  placeByRec(f.it.id);
   closeTaskMenu(); save(); renderAll();
 }
 function cmDuplicate(){ closeTaskMenu(); if(cmId) duplicateTask(cmId); }
@@ -3024,7 +3047,8 @@ function renderQueuesBody(){
        при «новые сверху» и наверх при «старые сверху» — как и положено самым старым */
     l.sort((a,b)=> qNew ? ((b.it.ct||0)-(a.it.ct||0)) : ((a.it.ct||0)-(b.it.ct||0)));
     h+=`<div class="wkgrp-h" style="color:${p?PRI[p].c:'var(--muted)'}">${priGlyph(p)} ${PRI[p].lbl} · ${l.length}</div><div class="grp"><div class="items">`;
-    l.forEach(r=>h+=itemRow(r.it));
+    /* категория — подписью под задачей: список сквозной, без неё непонятно, откуда задача (правка 1.17) */
+    l.forEach(r=>h+=itemRow(r.it,catLine(r.c)));
     h+=`</div></div>`;
   });
   box.innerHTML=any?h:`<div class="empty">${ic('check')}<br>Активных задач нет — всё под контролем.</div>`;
@@ -3099,6 +3123,9 @@ function openSheet(el){
   const card=el.querySelector('.sheet-card'); if(card) card.classList.remove('full'); /* всегда открываем в обычном размере */
   el.classList.remove('fullback');
   el.classList.remove('hidden'); lockScroll(true);
+  /* окно открывается с начала: раньше карточка следующей задачи открывалась там, где
+     прокрутили прошлую, и поле «Заголовок» было скрыто сверху (правка 1.17) */
+  el.querySelectorAll('.sheet-scroll').forEach(s=>{ s.scrollTop=0; });
   hideToast();   /* тост висел поверх кнопок «Отмена»/«ОК» нового окна (правка 1.14) */
   requestAnimationFrame(()=>el.classList.add('show'));
 }
@@ -3167,8 +3194,8 @@ function placeByRec(id){
    раньше это были две почти одинаковые функции, которые легко разъезжались. */
 function catPickHtml(curKey,onPick,onToggle,open){
   const c=catByKey(curKey)||getInbox();
-  const list=alphaCats().map(x=>`<div class="cpi ${x.key===curKey?'on':''}" role="button" tabindex="0" onclick="${onPick}('${x.key}')">${ic(x.icon,'color:'+catColor(x))}${esc(x.title||x.tab)}</div>`).join('');
-  return `<button class="catpick" type="button" aria-expanded="${open?'true':'false'}" onclick="${onToggle}()"><span class="cp-lbl">Добавить в категорию</span><span class="cp-cur">${ic(c.icon,'color:'+catColor(c))}<span class="nmx">${esc(c.title||c.tab)}</span>${ic('chevD')}</span></button><div class="catpick-list" style="display:${open?'':'none'}">${list}</div>`;
+  const list=alphaCats().map(x=>`<div class="cpi ${x.key===curKey?'on':''}" role="button" tabindex="0" onclick="${onPick}('${x.key}')">${ic(x.icon,'color:'+catTx(catColor(x)))}${esc(x.title||x.tab)}</div>`).join('');
+  return `<button class="catpick" type="button" aria-expanded="${open?'true':'false'}" onclick="${onToggle}()"><span class="cp-lbl">Добавить в категорию</span><span class="cp-cur">${ic(c.icon,'color:'+catTx(catColor(c)))}<span class="nmx">${esc(c.title||c.tab)}</span>${ic('chevD')}</span></button><div class="catpick-list" style="display:${open?'':'none'}">${list}</div>`;
 }
 let tsPickOn=false;
 function renderTsCat(){
@@ -3186,7 +3213,7 @@ function toggleMovePanel(e){
   const f=tsId&&findItem(tsId), here=f?f.c.key:null;
   p.innerHTML=alphaCats().map(c=>{
     const cur=c.key===here, sel=!cur && c.key===tsTargetCat;
-    return `<div class="mv-item${cur?' cur':''}${sel?' sel':''}" role="button" tabindex="0" onclick="mvPick('${c.key}')">${ic(c.icon,'color:'+catColor(c))}<span class="mvn">${esc(c.title||c.tab)}</span>${cur?'<small>сейчас здесь</small>':''}${sel?'<small>перенести сюда</small>':''}</div>`;
+    return `<div class="mv-item${cur?' cur':''}${sel?' sel':''}" role="button" tabindex="0" onclick="mvPick('${c.key}')">${ic(c.icon,'color:'+catTx(catColor(c)))}<span class="mvn">${esc(c.title||c.tab)}</span>${cur?'<small>сейчас здесь</small>':''}${sel?'<small>перенести сюда</small>':''}</div>`;
   }).join('');
   p.classList.add('show');
   const on=p.querySelector('.sel')||p.querySelector('.cur'); if(on) on.scrollIntoView({block:'nearest'});
@@ -3262,7 +3289,9 @@ function saveTaskSheet(){
       if(t!==o.t) f.it.t=t; if(n!==o.n) f.it.n=n; if(tsPri!==o.pri) f.it.pri=tsPri; if(tsWk!==o.wk) f.it.wk=tsWk;
       if(jstr(rec)!==o.rec){ if(rec) f.it.rec=rec; else delete f.it.rec; }
       if(tsTargetCat && tsTargetCat!==f.c.key){ // перенос в другую категорию → в «Задачи»
-        const dst=catByKey(tsTargetCat); if(dst){ f.g.items=f.g.items.filter(x=>x!==f.it); addTaskTo(ensureInboxGroup(dst),f.it); }
+        const dst=catByKey(tsTargetCat); if(dst){ f.g.items=f.g.items.filter(x=>x!==f.it);
+          if(f.g.svc && !f.g.items.length) f.c.groups=f.c.groups.filter(g=>g!==f.g);   /* пустая «Цикличные» */
+          addTaskTo(ensureInboxGroup(dst),f.it); }
       }
       placeByRec(tsId);
     }
@@ -3586,7 +3615,7 @@ function noteHtml(text){
     if(p.t==='h1'||p.t==='h2') return `<span class="nh">${x}</span>`;
     if(p.t==='ul') return `<span class="nk">•</span> ${x}`;
     if(p.t==='ol') return `<span class="nk">${p.n}.</span> ${x}`;
-    if(p.t==='ck') return p.on?`<span class="nk">☑</span> <s class="nd">${x}</s>`:`<span class="nk">☐</span> ${x}`;
+    if(p.t==='ck') return p.on?`<span class="nkb on">${ic('check')}</span> <s class="nd">${x}</s>`:`<span class="nkb"></span> ${x}`;
     return x; }).join('\n');
 }
 /* разметка без маркеров — для поиска */
@@ -3647,8 +3676,8 @@ function openViewSheet(key){
   document.getElementById('vsTitle').textContent=(c.title||c.tab||'Список');
   let html='', total=0, done=0;
   c.groups.forEach(g=>{
-    if(typeof g.sub==='string'){ html+=`<div class="vg" style="color:${catColor(c)};opacity:.7">${esc(g.sub)}</div>`; return; }
-    html+=`<div class="vg" style="color:${catColor(c)}">${ic(g.emo||'box')} ${esc(g.title||'')}</div>`;
+    if(typeof g.sub==='string'){ html+=`<div class="vg" style="color:${catTx(catColor(c))};opacity:.7">${esc(g.sub)}</div>`; return; }
+    html+=`<div class="vg" style="color:${catTx(catColor(c))}">${ic(g.emo||'box')} ${esc(g.title||'')}</div>`;
     (g.items||[]).forEach(it=>{ total++; if(it.done)done++;
       html+=`<div class="vi${it.done?' off':''}"><span class="mk" style="color:${it.done?'var(--indigo-tx)':'var(--line)'}">${it.done?'✓':'○'}</span><span>${esc(it.t)}${it.n?`<span class="vn">${noteHtml(it.n)}</span>`:''}</span></div>`; });
   });
@@ -3704,7 +3733,7 @@ function renderSearch(){
     <span><span>${esc(o.t)}</span><span class="vn">${ic('gear','color:var(--svc)')} Обслуживание · ${objReq(o)?'по запросу':fmtD(o.rec.next)}</span></span></div>`).join('');
   h+=shown.map(r=>`<div class="vi" role="button" tabindex="0" onclick="searchOpen('${r.it.id}',${r.arch?1:0})" style="cursor:pointer">
     <span class="mk" style="color:${r.it.done?'var(--indigo-tx)':'var(--line)'}">${r.it.done?'✓':'○'}</span>
-    <span class="vt"><span>${esc(r.it.t)}</span><span class="vn">${ic(r.c.icon,'color:'+catColor(r.c))} ${esc(r.c.title||r.c.tab)}${r.arch?' · в архиве':''}</span></span>
+    <span class="vt"><span>${esc(r.it.t)}</span><span class="vn">${ic(r.c.icon,'color:'+catTx(catColor(r.c)))} ${esc(r.c.title||r.c.tab)}${r.arch?' · в архиве':''}</span></span>
     ${r.arch?'':`<button type="button" class="fs-go" title="Перейти в категорию к задаче" aria-label="Перейти в категорию к задаче" onclick="event.stopPropagation();searchGo('${r.it.id}')">Перейти ${ic('arrowR')}</button>`}</div>`).join('');
   if(res.length>shown.length) h+=`<div class="rep-more">Показаны первые ${shown.length} из ${res.length} — уточните запрос.</div>`;
   box.innerHTML=h;
@@ -4031,6 +4060,8 @@ async function importBackupFile(inp){
   const M=migrate(raw), str=JSON.stringify(M);
   if(utf8Bytes(str)>STORE_LIMIT){ alert('Копия больше лимита облака (~1 МБ) — загрузить её нельзя.'); return; }
   const st=bkStats(str)||{cats:0,t:0};
+  /* связь проверяем ДО вопроса: раньше «ОК» в confirm сменялся «нет связи» (правка 1.17) */
+  if(!cloudReady()){ alert('Нет связи с облаком — загрузить копию сейчас нельзя.'); return; }
   if(!confirm('Заменить весь список копией из файла «'+f.name+'»?\n'+st.cats+' '+plural(st.cats,'категория','категории','категорий')+' · '+st.t+' '+plural(st.t,'задача','задачи','задач')+'.\n\nСписок изменится на всех устройствах. Текущий сохранится в автокопиях как «До восстановления».')) return;
   if(!cloudReady()){ alert('Нет связи с облаком — загрузить копию сейчас нельзя.'); return; }
   try{ await window.CLOUD.backupPut('undo',{day:'undo',data:JSON.stringify(STATE),at:Date.now()}); }
