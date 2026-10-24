@@ -450,7 +450,6 @@ body:not(.nofab) main{padding-bottom:92px}
 .recline{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--svc);margin-top:3px}
 .recline .ic{font-size:12px}
 .recline.late{color:var(--pri-red)}
-.svc-cat{font-size:10.5px;color:var(--muted);font-weight:600;margin-top:2px;display:block}
 /* ---- Объекты обслуживания (правка 1.11) ---- */
 .olist{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
 .orow{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:10px 10px 10px 12px;cursor:pointer;box-shadow:var(--shadow);position:relative;-webkit-user-select:none;user-select:none}
@@ -669,8 +668,6 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
 .expandb{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--card);color:var(--indigo-tx);font-family:inherit;font-weight:700;font-size:11.5px;padding:5px 9px;border-radius:99px;cursor:pointer}
 .expandb .ic{font-size:14px}
 .expandb:active{background:var(--bg)}
-.note-hint{font-size:11px;color:var(--muted);line-height:1.45;margin:-6px 0 12px;padding:0 2px}
-.note-hint b{color:var(--indigo-tx);font-weight:800}
 .note-tools{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
 .note-tools button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-family:inherit;font-weight:700;font-size:12px;padding:7px 11px;border-radius:9px;cursor:pointer}
 .note-tools button:active{background:var(--bg)}
@@ -813,18 +810,8 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
       </div>
       <div id="tsNote" class="rt" contenteditable="true" spellcheck="true"></div>
     </div>
-    <div class="note-hint">Быстро: <b>-</b> и пробел — список, <b>[]</b> — чек-лист <span class="nkb"></span> (тап по квадратику отмечает пункт), <b>1.</b> — нумерация, <b>#</b> — заголовок.</div>
     <div class="fld-lbl">Очередь</div><div class="pri-row" id="tsPri"></div>
     <div class="wktog" id="tsWk" onclick="tsToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">Сегодня</span><span class="toggle"></span></div>
-    <div class="wktog" id="tsRec" onclick="tsToggleRec()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span><span class="wl">Повторять<small>Цикличная задача — попадёт в «Обслуживание»</small></span><span class="toggle"></span></div>
-    <div id="tsRecCfg" style="display:none">
-      <div class="rec-row">каждые <input id="tsRecN" type="number" min="1" max="365" value="1" inputmode="numeric"> <select id="tsRecU"><option value="d">дней</option><option value="w">недель</option><option value="m" selected>месяцев</option><option value="y">лет</option></select></div>
-      <div class="fld-lbl">Отсчёт следующего срока</div>
-      <div class="setrow" style="margin-bottom:10px"><span class="sl">Считать период<small id="tsRecModeNote"></small></span>
-        <span class="segsw" id="tsRecMode"></span></div>
-      <label class="fld"><span>Следующий срок</span><input id="tsRecD" type="date"></label>
-    </div>
-      <button type="button" class="qsort" id="tsToObj" onclick="tsMakeObj()" style="margin-bottom:12px">Сделать объектом обслуживания — с чек-листом и историей</button>
     </div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeTaskSheet()">Отмена</button><button class="btn-main" onclick="saveTaskSheet()">ОК</button></div>
   </div>
@@ -876,18 +863,6 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
     </div>
     </div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeESheet()">Отмена</button><button class="btn-main" onclick="saveESheet()">Сохранить</button></div>
-  </div>
-</div>
-
-<!-- ===== SHEET: выполнение цикличной задачи ===== -->
-<div id="ssheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeSvcDone)">
-  <div class="sheet-card"><div class="grip"></div>
-    <h3>Выполнено!</h3>
-    <div class="cm-title" id="ssTask"></div>
-    <label class="fld"><span>Комментарий в журнал (необязательно)</span>
-      <input id="ssNote" type="text" placeholder="Например: фильтр Аквафор К5" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();event.target.blur();}"></label>
-    <div class="ip-note" id="ssNext"></div>
-    <div class="sheet-acts"><button class="btn-ghost" onclick="closeSvcDone()">Отмена</button><button class="btn-main" onclick="svcConfirm()">Записать в журнал</button></div>
   </div>
 </div>
 
@@ -1470,9 +1445,7 @@ function ensureInbox(s){
   let ib=s.cats.find(c=>c.kind==='inbox');
   if(!ib){ ib={key:ncid(), kind:'inbox', icon:'inbox', color:'#c06f22', tab:'Входящие', title:'Входящие', intro:'', groups:[mkGroup({emo:'inbox',title:'Входящие',items:[]})]}; s.cats.unshift(ib); }
   else { const i=s.cats.indexOf(ib); if(i>0){ s.cats.splice(i,1); s.cats.unshift(ib); }
-    /* именно !svc: у Входящих может появиться служебная группа «Цикличные», и она
-       не годится как приёмник быстрого ввода */
-    if(!ib.groups.some(g=>g.items&&!g.svc)) ib.groups.push(mkGroup({emo:'inbox',title:'Входящие',items:[]})); }
+    if(!ib.groups.some(g=>g.items)) ib.groups.push(mkGroup({emo:'inbox',title:'Входящие',items:[]})); }
   if(ib.title==='Inbox'||!ib.title){ ib.title='Входящие'; ib.tab='Входящие'; }
 }
 function num(v){ const n=Number(v); return Number.isFinite(n)&&n>0?Math.round(n):0; }
@@ -1502,11 +1475,9 @@ function normItems(g){ if(!g.items) return;
     if(it.done===undefined) it.done=false;
     if(!it.id) it.id=nid(); else it.id=safeId(it.id);
     if(!num(it.ct)) it.ct=ctFromId(it.id);
-    if(it.rec && !it.rec.next) delete it.rec;
-    /* rec.mode — от чего считать следующий срок: 'done' (от нажатия галочки, как было
-       раньше) или 'fixed' (жёсткое расписание от прошлого срока). Умолчание — 'done',
-       чтобы у существующих задач поведение не поменялось. */
-    if(it.rec && it.rec.mode!=='fixed') it.rec.mode='done';
+    /* Повторяющихся задач больше нет (правка 1.19): повторы — только объекты в
+       «Обслуживании». Задача из старой версии остаётся обычной задачей. */
+    delete it.rec;
   });
 }
 function normCat(c,all){
@@ -1517,6 +1488,9 @@ function normCat(c,all){
   if(!COLOR_RE.test(c.color||'')) c.color=(c.kind==='inbox')?'#c06f22':pickColor(all);
   c.groups=c.groups.filter(g=>g&&typeof g==='object');
   c.groups.forEach(g=>{ if(!g.gid) g.gid=ngid(); else g.gid=safeId(g.gid); normItems(g); });
+  /* служебная «Цикличные» (до 1.19): пустую убираем, с задачами — становится обычной */
+  c.groups=c.groups.filter(g=>!(g.svc && Array.isArray(g.items) && !g.items.length));
+  c.groups.forEach(g=>{ delete g.svc; });
 }
 function lsFlag(k){ try{ return localStorage.getItem(k)!=='0'; }catch(e){ return true; } }
 function migrate(raw){
@@ -1676,12 +1650,12 @@ function ensureInboxGroup(c){
   let g=c.groups.find(x=>x.items && x.inb && !x.sub);
   if(!g) g=adoptInboxGroup(c);
   if(!g){ g=mkGroup({emo:'inbox',title:INB_TITLE,items:[],inb:true});
-    const idx=(c.groups[0]&&c.groups[0].svc)?1:0; c.groups.splice(idx,0,g); }
+    c.groups.unshift(g); }
   return g;
 }
 /* Разовое усыновление: бывшая «Задачи» (и «Входящие» у категории Inbox) становится Inbox-группой */
 function adoptInboxGroup(c){
-  const g=c.groups.find(x=>x.items && !x.svc && !x.sub && (x.title==='Задачи'||x.title==='Inbox'||(c.kind==='inbox'&&x.title==='Входящие')));
+  const g=c.groups.find(x=>x.items && !x.sub && (x.title==='Задачи'||x.title==='Inbox'||(c.kind==='inbox'&&x.title==='Входящие')));
   if(!g) return null;
   g.inb=true;
   if(g.title==='Задачи'){ g.title=INB_TITLE; if(!g.emo||g.emo==='box') g.emo='inbox'; }
@@ -1778,8 +1752,7 @@ function nextRecDate(rec){
   while(daysTo(d)<0 && i++<2000) d=addPeriod(d,n,unit);
   return daysTo(d)<0 ? addPeriod(isoToday(),n,unit) : d;
 }
-function recTasks(){ const out=[]; STATE.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ if(it.rec&&it.rec.next) out.push({it,c}); }); })); return out; }
-function svcDueCount(){ return dueObjs().length + recTasks().filter(r=>daysTo(r.it.rec.next)<=7).length; }
+function svcDueCount(){ return dueObjs().length; }
 /* ---------- ОБЪЕКТЫ ОБСЛУЖИВАНИЯ (правка 1.11) ---------- */
 /* STATE.objs — вещи, за которыми следим: {id, ct, t, icon, ck (категория, ''), spec (паспорт),
    checks:[{id,t}] (чек-лист осмотра), rec:{n,unit,next,mode} (как у цикличной задачи),
@@ -1823,7 +1796,6 @@ function objNextAfter(o,d){ return objReq(o) ? o.rec.next : o.rec.mode==='fixed'
 function objValTx(o,e){ return e&&e.val ? e.val+(o.metric?' · '+o.metric:'') : ''; }
 const PER_U={d:['день','дня','дней'],w:['неделю','недели','недель'],m:['месяц','месяца','месяцев'],y:['год','года','лет']};
 function periodLabel(r){ const f=PER_U[r.unit]||PER_U.m; return r.n===1 ? 'раз в '+f[0] : 'каждые '+r.n+' '+plural(r.n,f[0],f[1],f[2]); }
-function ensureSvcGroup(c){ let g=c.groups.find(x=>x.svc&&x.items); if(!g){ g=mkGroup({emo:'repeat',title:'Цикличные',items:[],svc:true}); c.groups.unshift(g); } return g; }
 function inboxCount(){ const ib=getInbox(); let n=0; if(ib) ib.groups.forEach(g=>g.items&&g.items.forEach(it=>{ if(!it.done)n++; })); return n; }
 /* Бейдж на хабе не должен зависеть от «скрыть ✓» и режима правки — как в Inbox, считаем невыполненные */
 function wkCount(){ let n=0; weekendAll().forEach(g=>g.items.forEach(it=>{ if(!it.done)n++; })); return n; }
@@ -1929,7 +1901,7 @@ function mergeStates(B,L,R){
   const grpOf=(ck,gid)=>{ const c=cats.get(ck); return c&&c.meta.groups.find(g=>g.gid===gid&&g.items); };
   const inboxCat=()=>[...cats.values()].find(c=>c.meta.kind==='inbox');
   const fallback=ck=>{ const c=cats.get(ck)||inboxCat(); if(!c) return null;
-    return c.meta.groups.find(g=>g.items&&g.inb)||c.meta.groups.find(g=>g.items&&!g.svc)||null; };
+    return c.meta.groups.find(g=>g.items&&g.inb)||c.meta.groups.find(g=>g.items)||null; };
   const buckets=new Map(), orphans=[];
   placed.forEach((v,id)=>{ const g=grpOf(v.ck,v.gid)||fallback(v.ck);
     if(!g){ orphans.push(v.it); return; }
@@ -2466,11 +2438,10 @@ function itemRow(it,sub){
   const pd=PRI[it.pri]||PRI['']; /* защитно: битое pri роняло весь render() */
   const stripe=(it.pri&&pd.c)?`<span class="pri-stripe" style="background:${pd.c}"></span>`:'';
   const note=it.n?`<span class="note">${noteHtml(it.n)}</span>`:'';
-  const rec=(it.rec&&it.rec.next)?`<span class="recline${daysTo(it.rec.next)<0?' late':''}">${ic('repeat')} ${fmtD(it.rec.next)} · ${dueLabel(daysTo(it.rec.next))}</span>`:'';
   return `<div class="item${it.done?' checked':''}" role="button" tabindex="0" data-id="${it.id}" onpointerdown="onItemPointerDown(event,'${it.id}')" onclick="itemClick(event,'${it.id}')">
     ${stripe}
     <span class="box" role="checkbox" tabindex="0" aria-checked="${it.done?'true':'false'}" onclick="boxTap(event,'${it.id}')">${ic('check')}</span>
-    <div class="lw"><span class="lbl">${esc(it.t)}</span>${note}${rec}${sub||''}</div>
+    <div class="lw"><span class="lbl">${esc(it.t)}</span>${note}${sub||''}</div>
     <span class="irow-btns">
       <button class="iqb wkflame ${it.wk?'wkon':''}" title="Взять в «Сегодня»" aria-label="Взять в «Сегодня»" aria-pressed="${it.wk?'true':'false'}" onclick="quickWk(event,'${it.id}')">${ic('flame')}</button>
     </span>
@@ -2500,7 +2471,7 @@ function groupsHtml(c){
       <span class="e" style="color:${col}">${ic(g.emo||'box')}</span><span class="t">${esc(g.title)}</span>
       <span class="g-acts">
         <button title="Править" aria-label="Править" onclick="openGroupEditor(event,'${c.key}','${g.gid}')">${ic('pencil')}</button>
-        ${g.svc?'':`<button title="Сделать категорией" aria-label="Сделать из подкатегории категорию" onclick="openG2C(event,'${c.key}','${g.gid}')">${ic('grid')}</button>`}
+        <button title="Сделать категорией" aria-label="Сделать из подкатегории категорию" onclick="openG2C(event,'${c.key}','${g.gid}')">${ic('grid')}</button>
         <button class="del" title="Удалить" aria-label="Удалить" onclick="deleteGroup(event,'${c.key}','${g.gid}')">${ic('x')}</button>
         <button class="ghandle" aria-label="Перетащить" onpointerdown="onGroupHandleDown(event,'${c.key}',${gi})">≡</button>
       </span>
@@ -2588,7 +2559,6 @@ function objRow(o){
 }
 function renderService(){
   const objs=STATE.objs.slice().sort((a,b)=>objDays(a)-objDays(b));
-  const rs=recTasks().sort((a,b)=>daysTo(a.it.rec.next)-daysTo(b.it.rec.next));
   const add=`<div class="addobj" role="button" tabindex="0" onclick="openObjEditor(null)">${ic('gear')} Добавить объект обслуживания</div>`;
   let h='';
   if(!objs.length) h+=`<div class="empty">${ic('gear')}<br>Здесь живут вещи, за которыми нужно следить:<br>фильтры, котёл, кондиционер, огнетушители.<br>У каждой — период, чек-лист осмотра и история.</div>`;
@@ -2601,11 +2571,6 @@ function renderService(){
   /* без срока: показания, замеры — вносятся, когда нужно (правка 1.14) */
   sec('По запросу','var(--svc)','gauge',objs.filter(objReq).sort((a,b)=>(a.t||'').localeCompare(b.t||'','ru')));
   h+=add;
-  if(rs.length){
-    h+=`<div class="wkgrp-h">${ic('repeat','color:var(--svc)')} Повторяющиеся задачи · ${rs.length}</div>
-      <div class="rep-more" style="text-align:left;padding:0 4px 6px">Простые повторы из категорий. Нужны история и чек-лист — откройте задачу и нажмите «Сделать объектом обслуживания».</div>
-      <div class="grp"><div class="items">${rs.map(r=>itemRow(r.it,`<span class="svc-cat">${esc(r.c.title||r.c.tab||'')}</span>`)).join('')}</div></div>`;
-  }
   viewEl.innerHTML=h;
 }
 
@@ -2815,34 +2780,6 @@ function odConfirm(){
     if(taskId){ const f=findItem(taskId); if(f){ f.g.items.splice(f.g.items.indexOf(f.it),1); STATE.stats.created=Math.max(0,num(STATE.stats.created)-1); } }
     save(); renderAll(); });
 }
-/* Цикличная задача → объект. id детерминированный ('o'+id задачи): если два устройства
-   превратят одну задачу, слияние даст один объект, а не два. Записи общего журнала с тем
-   же названием переезжают в историю объекта. */
-function taskToObj(id){
-  const f=findItem(id); if(!f) return null;
-  const it=f.it, oid='o'+it.id;
-  if(objById(oid)) return objById(oid);
-  const log=[];
-  STATE.svcLog=STATE.svcLog.filter(e=>{ if(e.t!==it.t) return true;
-    log.push({id:'l'+num(e.ts).toString(36),ts:e.ts,d:toISO(new Date(e.ts)),note:e.note||'',st:'ok',chk:[]}); return false; });
-  const o={id:oid,ct:it.ct||Date.now(),t:it.t,icon:iconSuggestList(it.t)[0]||'gear',ck:f.c.kind==='inbox'?'':f.c.key,
-    spec:it.n||'',checks:[],rec:it.rec?clone(it.rec):{n:3,unit:'m',next:isoToday(),mode:'done'},lead:3,needNote:false,log};
-  normObj(o); STATE.objs.push(o);
-  f.g.items.splice(f.g.items.indexOf(it),1);
-  /* опустевшая служебная «Цикличные» больше не нужна */
-  if(f.g.svc && !f.g.items.length) f.c.groups=f.c.groups.filter(g=>g!==f.g);
-  return o;
-}
-function tsMakeObj(){
-  const id=tsId; if(!id) return;
-  if(!confirm('Задача станет объектом обслуживания: с паспортом, чек-листом и историей. Из категории она уйдёт в «Обслуживание». Продолжить?')) return;
-  saveTaskSheet();                    /* сначала сохраняем то, что успели поменять в карточке */
-  /* карточка осталась открытой — значит, не сохранилась (пустой заголовок): не превращаем */
-  if(document.getElementById('tsheet').dataset.open==='1' || !findItem(id)) return;
-  const o=taskToObj(id); if(!o) return;
-  save(); renderAll();
-  setTimeout(()=>openObjView(o.id),180);
-}
 
 /* Прокрутка хаба запоминается при уходе и возвращается при «назад»: раньше
    возврат из категории всегда выкидывал в начало списка категорий (правка 9). */
@@ -2895,7 +2832,6 @@ function tapSuppressed(){ if(suppressNextTap){ suppressNextTap=false; return tru
    протечка, из-за которой CSS-правила в своё время перенесли с body на #view. */
 function rowInEdit(el){ return !!(el && el.closest && el.closest('#view.editmode')); }
 function boxTap(e,id){ e.stopPropagation(); if(tapSuppressed()||rowInEdit(e.target)) return; const f=findItem(id); if(!f) return;
-  if(f.it.rec && !f.it.done){ openSvcDone(id); return; } /* цикличная: выполнение через журнал */
   f.it.done=!f.it.done; markDone(f.it,f.it.done); save(); renderAll(); }
 /* Единая точка удаления задачи: снимок позиции + тост «Отменить».
    confirm() на каждую задачу тормозил разбор списка и всё равно терял данные при промахе. */
@@ -2915,29 +2851,6 @@ function undoRemove(sn){
   g.items.splice(Math.min(sn.idx,g.items.length),0,sn.it);
   save(); renderAll();
 }
-/* --- выполнение цикличной задачи --- */
-let svcId=null;
-function openSvcDone(id){
-  const f=findItem(id); if(!f||!f.it.rec) return;
-  svcId=id;
-  document.getElementById('ssTask').textContent=f.it.t||'';
-  document.getElementById('ssNote').value='';
-  document.getElementById('ssNext').textContent='Задача пересоздастся автоматически: следующий срок — '
-    +fmtD(nextRecDate(f.it.rec))+(f.it.rec.mode==='fixed'?' (по расписанию).':' (от сегодняшней отметки).');
-  openSheet(document.getElementById('ssheet'));
-}
-function closeSvcDone(){ closeSheet(document.getElementById('ssheet')); }
-function svcConfirm(){
-  const f=svcId&&findItem(svcId);
-  /* пока окно было открыто, «Повторять» могли выключить с другого устройства */
-  if(!f||!f.it.rec){ closeSvcDone(); return; }
-  const note=document.getElementById('ssNote').value.trim();
-  STATE.svcLog.unshift({t:f.it.t,cat:(f.c.title||f.c.tab||''),ts:Date.now(),note});
-  if(STATE.svcLog.length>300) STATE.svcLog.length=300;
-  markDone({id:'svc-'+Date.now()+rnd4()},true); /* в счётчики выполненного, без отмены */
-  f.it.rec.next=nextRecDate(f.it.rec);
-  svcId=null; save(); closeSvcDone(); renderAll();
-}
 /* --- журнал обслуживания --- */
 function fmtTs(ts){ const d=new Date(ts); return d.getDate()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getFullYear()).slice(2); }
 function openSvcLog(){
@@ -2948,7 +2861,7 @@ function openSvcLog(){
   all.sort((a,b)=>b.ts-a.ts);
   box.innerHTML=all.length
     ? all.map(e=>`<div class="log-row"><span class="ld">${fmtTs(e.ts)}</span> — ${esc(e.t)}${e.sub?` <span class="lc">· ${esc(e.sub)}</span>`:''}${e.st?`<span class="st-chip" style="background:${OBJ_ST[e.st].c}">${OBJ_ST[e.st].lbl}</span>`:''}${e.note?`<div class="ln">${esc(e.note)}</div>`:''}</div>`).join('')
-    : `<div class="empty">Журнал пуст.<br>Отмечайте цикличные дела выполненными — здесь появится история: что и когда обслужено.</div>`;
+    : `<div class="empty">Журнал пуст.<br>Отмечайте обслуживание объектов — здесь появится история: что и когда обслужено.</div>`;
   openSheet(document.getElementById('lsheet'));
 }
 function closeSvcLog(){ closeSheet(document.getElementById('lsheet')); }
@@ -2993,11 +2906,7 @@ function cmMoveBack(){ document.getElementById('cmMove').style.display='none'; d
 function cmMoveTo(key){
   const f=cmId&&findItem(cmId); const dst=catByKey(key); if(!f||!dst){ closeTaskMenu(); return; }
   f.g.items=f.g.items.filter(x=>x!==f.it);
-  /* опустевшая служебная «Цикличные» в старой категории больше не нужна */
-  if(f.g.svc && !f.g.items.length) f.c.groups=f.c.groups.filter(g=>g!==f.g);
   const g=ensureInboxGroup(dst); addTaskTo(g,f.it);
-  /* цикличная едет в «Цикличные» новой категории — как при переносе из карточки (правка 1.17) */
-  placeByRec(f.it.id);
   closeTaskMenu(); save(); renderAll();
 }
 function cmDuplicate(){ closeTaskMenu(); if(cmId) duplicateTask(cmId); }
@@ -3157,52 +3066,6 @@ function closeSheet(el){
 function renderTsPri(){ document.getElementById('tsPri').innerHTML=priChips(tsPri,'tsSetPri'); }
 function tsSetPri(p){ tsPri=p; renderTsPri(); }
 function tsToggleWk(){ tsWk=!tsWk; document.getElementById('tsWk').classList.toggle('on',tsWk); }
-let tsRecOn=false;
-let tsRecMode='done';
-function renderTsRecMode(){
-  const box=document.getElementById('tsRecMode'); if(!box) return;
-  const b=(v,l)=>`<button type="button" class="${tsRecMode===v?'on':''}" aria-pressed="${tsRecMode===v?'true':'false'}" onclick="tsSetRecMode('${v}')">${l}</button>`;
-  box.innerHTML=b('done','От выполнения')+b('fixed','По расписанию');
-  document.getElementById('tsRecModeNote').textContent = tsRecMode==='fixed'
-    ? 'Срок сдвигается от прошлой плановой даты — задача приходит по календарю, даже если обслужили позже.'
-    : 'Срок считается от момента, когда нажали галочку. Новая не появится, пока не выполнена старая.';
-}
-function tsSetRecMode(v){ tsRecMode=(v==='fixed')?'fixed':'done'; renderTsRecMode(); }
-function tsSetRecUI(rec){
-  tsRecOn=!!rec;
-  document.getElementById('tsRec').classList.toggle('on',tsRecOn);
-  document.getElementById('tsRecCfg').style.display=tsRecOn?'':'none';
-  document.getElementById('tsRecN').value=rec?rec.n:1;
-  document.getElementById('tsRecU').value=rec?rec.unit:'m';
-  document.getElementById('tsRecD').value=rec?rec.next:isoToday();
-  tsRecMode=(rec&&rec.mode==='fixed')?'fixed':'done';
-  renderTsRecMode(); tsObjBtn();
-}
-function tsObjBtn(){ const b=document.getElementById('tsToObj'); if(b) b.style.display=(tsRecOn && tsMode==='edit')?'':'none'; }
-function tsToggleRec(){
-  tsRecOn=!tsRecOn; tsObjBtn();
-  document.getElementById('tsRec').classList.toggle('on',tsRecOn);
-  document.getElementById('tsRecCfg').style.display=tsRecOn?'':'none';
-  if(tsRecOn && !document.getElementById('tsRecD').value) document.getElementById('tsRecD').value=isoToday();
-}
-function tsReadRec(){
-  if(!tsRecOn) return null;
-  const n=Math.min(365,Math.max(1,parseInt(document.getElementById('tsRecN').value,10)||1));
-  const unit=document.getElementById('tsRecU').value||'m';
-  const d=document.getElementById('tsRecD').value;
-  return {n,unit,mode:tsRecMode,next:(validISO(d)?d:isoToday())};
-}
-/* цикличная живёт в подкатегории «Цикличные» своей категории */
-function placeByRec(id){
-  const f=findItem(id); if(!f) return;
-  if(f.it.rec && !f.g.svc){
-    const sg=ensureSvcGroup(f.c);
-    f.g.items=f.g.items.filter(x=>x!==f.it); sg.items.unshift(f.it);
-  } else if(!f.it.rec && f.g.svc){
-    const ng=ensureInboxGroup(f.c);   /* сняли цикличность — в «Без категории», а не в первую попавшуюся */
-    f.g.items=f.g.items.filter(x=>x!==f.it); ng.items.unshift(f.it);
-  }
-}
 /* Список категорий по алфавиту для выбора «куда добавить» (окно новой задачи) */
 function catListHtml(curKey,onPick){
   return `<div class="catpick-list">${alphaCats().map(x=>`<div class="cpi ${x.key===curKey?'on':''}" role="button" tabindex="0" onclick="${onPick}('${x.key}')">${ic(x.icon,'color:'+catTx(catColor(x)))}${esc(x.title||x.tab)}</div>`).join('')}</div>`;
@@ -3248,9 +3111,9 @@ function openTaskEdit(id){
   document.getElementById('tsName').value=f.it.t||'';
   tsPaintDone(f.it);
   rtSet(document.getElementById('tsNote'),f.it.n||'');
-  renderTsPri(); document.getElementById('tsWk').classList.toggle('on',tsWk); tsSetRecUI(f.it.rec||null);
+  renderTsPri(); document.getElementById('tsWk').classList.toggle('on',tsWk);
   /* что было в карточке при открытии: по «ОК» пишем только поля, которые здесь поменяли */
-  tsOrig={t:document.getElementById('tsName').value.trim(), n:rtGet(document.getElementById('tsNote')).trim(), pri:tsPri, wk:tsWk, rec:jstr(tsReadRec())};
+  tsOrig={t:document.getElementById('tsName').value.trim(), n:rtGet(document.getElementById('tsNote')).trim(), pri:tsPri, wk:tsWk};
   openSheet(document.getElementById('tsheet'));
 }
 /* «Добавить задачу» в подкатегории открывает то же окно, что и «+» (правка 1.18) */
@@ -3260,14 +3123,13 @@ function saveTaskSheet(){
   const t=document.getElementById('tsName').value.trim();
   const n=rtGet(document.getElementById('tsNote')).trim();
   if(!t){ document.getElementById('tsName').focus(); return; }
-  const rec=tsReadRec();
   if(tsMode==='edit' && !findItem(tsId)){
     /* Пока карточка была открыта, задачу удалили на другом устройстве. Раньше «ОК»
        молча выбрасывал правку. Сохраняем как новую задачу (новый id: старый уже
        числится удалённым, и слияние версий удалило бы её снова). */
     const dst=catByKey(tsTargetCat)||getInbox();
-    if(dst){ const nit={id:nid(),ct:Date.now(),t,n,done:false,pri:tsPri,wk:tsWk}; if(rec) nit.rec=rec;
-      addTaskTo(ensureInboxGroup(dst),nit); statCreated(1); if(rec) placeByRec(nit.id);
+    if(dst){ const nit={id:nid(),ct:Date.now(),t,n,done:false,pri:tsPri,wk:tsWk};
+      addTaskTo(ensureInboxGroup(dst),nit); statCreated(1);
       save(); closeTaskSheet(); renderAll();
       showToast('Задачу удалили на другом устройстве — сохранил заново в «'+(dst.title||dst.tab||'')+'»'); }
     return;
@@ -3278,13 +3140,10 @@ function saveTaskSheet(){
        время на другом устройстве, молча откатывались. */
     const f=findItem(tsId); if(f){ const o=tsOrig||{};
       if(t!==o.t) f.it.t=t; if(n!==o.n) f.it.n=n; if(tsPri!==o.pri) f.it.pri=tsPri; if(tsWk!==o.wk) f.it.wk=tsWk;
-      if(jstr(rec)!==o.rec){ if(rec) f.it.rec=rec; else delete f.it.rec; }
       if(tsTargetCat && tsTargetCat!==f.c.key){ // перенос в другую категорию → в «Задачи»
         const dst=catByKey(tsTargetCat); if(dst){ f.g.items=f.g.items.filter(x=>x!==f.it);
-          if(f.g.svc && !f.g.items.length) f.c.groups=f.c.groups.filter(g=>g!==f.g);   /* пустая «Цикличные» */
           addTaskTo(ensureInboxGroup(dst),f.it); }
       }
-      placeByRec(tsId);
     }
   }
   save(); closeTaskSheet(); renderAll();
@@ -3305,12 +3164,6 @@ function tsPaintDone(it){
 function tsToggleDone(){
   if(tsMode!=='edit') return;
   const id=tsId, f=findItem(id); if(!f) return;
-  if(f.it.rec && !f.it.done){
-    /* цикличная выполняется через журнал: сначала сохраняем карточку, потом окно отметки */
-    saveTaskSheet();
-    if(document.getElementById('tsheet').dataset.open!=='1') setTimeout(()=>openSvcDone(id),160);
-    return;
-  }
   f.it.done=!f.it.done; markDone(f.it,f.it.done); save(); renderAll(); tsPaintDone(f.it);
 }
 function duplicateFromSheet(){
@@ -3619,7 +3472,7 @@ function closeNoteEditor(){ closeSheet(document.getElementById('nsheet')); }
 /* ---------- SHEET: новая задача ----------
    Одно окно и для «+», и для «Добавить задачу» в подкатегории (правка 1.18). Из
    подкатегории задача ложится именно в неё (qaGid), из «+» — в приёмник категории.
-   Повторы и обслуживание здесь не настраиваются — это в карточке задачи. */
+   Повторы — только объекты в «Обслуживании» (повторяющиеся задачи убраны в 1.19). */
 let qaPri='', qaWk=false, qaCat=null, qaGid=null, qaGidCat=null, qaDescOn=false, qaPickOn=false;
 function openQuick(catKey,gid){
   if(!catKey && active==='__svc__'){ openObjEditor(null); return; }   /* в «Обслуживании» «+» — новый объект */
@@ -3634,7 +3487,7 @@ function openQuick(catKey,gid){
 }
 /* подкатегория, в которую ляжет задача: только «своя» обычная (не «Цикличные») */
 function qaGroup(c){
-  if(qaGid && qaGidCat===c.key){ const g=groupByGid(c,qaGid); if(g && g.items && !g.svc) return g; }
+  if(qaGid && qaGidCat===c.key){ const g=groupByGid(c,qaGid); if(g && g.items) return g; }
   return null;
 }
 function renderQaPick(){
@@ -3666,8 +3519,6 @@ function qaAdd(){
   if(!t){ document.getElementById('qaInput').focus(); return; }
   const n=rtGet(document.getElementById('qaNote')).trim();
   const c=catByKey(qaCat)||getInbox();
-  /* ensureInboxGroup (не первая группа): у «Входящих» может быть служебная группа
-     «Цикличные», и она стоит первой — быстрый ввод молча складывал задачи туда. */
   const g=qaGroup(c)||ensureInboxGroup(c);
   addTaskTo(g,{id:nid(),ct:Date.now(),t,n,done:false,pri:qaPri,wk:qaWk});
   statCreated(1);
@@ -3888,7 +3739,7 @@ function closeG2C(){ closeSheet(document.getElementById('g2sheet')); }
 function g2Go(move){ const ck=g2Cat, gid=g2Gid; closeG2C(); groupToCategory(ck,gid,!!move); }
 function groupToCategory(catKey,gid,move){
   const c=catByKey(catKey); if(!c) return;
-  const g=groupByGid(c,gid); if(!g||!g.items||g.svc) return;
+  const g=groupByGid(c,gid); if(!g||!g.items) return;
   const title=(g.title||'Категория').slice(0,60);
   /* Перенос отдаёт те же объекты задач (их id уникальны и из старой категории они
      уходят). Копия получает НОВЫЕ id — иначе две категории делили бы идентификаторы
