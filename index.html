@@ -110,12 +110,9 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(9px + 
 .hb:active{background:var(--bg)}
 body.editmode .hb.edit{background:var(--amber);border-color:var(--amber);color:#fff}
 .av{width:40px;height:40px;flex:none;border-radius:99px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;position:relative}
-.q{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 13px;border-radius:99px;font-family:inherit;font-weight:800;font-size:13.5px;letter-spacing:-.1px;cursor:pointer;border:1px solid transparent;white-space:nowrap}
-.q .ic{font-size:16px}
-.q .n{border-radius:99px;padding:1px 6px;font-size:12.5px}
-.q.q1{background:color-mix(in srgb,var(--pri-red) 15%,var(--card));color:var(--pri-red);border-color:color-mix(in srgb,var(--pri-red) 28%,transparent)}
-.q.q1 .n{background:rgba(219,79,60,.16)}
-.q.qall{background:var(--indigo-soft);color:var(--indigo-tx);border-color:color-mix(in srgb,var(--indigo) 26%,transparent)}
+.q{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;border-radius:12px;font-family:inherit;font-weight:700;font-size:13.5px;letter-spacing:-.1px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);white-space:nowrap}
+.q .ic{font-size:18px;color:var(--indigo-tx)}
+.q:active{background:var(--bg)}
 .bk{width:40px;height:40px;flex:none;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-size:19px}
 .bk .ic{font-size:20px}
 /* индикатор облака — бейдж на аватаре: зелёный сохранено, янтарный пишу, красный ошибка */
@@ -152,6 +149,8 @@ body.editmode .hb.edit{background:var(--amber);border-color:var(--amber);color:#
 .tgl.srch .ic{font-size:18px}
 .tgl.on{background:var(--indigo-soft);border-color:var(--indigo-tx);color:var(--indigo-tx)}
 .tgl.hidden{display:none}
+.tgl.ico{width:40px;height:36px;padding:0;justify-content:center;border-radius:11px}
+.tgl.ico .ic{font-size:19px}
 
 main{padding:13px 13px 20px;max-width:640px;margin:0 auto}
 /* FAB (56px) перекрывал последнюю строку списка — даём ему место, когда он показан */
@@ -174,12 +173,8 @@ body:not(.nofab) main{padding-bottom:92px}
 .hub{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .hcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;box-shadow:var(--shadow);position:relative;
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.favb{position:absolute;top:7px;right:7px;width:30px;height:30px;border:0;background:none;color:var(--line);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;padding:0}
-.favb.on{color:var(--amber)}
-.favb.on svg{fill:currentColor}
 #view.editmode .hcard{border-style:dashed;border-color:var(--amber);border-width:1.5px}
 #view.editmode .grp{border-style:dashed;border-color:var(--amber);border-width:1.5px}
-#view.editmode .favb{display:none}
 /* карандаш на карточке в правке больше не нужен: тап по карточке и так открывает редактор,
    а звезда/карандаш только мешали видеть счётчики (правка 15) */
 .hcard.dragging{opacity:.35}
@@ -196,12 +191,13 @@ body:not(.nofab) main{padding-bottom:92px}
 .viewseg button{width:28px;height:24px;border:0;background:none;border-radius:6px;color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 .viewseg button .ic{font-size:15px}
 .viewseg button.on{background:var(--card);color:var(--indigo-tx)}
+.viewseg button:disabled{opacity:.4;cursor:default}
+.sect-tools{display:flex;gap:6px;align-items:center}
 .hub.list{grid-template-columns:1fr;gap:8px}
 .hub.list .hcard{display:flex;align-items:center;gap:11px;padding:11px 12px}
 .hub.list .hcard .ico{width:34px;height:34px;font-size:19px;flex:none}
 .hub.list .hcard .nm{margin-top:0;flex:1;font-size:14px}
 .hub.list .hcard .mini{display:none}
-.hub.list .favb{position:static;width:28px;height:28px;font-size:16px;flex:none;order:4}
 /* В списке .cl лежит рядом с названием, а не под ним: justify-content:space-between
    схлопывал две надписи в нулевую ширину и цифры наезжали друг на друга (правка 1.5). */
 .hub.list .hcard .cl{order:3;margin-top:0;flex:0 0 auto;justify-content:flex-end;gap:9px;white-space:nowrap;max-width:46%;overflow:hidden}
@@ -289,9 +285,9 @@ body:not(.nofab) main{padding-bottom:92px}
 /* ---- FAB ---- */
 /* --vvb — сколько пикселей нижней части окна сейчас перекрыто (панель Safari,
    клавиатура). Без него при свайпе вниз FAB «отлипал» и уезжал за край (правка 1.5). */
-.fab{position:fixed;right:calc(16px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom) + var(--vvb,0px));width:56px;height:56px;border-radius:50%;background:var(--indigo);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(55,71,143,.45),0 2px 6px rgba(20,26,44,.3);cursor:pointer;z-index:40;border:0;transition:transform .12s}
+.fab{position:fixed;right:calc(16px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom) + var(--vvb,0px));width:56px;height:56px;border-radius:50%;background:var(--indigo);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(55,71,143,.45),0 2px 6px rgba(20,26,44,.3);cursor:pointer;z-index:40;border:0;transition:transform .12s;transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden;-webkit-tap-highlight-color:transparent}
 .fab .ic{font-size:27px}
-.fab:active{transform:scale(.92)}
+.fab:active{transform:translateZ(0) scale(.92)}
 .fab.hidden{display:none}
 @media(min-width:680px){ .fab{right:calc(50% - 320px + 16px)} }
 /* Узкие экраны. Сначала ужимаем шапку (кнопки 38px, зазоры 6px) — этого хватает,
@@ -512,9 +508,26 @@ body:not(.nofab) main{padding-bottom:92px}
 .log-row .lval{font-weight:800;color:var(--svc);margin-left:4px}
 .log-row .lc{color:var(--muted);font-weight:600;font-size:11.5px}
 .log-row .ln{color:var(--muted);font-size:12.5px;margin-top:2px}
-.qa-input{width:100%;border:1.5px solid var(--indigo);border-radius:12px;padding:12px 13px;font-family:inherit;font-size:16px;color:var(--ink);background:var(--card);box-shadow:0 0 0 3px color-mix(in srgb,var(--indigo) 12%,transparent)}
+/* окно новой задачи (правка 1.18): название без рамки, как в Todoist */
+.qa-input{width:100%;border:0;border-radius:0;padding:4px 2px;font-family:inherit;font-size:18px;font-weight:700;color:var(--ink);background:none}
+.qa-chips{display:flex;gap:5px;align-items:stretch;margin-bottom:12px}
+/* ширина ряда задана явно: Safari при flex:auto терял пятый значок под «Описанием» */
+.qa-chips .pri-row{margin-bottom:0;flex:none;width:220px}
+.qa-chips .pchip{flex:none;width:40px}
+.qa-desc{flex:1;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--line);background:var(--card);border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer;padding:0 8px;white-space:nowrap}
+.qa-desc .ic{font-size:16px}
+.qa-desc.on{border-color:var(--indigo-tx);color:var(--indigo-tx);background:var(--indigo-soft)}
+#qaDesc .rt{min-height:84px}
+.qa-foot{display:flex;align-items:center;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
+.qa-foot .btn-main{flex:none;padding-left:22px;padding-right:22px}
+.qa-cat{flex:1;min-width:0;display:flex;align-items:center;gap:6px;border:0;background:none;font-family:inherit;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;padding:8px 2px;text-align:left}
+.qa-cat .nmx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qa-cat .ic{font-size:17px;flex:none}
+.qa-cat .chv{display:flex;flex:none}
+.qa-cat[aria-expanded="true"] .chv{transform:rotate(180deg)}
+#qaCatList .catpick-list{margin:0 0 4px}
 .qa-input:focus{outline:none}
-.qa-input::placeholder{color:var(--muted)}
+.qa-input::placeholder{color:var(--muted);opacity:.65;font-style:italic;font-weight:600}
 .fs-opts{display:flex;gap:18px;margin:11px 2px 6px}
 .fs-body{max-height:50vh;overflow-y:auto;overscroll-behavior:contain}
 .sheet-card.full .fs-body,.sheet-card.split .fs-body{max-height:none}
@@ -545,6 +558,9 @@ body:not(.nofab) main{padding-bottom:92px}
 .pchip .pg{width:17px;height:17px;display:flex;align-items:center;justify-content:center}
 .pchip .pg .pd{width:13px;height:13px;border-radius:99px}
 .pchip .pg .ring{width:12px;height:12px;border:2px solid var(--muted);border-radius:99px}
+.pchip{min-height:40px;justify-content:center}
+.pchip .pg,.pchip .pg .lv{width:22px;height:22px;font-size:12.5px;border-radius:6px}
+.pchip .pg .ring{width:22px;height:22px;box-sizing:border-box}
 .pg .lv{width:17px;height:17px;border-radius:5px;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1}
 .pchip.on{border-width:2px;padding:7px 2px}
 .pchip.on[data-p=""]{border-color:var(--muted);color:var(--ink)}
@@ -568,12 +584,7 @@ body:not(.nofab) main{padding-bottom:92px}
 .cs-b .ic{font-size:14px}
 .cs-b.on{border-color:var(--indigo-tx);background:var(--indigo-soft);color:var(--indigo-tx);font-weight:800}
 /* единый выбор категории «Добавить в категорию» (быстрый ввод и новая задача) */
-.catpick{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:1.5px solid var(--line);background:var(--card);border-radius:11px;padding:11px 12px;font-family:inherit;cursor:pointer;margin-bottom:12px}
-.catpick .cp-lbl{font-size:12px;font-weight:700;color:var(--muted)}
-.catpick .cp-cur{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--ink);min-width:0}
-.catpick .cp-cur .nmx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
-.catpick .cp-cur .ic{font-size:17px;flex:none}
-.catpick-list{border:1px solid var(--line);border-radius:11px;margin:-6px 0 12px;max-height:210px;overflow-y:auto;overscroll-behavior:contain;padding:5px}
+.catpick-list{position:relative;border:1px solid var(--line);border-radius:11px;margin:-6px 0 12px;max-height:210px;overflow-y:auto;overscroll-behavior:contain;padding:5px}
 .catpick-list .cpi{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:var(--ink)}
 .catpick-list .cpi.on{background:var(--indigo-soft);color:var(--indigo-tx);font-weight:800}
 .catpick-list .cpi .ic{font-size:16px;flex:none}
@@ -673,6 +684,9 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
 .rt-bar button.on{background:var(--indigo-soft);border-color:var(--indigo-tx);color:var(--indigo-tx)}
 .rt{position:relative;min-height:122px;border:1.5px solid var(--line);background:var(--card);border-radius:11px;padding:11px 13px;font-size:16px;line-height:1.45;color:var(--ink);outline:none;-webkit-user-select:text;user-select:text;word-break:break-word;overflow-wrap:anywhere;cursor:text}
 .rt:focus{border-color:var(--indigo-tx)}
+/* .rt.empty совпадал с общим .empty (пустой экран: по центру, большие поля, серый) —
+   пустое описание открывалось с курсором посередине (правка 1.18) */
+.rt.empty{text-align:left;padding:11px 13px;font-size:16px;line-height:1.45;color:var(--ink)}
 .rt.empty::before{content:attr(data-ph);position:absolute;left:13px;top:11px;right:13px;color:var(--muted);pointer-events:none}
 .rt>div{min-height:1.45em}
 .rt>[data-t="h1"]{font-size:21px;font-weight:800;line-height:1.3;letter-spacing:-.3px;margin:2px 0}
@@ -724,7 +738,6 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
   .hcard:hover,.pin:hover{border-color:color-mix(in srgb,var(--indigo) 45%,var(--line))}
   .item:hover{background:var(--bg)}
   .cm-btn:hover,.btn-ghost:hover{border-color:var(--indigo-tx);color:var(--indigo-tx)}
-  .favb:hover{color:var(--amber)}
   /* окна центрируются на всех размерах (см. .sheet-back выше) — тут только ширина */
   .sheet-card{max-width:560px}
   /* «на весь экран» на десктопе: высота во весь экран, ширина ограничена — иначе поля растягиваются на весь монитор */
@@ -792,16 +805,16 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
       <input id="tsName" type="text" placeholder="Что сделать" autocomplete="off" enterkeyhint="done"></div></div>
     <div class="fld">
       <div class="fld-head"><span>Описание</span>
-        <button type="button" class="expandb" onclick="openNoteEditor()" title="Развернуть на весь экран"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7.5 7.5"/><path d="M3 21l7.5-7.5"/></svg></span>Развернуть</button>
+        <button type="button" class="expandb" onclick="openNoteEditor('tsNote')" title="Развернуть на весь экран"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7.5 7.5"/><path d="M3 21l7.5-7.5"/></svg></span>Развернуть</button>
       </div>
       <div class="rt-bar" data-ed="tsNote" role="toolbar" aria-label="Форматирование">
         <button type="button" data-c="h1" title="Заголовок" onpointerdown="rtCmd(event,'h1')" onmousedown="event.preventDefault()">H1</button><button type="button" data-c="h2" title="Подзаголовок" onpointerdown="rtCmd(event,'h2')" onmousedown="event.preventDefault()">H2</button><button type="button" data-c="b" title="Жирный" onpointerdown="rtCmd(event,'b')" onmousedown="event.preventDefault()"><b>B</b></button><button type="button" data-c="i" title="Курсив" onpointerdown="rtCmd(event,'i')" onmousedown="event.preventDefault()"><i>I</i></button><button type="button" data-c="u" title="Подчёркнутый" onpointerdown="rtCmd(event,'u')" onmousedown="event.preventDefault()"><u>U</u></button><button type="button" data-c="s" title="Зачёркнутый" onpointerdown="rtCmd(event,'s')" onmousedown="event.preventDefault()"><s>S</s></button><button type="button" data-c="ul" title="Список" onpointerdown="rtCmd(event,'ul')" onmousedown="event.preventDefault()">•</button><button type="button" data-c="ol" title="Нумерация" onpointerdown="rtCmd(event,'ol')" onmousedown="event.preventDefault()">1.</button><button type="button" data-c="ck" title="Чек-лист" onpointerdown="rtCmd(event,'ck')" onmousedown="event.preventDefault()" aria-label="Чек-лист"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></span></button>
       </div>
-      <div id="tsNote" class="rt" contenteditable="true" spellcheck="true" data-ph="Детали, количество, напоминание…"></div>
+      <div id="tsNote" class="rt" contenteditable="true" spellcheck="true"></div>
     </div>
     <div class="note-hint">Быстро: <b>-</b> и пробел — список, <b>[]</b> — чек-лист <span class="nkb"></span> (тап по квадратику отмечает пункт), <b>1.</b> — нумерация, <b>#</b> — заголовок.</div>
     <div class="fld-lbl">Очередь</div><div class="pri-row" id="tsPri"></div>
-    <div class="wktog" id="tsWk" onclick="tsToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">На выходные<small>Показать в общей витрине выходных</small></span><span class="toggle"></span></div>
+    <div class="wktog" id="tsWk" onclick="tsToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">Сегодня</span><span class="toggle"></span></div>
     <div class="wktog" id="tsRec" onclick="tsToggleRec()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span><span class="wl">Повторять<small>Цикличная задача — попадёт в «Обслуживание»</small></span><span class="toggle"></span></div>
     <div id="tsRecCfg" style="display:none">
       <div class="rec-row">каждые <input id="tsRecN" type="number" min="1" max="365" value="1" inputmode="numeric"> <select id="tsRecU"><option value="d">дней</option><option value="w">недель</option><option value="m" selected>месяцев</option><option value="y">лет</option></select></div>
@@ -811,23 +824,30 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
       <label class="fld"><span>Следующий срок</span><input id="tsRecD" type="date"></label>
     </div>
       <button type="button" class="qsort" id="tsToObj" onclick="tsMakeObj()" style="margin-bottom:12px">Сделать объектом обслуживания — с чек-листом и историей</button>
-    <div id="tsCatWrap"></div>
     </div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeTaskSheet()">Отмена</button><button class="btn-main" onclick="saveTaskSheet()">ОК</button></div>
   </div>
 </div>
 
-<!-- ===== SHEET: быстрый ввод (FAB) ===== -->
+<!-- ===== SHEET: новая задача — и «+», и «Добавить задачу» (правка 1.18, как в Todoist) ===== -->
 <div id="qsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeQuick)">
-  <div class="sheet-card split"><div class="grip"></div>
-    <h3>Новая задача</h3>
-    <input id="qaInput" class="qa-input" type="text" placeholder="Что нужно сделать?" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();event.target.blur();}">
-    <div class="sheet-scroll" style="margin:12px -18px 0">
-    <div id="qaCatPick"></div>
-    <div class="fld-lbl">Очередь</div><div class="pri-row" id="qaPri"></div>
-    <div class="wktog" id="qaWk" onclick="qaToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">На выходные<small>Показать в общей витрине выходных</small></span><span class="toggle"></span></div>
+  <div class="sheet-card split qa-card"><div class="grip"></div>
+    <input id="qaInput" class="qa-input" type="text" placeholder="Название задачи" aria-label="Название задачи" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();event.target.blur();}">
+    <div class="sheet-scroll" style="margin:10px -18px 0">
+    <div class="qa-chips"><div class="pri-row" id="qaPri"></div><button type="button" class="qa-desc" id="qaDescBtn" aria-expanded="false" onclick="qaToggleDesc()"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>Описание</button></div>
+    <div class="fld" id="qaDesc" style="display:none">
+      <div class="fld-head"><span>Описание</span>
+        <button type="button" class="expandb" onclick="openNoteEditor('qaNote')" title="Развернуть на весь экран"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7.5 7.5"/><path d="M3 21l7.5-7.5"/></svg></span>Развернуть</button>
+      </div>
+      <div class="rt-bar" data-ed="qaNote" role="toolbar" aria-label="Форматирование">
+        <button type="button" data-c="h1" title="Заголовок" onpointerdown="rtCmd(event,'h1')" onmousedown="event.preventDefault()">H1</button><button type="button" data-c="h2" title="Подзаголовок" onpointerdown="rtCmd(event,'h2')" onmousedown="event.preventDefault()">H2</button><button type="button" data-c="b" title="Жирный" onpointerdown="rtCmd(event,'b')" onmousedown="event.preventDefault()"><b>B</b></button><button type="button" data-c="i" title="Курсив" onpointerdown="rtCmd(event,'i')" onmousedown="event.preventDefault()"><i>I</i></button><button type="button" data-c="u" title="Подчёркнутый" onpointerdown="rtCmd(event,'u')" onmousedown="event.preventDefault()"><u>U</u></button><button type="button" data-c="s" title="Зачёркнутый" onpointerdown="rtCmd(event,'s')" onmousedown="event.preventDefault()"><s>S</s></button><button type="button" data-c="ul" title="Список" onpointerdown="rtCmd(event,'ul')" onmousedown="event.preventDefault()">•</button><button type="button" data-c="ol" title="Нумерация" onpointerdown="rtCmd(event,'ol')" onmousedown="event.preventDefault()">1.</button><button type="button" data-c="ck" title="Чек-лист" onpointerdown="rtCmd(event,'ck')" onmousedown="event.preventDefault()" aria-label="Чек-лист"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></span></button>
+      </div>
+      <div id="qaNote" class="rt" contenteditable="true" spellcheck="true" aria-label="Описание"></div>
     </div>
-    <div class="sheet-acts"><button class="btn-ghost" onclick="closeQuick()">Отмена</button><button class="btn-main" onclick="qaAdd()">Добавить</button></div>
+    <div class="wktog" id="qaWk" onclick="qaToggleWk()"><span class="we ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 9.5h18"/></svg></span><span class="wl">Сегодня</span><span class="toggle"></span></div>
+    <div id="qaCatList"></div>
+    </div>
+    <div class="qa-foot"><button type="button" class="qa-cat" id="qaCatBtn" aria-expanded="false" onclick="qaTogglePick()"></button><button class="btn-main" onclick="qaAdd()">Добавить</button></div>
   </div>
 </div>
 
@@ -1012,14 +1032,6 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
   </div>
 </div>
 
-<!-- ===== SHEET: посмотреть списком ===== -->
-<div id="vsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeViewSheet)">
-  <div class="sheet-card split"><div class="grip"></div>
-    <div class="ts-head"><h3 id="vsTitle">Список</h3><button class="ts-del" style="color:var(--muted)" onclick="closeViewSheet()">Закрыть</button></div>
-    <div class="vlist sheet-scroll" id="vsBody"></div>
-  </div>
-</div>
-
 <!-- ===== SHEET: описание на весь экран ===== -->
 <div id="nsheet" class="sheet-back hidden" onclick="sheetBack(event,this,closeNoteEditor)">
   <div class="sheet-card split"><div class="grip"></div>
@@ -1027,7 +1039,7 @@ body:not(.nofab) #toast{bottom:calc(86px + env(safe-area-inset-bottom) + var(--v
     <div class="rt-bar" data-ed="nsText" role="toolbar" aria-label="Форматирование">
         <button type="button" data-c="h1" title="Заголовок" onpointerdown="rtCmd(event,'h1')" onmousedown="event.preventDefault()">H1</button><button type="button" data-c="h2" title="Подзаголовок" onpointerdown="rtCmd(event,'h2')" onmousedown="event.preventDefault()">H2</button><button type="button" data-c="b" title="Жирный" onpointerdown="rtCmd(event,'b')" onmousedown="event.preventDefault()"><b>B</b></button><button type="button" data-c="i" title="Курсив" onpointerdown="rtCmd(event,'i')" onmousedown="event.preventDefault()"><i>I</i></button><button type="button" data-c="u" title="Подчёркнутый" onpointerdown="rtCmd(event,'u')" onmousedown="event.preventDefault()"><u>U</u></button><button type="button" data-c="s" title="Зачёркнутый" onpointerdown="rtCmd(event,'s')" onmousedown="event.preventDefault()"><s>S</s></button><button type="button" data-c="ul" title="Список" onpointerdown="rtCmd(event,'ul')" onmousedown="event.preventDefault()">•</button><button type="button" data-c="ol" title="Нумерация" onpointerdown="rtCmd(event,'ol')" onmousedown="event.preventDefault()">1.</button><button type="button" data-c="ck" title="Чек-лист" onpointerdown="rtCmd(event,'ck')" onmousedown="event.preventDefault()" aria-label="Чек-лист"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></span></button>
       </div>
-    <div id="nsText" class="rt rt-full" contenteditable="true" spellcheck="true" data-ph="Пишите свободно. «- » и пробел — список, «[] » — галочка."></div>
+    <div id="nsText" class="rt rt-full" contenteditable="true" spellcheck="true"></div>
     <div class="sheet-acts"><button class="btn-ghost" onclick="closeNoteEditor()">Отмена</button><button class="btn-main" onclick="saveNoteEditor()">Сохранить</button></div>
   </div>
 </div>
@@ -1153,6 +1165,9 @@ const P={
   lamp:'<path d="M9 3h6l3 6H6z"/><path d="M12 9v9"/><path d="M8 21h8"/>',
   /* типовые */
   star:'<path d="m12 3 2.7 5.6 6.1.8-4.5 4.3 1.1 6-5.4-2.9-5.4 2.9 1.1-6L3.2 9.4l6.1-.8z"/>',
+  layers:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 12.5 9 5 9-5"/><path d="m3 17 9 5 9-5"/>',
+  eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  sortAz:'<path d="M3.5 10.5 6.5 3l3 7.5M4.6 8h3.8"/><path d="M3.8 14h5.4l-5.4 7h5.4"/><path d="M17 4v16M13.5 16.5 17 20l3.5-3.5"/>',
   flag:'<path d="M5 21V4"/><path d="M5 4c4-2 6 2 10 0v9c-4 2-6-2-10 0"/>',
   book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M20 17v5H6.5a2.5 2.5 0 0 1 0-5"/>',
   mail:'<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m2.5 7 9.5 6.5L21.5 7"/>',
@@ -1275,7 +1290,7 @@ function ic(id,style){
   return `<span class="ic"${style?` style="${style}"`:''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${P[id]||''}</svg></span>`;
 }
 const ICON_LIB=['roof','building','fence','brick','droplet','faucet','flame','boiler','pipe','extinguisher','wrench','screwdriver','gear','toolbox','drill','nut','gauge','battery','funnel','wind','fan','thermometer','radiator','plug','bolt','hammer','paint','brush','ruler','ladder','window','door','garage','box','truck','folder','documents','receipt','passport','clipboard','checklist','bed','sofa','wardrobe','table','chair','shelf','lamp','mirror','hanger','shirt','scissors','glasses','utensils','coffee','kettle','stove','sink','wine','cake','apple','carrot','basket','fridge','microwave','dishwasher','washer','iron','vacuum','shower','bath','toilet','tv','cart','broom','spray','bucket','trash','recycle','cpu','laptop','printer','speaker','wifi','bell','camera','lightbulb','lock','key','phone','shield','bank','wallet','card','coins','medkit','pill','syringe','stethoscope','tooth','heartpulse','heart','palette','car','fuel','bike','plane','suitcase','anchor','leaf','plant','flower','tree','shovel','bug','sun','moon','cloud','snowflake','mountain','waves','fish','umbrella','pet','baby','family','user','chat','star','trophy','target','dumbbell','game','music','school','briefcase','flag','book','mail','clock','hourglass','pin','tag','gift','home','inbox','calendar'];
-const ICON_NAMES={roof:'кровля',brick:'фасад',droplet:'вода',faucet:'смеситель',flame:'пожар',extinguisher:'огнетуш.',wrench:'ремонт',screwdriver:'отвёртка',gear:'механизм',drill:'дрель',nut:'крепёж',gauge:'счётчик',battery:'батарейки',funnel:'фильтр',wind:'вентил.',fan:'кондиц.',thermometer:'тепло',radiator:'радиатор',plug:'розетка',bolt:'электро',hammer:'молоток',paint:'покраска',ruler:'замер',ladder:'стремянка',window:'окно',door:'дверь',garage:'гараж',box:'коробка',folder:'папка',documents:'документы',bed:'спальня',sofa:'диван',wardrobe:'шкаф',table:'стол',chair:'стул',shelf:'полка',lamp:'лампа',mirror:'зеркало',utensils:'кухня',coffee:'кофе',fridge:'холодильник',microwave:'микроволновка',dishwasher:'посудомойка',washer:'стиралка',iron:'утюг',vacuum:'пылесос',shower:'душ',bath:'ванна',toilet:'санузел',tv:'техника',cart:'купить',broom:'уборка',trash:'мусор',cpu:'умный дом',wifi:'wi-fi',camera:'камера',lightbulb:'свет',lock:'замок',key:'ключи',phone:'звонок',shield:'страховка',medkit:'аптечка',pill:'лекарства',syringe:'прививки',stethoscope:'врач',tooth:'зубы',heartpulse:'здоровье',palette:'дизайн',car:'авто',leaf:'сад',plant:'растение',sun:'улица',umbrella:'дождь',pet:'питомец',baby:'малыш',star:'важное',flag:'флаг',book:'книги',mail:'почта',clock:'время',pin:'место',tag:'ярлык',gift:'подарки',home:'дом',inbox:'входящие',calendar:'выходные',snowflake:'зима',tree:'дерево',flower:'цветы',apple:'еда',carrot:'овощи',basket:'корзина',kettle:'чайник',stove:'плита',sink:'раковина',wine:'бокал',cake:'праздник',shirt:'одежда',hanger:'вешалка',scissors:'ножницы',glasses:'очки',spray:'химия',bucket:'ведро',brush:'кисть',recycle:'сортировка',toolbox:'инструменты',boiler:'котёл',pipe:'трубы',bell:'сигнализ.',fence:'забор',shovel:'лопата',building:'квартира',bank:'банк',wallet:'кошелёк',card:'карта',coins:'деньги',receipt:'счета',passport:'паспорт',clipboard:'планшет',checklist:'чек-лист',briefcase:'работа',school:'учёба',laptop:'ноутбук',printer:'принтер',speaker:'колонка',music:'музыка',game:'игры',dumbbell:'спорт',bike:'велосипед',trophy:'цель',target:'мишень',plane:'поездка',suitcase:'чемодан',truck:'доставка',fuel:'топливо',anchor:'море',waves:'бассейн',fish:'рыбалка',mountain:'горы',moon:'ночь',cloud:'облако',bug:'насекомые',heart:'любимое',family:'семья',user:'человек',chat:'общение',hourglass:'ожидание'};
+const ICON_NAMES={roof:'кровля',brick:'фасад',droplet:'вода',faucet:'смеситель',flame:'пожар',extinguisher:'огнетуш.',wrench:'ремонт',screwdriver:'отвёртка',gear:'механизм',drill:'дрель',nut:'крепёж',gauge:'счётчик',battery:'батарейки',funnel:'фильтр',wind:'вентил.',fan:'кондиц.',thermometer:'тепло',radiator:'радиатор',plug:'розетка',bolt:'электро',hammer:'молоток',paint:'покраска',ruler:'замер',ladder:'стремянка',window:'окно',door:'дверь',garage:'гараж',box:'коробка',folder:'папка',documents:'документы',bed:'спальня',sofa:'диван',wardrobe:'шкаф',table:'стол',chair:'стул',shelf:'полка',lamp:'лампа',mirror:'зеркало',utensils:'кухня',coffee:'кофе',fridge:'холодильник',microwave:'микроволновка',dishwasher:'посудомойка',washer:'стиралка',iron:'утюг',vacuum:'пылесос',shower:'душ',bath:'ванна',toilet:'санузел',tv:'техника',cart:'купить',broom:'уборка',trash:'мусор',cpu:'умный дом',wifi:'wi-fi',camera:'камера',lightbulb:'свет',lock:'замок',key:'ключи',phone:'звонок',shield:'страховка',medkit:'аптечка',pill:'лекарства',syringe:'прививки',stethoscope:'врач',tooth:'зубы',heartpulse:'здоровье',palette:'дизайн',car:'авто',leaf:'сад',plant:'растение',sun:'улица',umbrella:'дождь',pet:'питомец',baby:'малыш',star:'важное',flag:'флаг',book:'книги',mail:'почта',clock:'время',pin:'место',tag:'ярлык',gift:'подарки',home:'дом',inbox:'входящие',calendar:'сегодня',snowflake:'зима',tree:'дерево',flower:'цветы',apple:'еда',carrot:'овощи',basket:'корзина',kettle:'чайник',stove:'плита',sink:'раковина',wine:'бокал',cake:'праздник',shirt:'одежда',hanger:'вешалка',scissors:'ножницы',glasses:'очки',spray:'химия',bucket:'ведро',brush:'кисть',recycle:'сортировка',toolbox:'инструменты',boiler:'котёл',pipe:'трубы',bell:'сигнализ.',fence:'забор',shovel:'лопата',building:'квартира',bank:'банк',wallet:'кошелёк',card:'карта',coins:'деньги',receipt:'счета',passport:'паспорт',clipboard:'планшет',checklist:'чек-лист',briefcase:'работа',school:'учёба',laptop:'ноутбук',printer:'принтер',speaker:'колонка',music:'музыка',game:'игры',dumbbell:'спорт',bike:'велосипед',trophy:'цель',target:'мишень',plane:'поездка',suitcase:'чемодан',truck:'доставка',fuel:'топливо',anchor:'море',waves:'бассейн',fish:'рыбалка',mountain:'горы',moon:'ночь',cloud:'облако',bug:'насекомые',heart:'любимое',family:'семья',user:'человек',chat:'общение',hourglass:'ожидание'};
 const ICON_HINTS=[
   [['кровл','крыш','водосток'],'roof'],[['фасад','стен','цокол'],'brick'],[['протеч','вод','сантех','труб'],'droplet'],
   [['пожар','огонь','дым'],'flame'],[['огнетуш'],'extinguisher'],[['вентил','вытяж'],'wind'],[['кондиц','сплит'],'fan'],
@@ -1306,7 +1321,8 @@ const PRI={'':{lbl:'Без очереди'},red:{lbl:'1 очередь',c:'var(-
 const PRI_ORDER={red:0,orange:1,fast:2,green:3,'':4};
 const PRI_NUM={red:1,orange:2,fast:3,green:4};
 function priGlyph(p){ if(p==='') return `<span class="pg"><span class="ring"></span></span>`; return `<span class="pg"><span class="lv" style="background:${PRI[p].c}">${PRI_NUM[p]}</span></span>`; }
-function priChips(cur,handler){ let h=''; ['','red','orange','fast','green'].forEach(p=>{ h+=`<button class="pchip ${cur===p?'on':''}" data-p="${p}" onclick="${handler}('${p}')">${priGlyph(p)}${PRI[p].lbl}</button>`; }); return h; }
+/* Только значки, без подписей (правка 1.18) — подпись ушла в title/aria-label */
+function priChips(cur,handler){ let h=''; ['','red','orange','fast','green'].forEach(p=>{ h+=`<button type="button" class="pchip ${cur===p?'on':''}" data-p="${p}" title="${PRI[p].lbl}" aria-label="${PRI[p].lbl}" aria-pressed="${cur===p?'true':'false'}" onclick="${handler}('${p}')">${priGlyph(p)}</button>`; }); return h; }
 
 /* ---------- ДОСТУП ---------- */
 function doSignIn(){ document.getElementById('pwErr').textContent=''; if(window.AUTH) window.AUTH.signIn(); }
@@ -1522,7 +1538,8 @@ function migrate(raw){
      каком подсчёте (метрики, очереди, обслуживание), пока не восстановят. */
   if(!Array.isArray(s.archive)) s.archive=[];
   s.archive.forEach(c=>normCat(c,s.cats));
-  if(typeof s.wkTitle!=='string' || !s.wkTitle) s.wkTitle='На выходных';
+  /* «На выходных» → «Сегодня» (правка 1.18): меняем только нетронутое старое имя */
+  if(typeof s.wkTitle!=='string' || !s.wkTitle || s.wkTitle==='На выходных') s.wkTitle='Сегодня';
   /* счётчики «за всё время»: при первом запуске отталкиваемся от текущего списка.
      Частичный объект (есть created, нет done) раньше давал NaN навсегда. */
   if(!s.stats || typeof s.stats!=='object'){ let t=0,d=0; s.cats.forEach(c=>c.groups.forEach(g=>{ if(g.items) g.items.forEach(it=>{ t++; if(it.done)d++; }); })); s.stats={created:t,done:d}; }
@@ -1547,6 +1564,7 @@ function migrate(raw){
   if(pr.hubView!=='tiles' && pr.hubView!=='list') pr.hubView=lsv('hub_view')==='list'?'list':'tiles';
   if(pr.wkView!=='cats' && pr.wkView!=='list') pr.wkView=lsv('wk_view')==='list'?'list':'cats';
   if(typeof pr.qNew!=='boolean') pr.qNew=lsv('q_sort_new')!=='0';
+  if(typeof pr.hubAlpha!=='boolean') pr.hubAlpha=false;   /* A→Z на главной (1.18) — только показ */
   if(THEMES.indexOf(pr.theme)<0){ const t=lsv('theme'); pr.theme=THEMES.indexOf(t)>=0?t:'system'; }
   if(!Array.isArray(pr.dueHide)){ let a=[]; try{ a=JSON.parse(lsv('due_hide')||'[]'); }catch(e){} pr.dueHide=Array.isArray(a)?a:[]; }
   pr.dueHide=pr.dueHide.filter(x=>typeof x==='string').slice(0,200);
@@ -1556,10 +1574,10 @@ function migrate(raw){
 let STATE, MODEL=[];
 /* sortPri/newTop — зеркало STATE.prefs. Объявлены через var без значения: syncModelRef()
    зовётся уже в load(), раньше, чем дошла бы очередь до let-объявления (TDZ). */
-var sortPri, newTop, hideDone, hubView, wkView, qNew, theme, __themeReady=false;
+var sortPri, newTop, hideDone, hubView, hubAlpha, wkView, qNew, theme, __themeReady=false;
 const THEMES=['light','dark','system'];
 function syncModelRef(){ MODEL=STATE.cats; const p=STATE.prefs;
-  sortPri=p.sortPri; newTop=p.newTop; hideDone=p.hideDone; hubView=p.hubView; wkView=p.wkView; qNew=p.qNew;
+  sortPri=p.sortPri; newTop=p.newTop; hideDone=p.hideDone; hubView=p.hubView; hubAlpha=p.hubAlpha; wkView=p.wkView; qNew=p.qNew;
   const th=p.theme;
   /* зеркало в localStorage: тема нужна скрипту в <head> ещё до загрузки списка */
   try{ localStorage.setItem('theme',th); localStorage.setItem('hide_done',hideDone?'1':'0'); localStorage.setItem('hub_view',hubView);
@@ -1804,7 +1822,6 @@ function objValTx(o,e){ return e&&e.val ? e.val+(o.metric?' · '+o.metric:'') : 
 const PER_U={d:['день','дня','дней'],w:['неделю','недели','недель'],m:['месяц','месяца','месяцев'],y:['год','года','лет']};
 function periodLabel(r){ const f=PER_U[r.unit]||PER_U.m; return r.n===1 ? 'раз в '+f[0] : 'каждые '+r.n+' '+plural(r.n,f[0],f[1],f[2]); }
 function ensureSvcGroup(c){ let g=c.groups.find(x=>x.svc&&x.items); if(!g){ g=mkGroup({emo:'repeat',title:'Цикличные',items:[],svc:true}); c.groups.unshift(g); } return g; }
-function totalUrgent(){ let n=0; eachItem(it=>{ if(it.pri==='red'&&!it.done)n++; }); return n; }
 function inboxCount(){ const ib=getInbox(); let n=0; if(ib) ib.groups.forEach(g=>g.items&&g.items.forEach(it=>{ if(!it.done)n++; })); return n; }
 /* Бейдж на хабе не должен зависеть от «скрыть ✓» и режима правки — как в Inbox, считаем невыполненные */
 function wkCount(){ let n=0; weekendAll().forEach(g=>g.items.forEach(it=>{ if(!it.done)n++; })); return n; }
@@ -1995,7 +2012,8 @@ function hmGo(fn){ closeHMenu(); fn(); }
 /* меню привязано к кнопке координатами — при прокрутке/повороте просто закрываем */
 window.addEventListener('scroll',()=>{ if(hmOpen) closeHMenu(); },{passive:true});
 window.addEventListener('resize',()=>{ if(hmOpen) closeHMenu(); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape' && hmOpen) closeHMenu(); });
+document.addEventListener('keydown',e=>{ if(e.key!=='Escape') return; if(hmOpen) closeHMenu();
+  else if(document.getElementById('qsheet').dataset.open==='1' && document.getElementById('nsheet').dataset.open!=='1') closeQuick(); });
 /* Запись — транзакцией (CLOUD.sync): читаем, что СЕЙЧАС в облаке. Совпадает с BASE —
    пишем свою версию; не совпадает (другое устройство успело записать) — сливаем
    mergeStates(BASE, моя, облако) и пишем результат. Офлайн транзакция падает: правка
@@ -2276,6 +2294,7 @@ function toggleHideDone(){ setPrefV('hideDone',!hideDone); render(); }
 function setPref(k,lsKey,v){ STATE.prefs[k]=!!v; syncModelRef(); try{ localStorage.setItem(lsKey, v?'1':'0'); }catch(e){} save(); }
 function toggleSortPri(){ setPref('sortPri','sort_pri',!sortPri); render(); }
 function setHubView(v){ setPrefV('hubView',v==='list'?'list':'tiles'); render(); }
+function toggleHubAlpha(){ if(editmode) return; setPrefV('hubAlpha',!hubAlpha); render(); }
 /* Тумблеры «скрыть ✓» и «очередь» живут в шапке категории, но настройка общая —
    те же ключи localStorage продублированы переключателями в профиле. */
 function setHideDone(v){ setPrefV('hideDone',!!v); renderAll(); }
@@ -2337,20 +2356,25 @@ function acctEmail(){ return (__authedUser&&__authedUser.email)||''; }
 function acctInitial(){ const n=acctName().trim(); return n?esc(n[0].toUpperCase()):'👤'; }
 /* Индикатор облака — бейджем на аватаре, отдельной кнопки-точки больше нет */
 function avatarBtn(){ return `<button class="av" onclick="openProfile(false)" id="avBtn" aria-label="Профиль">${acctInitial()}<span class="cdot ${cloudState}" id="cloudDot"></span></button>`; }
-function queueBtn(n){ return n
-  ? `<button class="q q1" onclick="openQueues()" aria-label="Очереди задач, в первой очереди ${n}">${ic('sortimp')} Очереди <span class="n">${n}</span></button>`
-  : `<button class="q qall" onclick="openQueues()" aria-label="Очереди задач">${ic('sortimp')} Очереди</button>`; }
+/* Правка 1.18: прямоугольная, как «править», без красной заливки и без счётчика —
+   постоянно «нажатая» красная кнопка отвлекала. Иконка — стопка, а не сортировка. */
+function queueBtn(){ return `<button class="q" onclick="openQueues()" aria-label="Очереди задач">${ic('layers')} Очереди</button>`; }
 /* Логотип — кнопка «на главную, в самый верх» (правка 1.14) */
 function brandBtn(){ return `<button type="button" class="brand" onclick="goHubTop()" aria-label="На главную">${ic('home')} <span class="tx">Дом!</span></button>`; }
+/* Шапка категории (правка 1.18): вместо подписей — иконки. Флажок: нажат — задачи
+   стоят по очередям 1→4, отжат — ручной порядок. Глаз: подсвечен, когда выполненные
+   ПОКАЗАНЫ; обычное состояние — скрыты и кнопка не подсвечена. */
+function sortPriBtn(){ return `<button class="tgl ico ${sortPri?'on':''}" onclick="toggleSortPri()" title="Сначала по очереди" aria-label="Сначала по очереди" aria-pressed="${sortPri?'true':'false'}">${ic('flag')}</button>`; }
+function showDoneBtn(hide){ const on=!hideDone;
+  return `<button class="tgl ico ${on?'on':''} ${hide?'hidden':''}" onclick="toggleHideDone()" title="Показать выполненные" aria-label="Показать выполненные" aria-pressed="${on?'true':'false'}">${ic('eye')}</button>`; }
 function edBar(){ return `<div class="edbar">${ic('pencil')} Режим правки<button type="button" onclick="toggleEdit()">Готово</button></div>`; }
 
 function renderHeader(){
-  const urg=totalUrgent();
   if(active===null){
     /* Одна строка: слева логотип, справа «Очереди» → правка → меню «⋯» → аватар.
        Поиск/Отчёт/Архив спрятаны в меню, переключатель плитки/списка — у заголовка «Категории». */
     hdrEl.innerHTML=`<div class="h-row">${brandBtn()}
-      <div class="h-right">${queueBtn(urg)}
+      <div class="h-right">${queueBtn()}
         <button class="hb edit" onclick="toggleEdit()" title="Режим правки" aria-label="Режим правки">${ic('pencil')}</button>
         <button class="hb" id="hmBtn" onclick="openHMenu(event)" title="Ещё" aria-label="Ещё: поиск, отчёт, архив" aria-haspopup="true">${ic('dots')}</button>
         ${avatarBtn()}</div></div>${editmode?edBar():''}`;
@@ -2360,9 +2384,7 @@ function renderHeader(){
       <div class="catttl"><span class="ce" style="${chipStyle('#37478f')}">${ic('calendar')}</span><span class="nm">${esc(STATE.wkTitle)}</span></div>
       <div class="h-right"><button class="hb edit" onclick="toggleEdit()" title="Править" aria-label="Править">${ic('pencil')}</button>${avatarBtn()}</div></div>
       ${editmode?edBar():''}
-      <div class="bar-row" style="justify-content:flex-end"><span class="h-toggles">
-        <button class="tgl ${hideDone?'on':''}" onclick="toggleHideDone()">${hideDone?'показать ✓':'скрыть ✓'}</button>
-      </span></div>`;
+      <div class="bar-row" style="justify-content:flex-end"><span class="h-toggles">${showDoneBtn(false)}</span></div>`;
   } else if(active==='__svc__'){
     hdrEl.innerHTML=`<div class="h-row">
       <button class="bk" onclick="goHub()">${ic('chevL')}</button>
@@ -2383,33 +2405,34 @@ function renderHeader(){
       <div class="tg-row">
         <button class="tgl srch" onclick="openSearch()" title="Поиск по задачам" aria-label="Поиск по задачам">${ic('search')}</button>
         <span class="h-toggles">
-          <button class="tgl ${sortPri?'on':''}" onclick="toggleSortPri()">${ic('sortimp')} очередь</button>
-          <button class="tgl" onclick="openViewCurrent()" title="Посмотреть списком" aria-label="Посмотреть списком">${ic('list')} список</button>
-          <button class="tgl ${hideDone?'on':''} ${s.d?'':'hidden'}" onclick="toggleHideDone()">${hideDone?'показать ✓':'скрыть ✓'}</button>
+          ${sortPriBtn()}${showDoneBtn(!s.d)}
         </span></div>`;
   }
 }
 
 function renderHub(){
   const ib=getInbox();
-  let h=`<div class="pin inbox" role="button" tabindex="0" onclick="openCat('${ib.key}')"><span class="ico">${ic('inbox')}</span><span class="nm">${esc(ib.title||'Входящие')}<small>Быстрый ввод, разобрать позже</small></span><span class="badge ${inboxCount()?'':'zero'}">${inboxCount()}</span></div>`;
-  h+=`<div class="pin wk" role="button" tabindex="0" onclick="openWeekend()"><span class="ico">${ic('calendar')}</span><span class="nm">${esc(STATE.wkTitle)}<small>Отмеченные задачи со всех категорий</small></span><span class="badge ${wkCount()?'':'zero'}">${wkCount()}</span></div>`;
-  const svcDue=svcDueCount(), on=STATE.objs.length;
-  h+=`<div class="pin svc" role="button" tabindex="0" onclick="openService()"><span class="ico" style="${chipStyle('var(--svc)')}">${ic('gear')}</span><span class="nm">Обслуживание<small>${on?on+' '+plural(on,'объект','объекта','объектов')+' · фильтры, техника, ТО':'Фильтры, техника, ТО — с историей'}</small></span><span class="badge ${svcDue?'':'zero'}"${svcDue?' style="background:var(--svc)"':''}>${svcDue}</span></div>`;
+  let h=`<div class="pin inbox" role="button" tabindex="0" onclick="openCat('${ib.key}')"><span class="ico">${ic('inbox')}</span><span class="nm">${esc(ib.title||'Входящие')}</span><span class="badge ${inboxCount()?'':'zero'}">${inboxCount()}</span></div>`;
+  h+=`<div class="pin wk" role="button" tabindex="0" onclick="openWeekend()"><span class="ico">${ic('calendar')}</span><span class="nm">${esc(STATE.wkTitle)}</span><span class="badge ${wkCount()?'':'zero'}">${wkCount()}</span></div>`;
+  const svcDue=svcDueCount();
+  h+=`<div class="pin svc" role="button" tabindex="0" onclick="openService()"><span class="ico" style="${chipStyle('var(--svc)')}">${ic('gear')}</span><span class="nm">Обслуживание</span><span class="badge ${svcDue?'':'zero'}"${svcDue?' style="background:var(--svc)"':''}>${svcDue}</span></div>`;
   /* подошёл срок — объекты поднимаются на самый верх главного экрана */
   const hid=dueHidden(), due=dueObjs().filter(o=>!hid.has(dueSig(o)));
   if(due.length) h=`<div class="duebox"><div class="duebox-h"><span class="dt" role="button" tabindex="0" onclick="openService()">${ic('clock')} Пора обслужить · ${due.length}</span><button type="button" class="due-x" onclick="hideDueBox()" title="Скрыть до наступления срока">Скрыть</button></div><div class="olist">${due.slice(0,5).map(objRow).join('')}</div>${due.length>5?`<div class="rep-more" role="button" tabindex="0" onclick="openService()">ещё ${due.length-5} — открыть «Обслуживание»</div>`:''}</div>`+h;
   const list=hubView==='list';
-  h+=`<div class="sect-l"><span>Категории</span>
+  /* A→Z — только показ (правка 1.18): порядок в данных не трогаем, отжали — вернулся свой.
+     В режиме правки всегда свой порядок, иначе перетаскивание двигало бы «не то». */
+  const az=hubAlpha && !editmode;
+  h+=`<div class="sect-l"><span>Категории</span><span class="sect-tools">
+    <span class="viewseg"><button class="${az?'on':''}" title="По алфавиту" aria-label="По алфавиту" aria-pressed="${az?'true':'false'}" onclick="toggleHubAlpha()"${editmode?' disabled':''}>${ic('sortAz')}</button></span>
     <span class="viewseg">
       <button class="${list?'':'on'}" title="Плитками" aria-label="Плитками" aria-pressed="${list?'false':'true'}" onclick="setHubView('tiles')">${ic('grid')}</button>
       <button class="${list?'on':''}" title="Списком" aria-label="Списком" aria-pressed="${list?'true':'false'}" onclick="setHubView('list')">${ic('list')}</button>
-    </span></div><div class="hub${list?' list':''}">`;
-  const cats=realCats();
+    </span></span></div><div class="hub${list?' list':''}">`;
+  const cats=az ? realCats().sort((a,b)=>(a.title||a.tab||'').localeCompare(b.title||b.tab||'','ru')) : realCats();
   if(!cats.length){ h+=`<div class="hub-empty">Категорий пока нет.<br>Добавьте первую — например «Кухня» или «Ремонт».</div>`; }
   cats.forEach(c=>{ const s=catStats(c);
     h+=`<div class="hcard" role="button" tabindex="0" data-key="${c.key}" onclick="hubCardTap('${c.key}')" onpointerdown="onHubCardDown(event,'${c.key}')"><span class="ico" style="${chipStyle(catColor(c))}">${ic(c.icon)}</span>
-      <button class="favb${c.fav?' on':''}" title="Избранное" aria-label="Избранное" aria-pressed="${c.fav?'true':'false'}" onclick="toggleFav(event,'${c.key}')">${ic('star')}</button>
       <div class="nm">${esc(c.title||c.tab)}</div>
       <div class="mini"><i style="width:${s.pct}%;background:${catColor(c)}"></i></div>
       <div class="cl"><span>${s.t? (s.t-s.d? (s.t-s.d)+' '+plural(s.t-s.d,'задача','задачи','задач') : 'всё сделано') : 'пусто'}</span>${s.red?`<span class="rd"><span class="pdot"></span>${s.red}</span>`:''}</div>
@@ -2433,18 +2456,6 @@ function hideDueBox(){
   showToast('Скрыто до срока обслуживания', ()=>{ setPrefV('dueHide',[]); render(); });
 }
 function hubCardTap(key){ if(justDragged||tapSuppressed()) return; if(editmode){ openCatEditor(key); } else { openCat(key); } }
-/* Избранное: как в Asana — звезда поднимает карточку наверх, следующая встаёт за ней */
-function toggleFav(e,key){ e.stopPropagation(); const c=catByKey(key); if(!c) return;
-  if(c.fav){ delete c.fav; }
-  else { c.fav=true;
-    const arr=STATE.cats; arr.splice(arr.indexOf(c),1);
-    /* идём сверху до первой НЕизбранной: сканирование с конца находило «отбившуюся»
-       звёздочку внизу списка и новая карточка уезжала туда же, а не наверх */
-    let idx=1; /* сразу после Входящих */
-    while(idx<arr.length && arr[idx].fav) idx++;
-    arr.splice(idx,0,c);
-  }
-  save(); renderAll(); }
 
 /* подпись «из какой категории» под задачей в сквозных списках (выходные, очереди) */
 function catLine(c){ return `<span class="catn">${ic(c.icon,'color:'+catTx(catColor(c))+';font-size:12px')} ${esc(c.title||c.tab)}</span>`; }
@@ -2459,7 +2470,7 @@ function itemRow(it,sub){
     <span class="box" role="checkbox" tabindex="0" aria-checked="${it.done?'true':'false'}" onclick="boxTap(event,'${it.id}')">${ic('check')}</span>
     <div class="lw"><span class="lbl">${esc(it.t)}</span>${note}${rec}${sub||''}</div>
     <span class="irow-btns">
-      <button class="iqb wkflame ${it.wk?'wkon':''}" title="Взять на выходные" aria-label="Взять на выходные" aria-pressed="${it.wk?'true':'false'}" onclick="quickWk(event,'${it.id}')">${ic('flame')}</button>
+      <button class="iqb wkflame ${it.wk?'wkon':''}" title="Взять в «Сегодня»" aria-label="Взять в «Сегодня»" aria-pressed="${it.wk?'true':'false'}" onclick="quickWk(event,'${it.id}')">${ic('flame')}</button>
     </span>
     <button class="act del" title="Удалить" aria-label="Удалить" onclick="delItem(event,'${it.id}')">${ic('trash')}</button>
   </div>`;
@@ -2519,7 +2530,7 @@ function wkSeg(){
 }
 function renderWeekend(){
   const groups=weekendItems();
-  if(!groups.length){ viewEl.innerHTML=`<div class="empty">${ic('flame')}<br>Пока ничего не запланировано на выходные.<br>Отмечайте задачи огоньком в любой категории.</div>`; return; }
+  if(!groups.length){ viewEl.innerHTML=`<div class="empty">${ic('flame')}<br>Пока ничего не взято на сегодня.<br>Отмечайте задачи огоньком в любой категории.</div>`; return; }
   let h=wkSeg();
   if(wkView==='list'){
     /* Сплошной список срочных дел: сначала 1 очередь, потом 2…4 и «без очереди».
@@ -3101,7 +3112,7 @@ function arRestore(key){
 function arDelete(key){ deleteArchived(key); }
 
 /* ---------- SHEET: задача ---------- */
-let tsMode='new', tsId=null, tsCatKey=null, tsGid=null, tsPri='', tsWk=false, tsTargetCat=null, tsOrig=null;
+let tsMode='edit', tsId=null, tsPri='', tsWk=false, tsTargetCat=null, tsOrig=null;
 /* Счётчик, а не флаг: поверх профиля может открыться bottom-sheet —
    его закрытие не должно разблокировать фон, пока профиль ещё открыт. */
 let scrollLocks=0;
@@ -3190,20 +3201,10 @@ function placeByRec(id){
     f.g.items=f.g.items.filter(x=>x!==f.it); ng.items.unshift(f.it);
   }
 }
-/* Один виджет «Добавить в категорию» на быстрый ввод и на новую задачу —
-   раньше это были две почти одинаковые функции, которые легко разъезжались. */
-function catPickHtml(curKey,onPick,onToggle,open){
-  const c=catByKey(curKey)||getInbox();
-  const list=alphaCats().map(x=>`<div class="cpi ${x.key===curKey?'on':''}" role="button" tabindex="0" onclick="${onPick}('${x.key}')">${ic(x.icon,'color:'+catTx(catColor(x)))}${esc(x.title||x.tab)}</div>`).join('');
-  return `<button class="catpick" type="button" aria-expanded="${open?'true':'false'}" onclick="${onToggle}()"><span class="cp-lbl">Добавить в категорию</span><span class="cp-cur">${ic(c.icon,'color:'+catTx(catColor(c)))}<span class="nmx">${esc(c.title||c.tab)}</span>${ic('chevD')}</span></button><div class="catpick-list" style="display:${open?'':'none'}">${list}</div>`;
+/* Список категорий по алфавиту для выбора «куда добавить» (окно новой задачи) */
+function catListHtml(curKey,onPick){
+  return `<div class="catpick-list">${alphaCats().map(x=>`<div class="cpi ${x.key===curKey?'on':''}" role="button" tabindex="0" onclick="${onPick}('${x.key}')">${ic(x.icon,'color:'+catTx(catColor(x)))}${esc(x.title||x.tab)}</div>`).join('')}</div>`;
 }
-let tsPickOn=false;
-function renderTsCat(){
-  const wrap=document.getElementById('tsCatWrap');
-  if(tsMode==='edit'){ wrap.innerHTML=''; return; } // в правке перенос — кнопкой «Перенести» вверху
-  wrap.innerHTML=catPickHtml(tsTargetCat,'tsSetCat','tsTogglePick',tsPickOn);
-}
-function tsTogglePick(){ tsPickOn=!tsPickOn; renderTsCat(); }
 /* --- «Перенести»: выпадающий список категорий по алфавиту --- */
 function alphaCats(){ return STATE.cats.slice().sort((a,b)=>(a.title||a.tab||'').localeCompare(b.title||b.tab||'','ru')); }
 function toggleMovePanel(e){
@@ -3227,7 +3228,6 @@ function mvPick(key){
   else { note.classList.remove('show'); }
 }
 function hideMoveUI(){ document.getElementById('mvPanel').classList.remove('show'); document.getElementById('mvNote').classList.remove('show'); }
-function tsSetCat(k){ tsTargetCat=k; tsPickOn=false; renderTsCat(); }
 /* Клик по строке (кроме кнопок/чекбокса/ручки) открывает задачу — важно для десктопа,
    где раньше срабатывал только клик прямо по тексту. В режиме правки клик не открывает. */
 function itemClick(e,id){
@@ -3246,24 +3246,13 @@ function openTaskEdit(id){
   document.getElementById('tsName').value=f.it.t||'';
   tsPaintDone(f.it);
   rtSet(document.getElementById('tsNote'),f.it.n||'');
-  renderTsPri(); document.getElementById('tsWk').classList.toggle('on',tsWk); tsSetRecUI(f.it.rec||null); renderTsCat();
+  renderTsPri(); document.getElementById('tsWk').classList.toggle('on',tsWk); tsSetRecUI(f.it.rec||null);
   /* что было в карточке при открытии: по «ОК» пишем только поля, которые здесь поменяли */
   tsOrig={t:document.getElementById('tsName').value.trim(), n:rtGet(document.getElementById('tsNote')).trim(), pri:tsPri, wk:tsWk, rec:jstr(tsReadRec())};
   openSheet(document.getElementById('tsheet'));
 }
-function openTaskNew(catKey,gid){
-  /* gid, а не индекс: пока окно открыто, снапшот из облака мог переставить группы */
-  tsMode='new'; tsCatKey=catKey; tsGid=gid; tsId=null; tsPri=''; tsWk=false; tsTargetCat=catKey; tsPickOn=false;
-  document.getElementById('tsTitle').textContent='Новая задача';
-  document.getElementById('tsBtns').classList.add('hidden');
-  hideMoveUI();
-  document.getElementById('tsName').value='';
-  tsPaintDone(null);
-  rtSet(document.getElementById('tsNote'),'');
-  renderTsPri(); document.getElementById('tsWk').classList.remove('on'); tsSetRecUI(null); renderTsCat();
-  openSheet(document.getElementById('tsheet'));
-  setTimeout(()=>document.getElementById('tsName').focus(),80);
-}
+/* «Добавить задачу» в подкатегории открывает то же окно, что и «+» (правка 1.18) */
+function openTaskNew(catKey,gid){ openQuick(catKey,gid); }
 function closeTaskSheet(){ hideMoveUI(); closeSheet(document.getElementById('tsheet')); }
 function saveTaskSheet(){
   const t=document.getElementById('tsName').value.trim();
@@ -3281,7 +3270,7 @@ function saveTaskSheet(){
       showToast('Задачу удалили на другом устройстве — сохранил заново в «'+(dst.title||dst.tab||'')+'»'); }
     return;
   }
-  if(tsMode==='edit'){
+  {
     /* Только изменённые в карточке поля (правка 1.15). Раньше «ОК» переписывал все поля
        значениями на момент открытия: очередь, «на выходные» или срок, поменянные за это
        время на другом устройстве, молча откатывались. */
@@ -3294,16 +3283,6 @@ function saveTaskSheet(){
           addTaskTo(ensureInboxGroup(dst),f.it); }
       }
       placeByRec(tsId);
-    }
-  } else {
-    const dst=catByKey(tsTargetCat)||catByKey(tsCatKey); if(dst){
-      let g=null;
-      if(tsTargetCat===tsCatKey && tsGid){ const gg=groupByGid(dst,tsGid); if(gg && gg.items) g=gg; }
-      if(!g) g=ensureInboxGroup(dst);
-      const nit={id:nid(),ct:Date.now(),t,n,done:false,pri:tsPri,wk:tsWk}; if(rec) nit.rec=rec;
-      addTaskTo(g,nit);
-      statCreated(1);
-      if(rec) placeByRec(nit.id);
     }
   }
   save(); closeTaskSheet(); renderAll();
@@ -3604,7 +3583,7 @@ function rtPaintBar(ed){
   bar.querySelectorAll('button').forEach(x=>x.classList.toggle('on',!!on[x.dataset.c]));
 }
 document.addEventListener('selectionchange',()=>{ const a=document.activeElement; if(a && a.classList && a.classList.contains('rt')) rtPaintBar(a); });
-['tsNote','nsText'].forEach(id=>{ const ed=document.getElementById(id); if(!ed) return;
+['tsNote','qaNote','nsText'].forEach(id=>{ const ed=document.getElementById(id); if(!ed) return;
   ed.addEventListener('keydown',rtKey); ed.addEventListener('input',rtInput);
   ed.addEventListener('paste',rtPaste); ed.addEventListener('click',rtClick);
   ed.addEventListener('blur',()=>rtPaintBar(ed)); });
@@ -3620,71 +3599,83 @@ function noteHtml(text){
 }
 /* разметка без маркеров — для поиска */
 function notePlain(text){ return String(text||'').split('\n').map(l=>rtParseLine(l).x).join('\n').replace(/\*\*|__|~~|\*/g,''); }
-function openNoteEditor(){
+/* nsSrc — чьё описание развернули: карточки задачи (tsNote) или нового окна (qaNote) */
+let nsSrc='tsNote';
+function openNoteEditor(src){
+  nsSrc=src||'tsNote';
   const ed=document.getElementById('nsText');
-  rtSet(ed, rtGet(document.getElementById('tsNote')));
+  rtSet(ed, rtGet(document.getElementById(nsSrc)));
   openSheet(document.getElementById('nsheet'));
   /* сразу разворачиваем на весь экран — ради этого окно и открывают */
   const card=document.querySelector('#nsheet .sheet-card');
   if(card){ card.classList.add('full'); document.getElementById('nsheet').classList.add('fullback'); }
   setTimeout(()=>{ ed.focus(); const s=window.getSelection(), r=document.createRange(); r.selectNodeContents(ed); r.collapse(false); s.removeAllRanges(); s.addRange(r); rtPaintBar(ed); },90);
 }
-function saveNoteEditor(){ rtSet(document.getElementById('tsNote'), rtGet(document.getElementById('nsText'))); closeNoteEditor(); }
+function saveNoteEditor(){ rtSet(document.getElementById(nsSrc), rtGet(document.getElementById('nsText'))); closeNoteEditor(); }
 function closeNoteEditor(){ closeSheet(document.getElementById('nsheet')); }
 
-/* ---------- SHEET: быстрый ввод (FAB) ---------- */
-let qaPri='', qaWk=false, qaCat=null;
-function openQuick(){
-  if(active==='__svc__'){ openObjEditor(null); return; }   /* в «Обслуживании» «+» — новый объект */
-  qaPri=''; qaWk=false;
-  qaCat = (active && catByKey(active)) ? active : getInbox().key;
+/* ---------- SHEET: новая задача ----------
+   Одно окно и для «+», и для «Добавить задачу» в подкатегории (правка 1.18). Из
+   подкатегории задача ложится именно в неё (qaGid), из «+» — в приёмник категории.
+   Повторы и обслуживание здесь не настраиваются — это в карточке задачи. */
+let qaPri='', qaWk=false, qaCat=null, qaGid=null, qaGidCat=null, qaDescOn=false, qaPickOn=false;
+function openQuick(catKey,gid){
+  if(!catKey && active==='__svc__'){ openObjEditor(null); return; }   /* в «Обслуживании» «+» — новый объект */
+  qaPri=''; qaWk=false; qaDescOn=false; qaPickOn=false;
+  qaCat = (catKey && catByKey(catKey)) ? catKey : (active && catByKey(active)) ? active : getInbox().key;
+  qaGid = gid||null; qaGidCat = gid?qaCat:null;
   document.getElementById('qaInput').value='';
-  qaPickOn=false; renderQaPick(); document.getElementById('qaPri').innerHTML=priChips(qaPri,'qaSetPri'); document.getElementById('qaWk').classList.remove('on');
+  rtSet(document.getElementById('qaNote'),'');
+  qaPaintDesc(); renderQaPick(); qaPaintPri(); document.getElementById('qaWk').classList.remove('on');
   openSheet(document.getElementById('qsheet'));
   setTimeout(()=>document.getElementById('qaInput').focus(),80);
 }
-let qaPickOn=false;
+/* подкатегория, в которую ляжет задача: только «своя» обычная (не «Цикличные») */
+function qaGroup(c){
+  if(qaGid && qaGidCat===c.key){ const g=groupByGid(c,qaGid); if(g && g.items && !g.svc) return g; }
+  return null;
+}
 function renderQaPick(){
-  const box=document.getElementById('qaCatPick'); if(!box) return;
-  box.innerHTML=catPickHtml(qaCat,'qaSetCat','qaTogglePick',qaPickOn);
+  const c=catByKey(qaCat)||getInbox(), g=qaGroup(c), btn=document.getElementById('qaCatBtn');
+  btn.setAttribute('aria-expanded',qaPickOn?'true':'false');
+  btn.innerHTML=`${ic(c.icon,'color:'+catTx(catColor(c)))}<span class="nmx">${esc(c.title||c.tab)}${g&&!g.inb?' · '+esc(g.title||''):''}</span><span class="chv">${ic('chevD','font-size:14px')}</span>`;
+  const box=document.getElementById('qaCatList');
+  box.innerHTML = qaPickOn ? catListHtml(qaCat,'qaSetCat') : '';
+  /* прокручиваем только окно и сам список: scrollIntoView двигал и страницу под окном */
+  if(qaPickOn){ const sc=box.closest('.sheet-scroll'), l=box.firstChild, on=box.querySelector('.cpi.on');
+    if(sc) sc.scrollTop=sc.scrollHeight; if(l && on) l.scrollTop=on.offsetTop-l.clientHeight/2; }
 }
 function qaTogglePick(){ qaPickOn=!qaPickOn; renderQaPick(); }
 function qaSetCat(k){ qaCat=k; qaPickOn=false; renderQaPick(); }
-function qaSetPri(p){ qaPri=p; document.getElementById('qaPri').innerHTML=priChips(qaPri,'qaSetPri'); }
+function qaPaintPri(){ document.getElementById('qaPri').innerHTML=priChips(qaPri,'qaSetPri'); }
+function qaSetPri(p){ qaPri=p; qaPaintPri(); }
 function qaToggleWk(){ qaWk=!qaWk; document.getElementById('qaWk').classList.toggle('on',qaWk); }
-function closeQuick(){ closeSheet(document.getElementById('qsheet')); }
+function qaPaintDesc(){
+  document.getElementById('qaDesc').style.display=qaDescOn?'':'none';
+  const b=document.getElementById('qaDescBtn'); b.classList.toggle('on',qaDescOn); b.setAttribute('aria-expanded',qaDescOn?'true':'false');
+}
+/* «Описание»: раскрывает тот же блок, что в карточке задачи; свернули — текст не теряется */
+function qaToggleDesc(){ qaDescOn=!qaDescOn; qaPaintDesc();
+  /* фокус — синхронно, внутри тапа: из setTimeout iOS не показывает клавиатуру */
+  if(qaDescOn){ const ed=document.getElementById('qaNote'); ed.focus(); rtPaintBar(ed); } }
+function closeQuick(){ qaPickOn=false; closeSheet(document.getElementById('qsheet')); }
 function qaAdd(){
   const t=document.getElementById('qaInput').value.trim();
   if(!t){ document.getElementById('qaInput').focus(); return; }
+  const n=rtGet(document.getElementById('qaNote')).trim();
   const c=catByKey(qaCat)||getInbox();
-  /* !svc обязательно: у «Входящих» может быть служебная группа «Цикличные», и она
-     стоит первой — быстрый ввод молча складывал задачи туда. */
-  const g=ensureInboxGroup(c);
-  addTaskTo(g,{id:nid(),ct:Date.now(),t,n:'',done:false,pri:qaPri,wk:qaWk});
+  /* ensureInboxGroup (не первая группа): у «Входящих» может быть служебная группа
+     «Цикличные», и она стоит первой — быстрый ввод молча складывал задачи туда. */
+  const g=qaGroup(c)||ensureInboxGroup(c);
+  addTaskTo(g,{id:nid(),ct:Date.now(),t,n,done:false,pri:qaPri,wk:qaWk});
   statCreated(1);
   save();
-  document.getElementById('qaInput').value='';
+  document.getElementById('qaInput').value=''; rtSet(document.getElementById('qaNote'),'');
   closeQuick();                       /* правка 11: после «Добавить» окно закрывается */
   renderAll();
   showToast('Добавлено в «'+(c.title||c.tab||'')+'»');
 }
 
-/* ---------- SHEET: посмотреть списком ---------- */
-function openViewCurrent(){ if(active && active!=='__wk__') openViewSheet(active); }
-function openViewSheet(key){
-  const c=catByKey(key); if(!c) return;
-  document.getElementById('vsTitle').textContent=(c.title||c.tab||'Список');
-  let html='', total=0, done=0;
-  c.groups.forEach(g=>{
-    if(typeof g.sub==='string'){ html+=`<div class="vg" style="color:${catTx(catColor(c))};opacity:.7">${esc(g.sub)}</div>`; return; }
-    html+=`<div class="vg" style="color:${catTx(catColor(c))}">${ic(g.emo||'box')} ${esc(g.title||'')}</div>`;
-    (g.items||[]).forEach(it=>{ total++; if(it.done)done++;
-      html+=`<div class="vi${it.done?' off':''}"><span class="mk" style="color:${it.done?'var(--indigo-tx)':'var(--line)'}">${it.done?'✓':'○'}</span><span>${esc(it.t)}${it.n?`<span class="vn">${noteHtml(it.n)}</span>`:''}</span></div>`; });
-  });
-  document.getElementById('vsBody').innerHTML = total ? (`<div class="bar-lbl" style="margin:0 0 6px">Сделано ${done} из ${total}</div>`+html) : '<div class="empty">Пусто</div>';
-  openSheet(document.getElementById('vsheet'));
-}
-function closeViewSheet(){ closeSheet(document.getElementById('vsheet')); }
 
 /* ---------- SHEET: поиск по задачам ---------- */
 let fsLast='';
@@ -4000,7 +3991,7 @@ function renderProfSettings(){
     `<div class="prof-sec" style="margin-top:4px">Внешний вид · общий для всех устройств</div>`+
     setSeg('Тема','Светлая, тёмная или как в системе',[['light','Светлая'],['dark','Тёмная'],['system','Как в системе']],theme,'setTheme')+
     setSeg('Категории на главной','Плитками или списком',[['tiles','Плитки'],['list','Список']],hubView,'setHubViewR')+
-    setSeg('Выходные','По категориям или сплошным списком по очереди',[['cats','По категориям'],['list','Списком']],wkView,'setWkViewR')+
+    setSeg('Сегодня','По категориям или сплошным списком по очереди',[['cats','По категориям'],['list','Списком']],wkView,'setWkViewR')+
     setSeg('Скрывать выполненные','Прятать задачи с галочкой во всех списках',[[true,'Вкл'],[false,'Выкл']],hideDone,'setHideDone')+
     `<div class="prof-sec">Порядок задач · общий для всех устройств</div>`+
     setSeg('Новые задачи','Куда попадает задача при добавлении — в начало или в конец списка',[[true,'Сверху'],[false,'Снизу']],newTop,'setNewTop')+
@@ -4086,10 +4077,10 @@ function renderProfileCats(){
   });
   /* «На выходных» — виртуальный раздел, но название можно менять */
   h.splice(1,0,`<div class="prof-cat">
-      <span class="lockbadge" title="Витрина выходных">${ic('lock')}</span>
+      <span class="lockbadge" title="Витрина «Сегодня»">${ic('lock')}</span>
       <span class="pc-emo" style="${chipStyle('#37478f')}">${ic('calendar')}</span>
       <span class="pc-name">${esc(STATE.wkTitle)}</span>
-      <button title="Переименовать" aria-label="Переименовать раздел выходных" onclick="openWkEditor()">${ic('pencil')}</button>
+      <button title="Переименовать" aria-label="Переименовать раздел «Сегодня»" onclick="openWkEditor()">${ic('pencil')}</button>
     </div>`);
   /* архив — отдельный раздел профиля (правка 1.14) */
   box.innerHTML=h.join('');
@@ -4134,7 +4125,7 @@ function downloadBlob(data,name){
 }
 function openWkEditor(){
   esMode='wk'; esNew=false; esCatKey=null; esGid=null;
-  document.getElementById('esTitle').textContent='Раздел выходных';
+  document.getElementById('esTitle').textContent='Раздел «Сегодня»';
   document.getElementById('eNameLbl').textContent='Название раздела';
   document.getElementById('eName').value=STATE.wkTitle;
   showIconBlock(false); showColorBlock(false);
@@ -4189,14 +4180,24 @@ document.querySelectorAll('.sheet-back').forEach(el=>{
 /* Панель Safari и клавиатура «съедают» низ окна, а position:fixed продолжает считать
    от innerHeight — кнопка «+» при свайпе вниз отлипала и уезжала за край.
    --vvb = сколько пикселей низа сейчас не видно; на него подняты FAB и тост. */
+/* Правка 1.18: кнопка «ездила» к середине экрана и дрожала. Во время прокрутки с
+   пружиной iOS шлёт visualViewport 'scroll' на каждый кадр, а offsetTop/height на
+   мгновение дают десятки-сотни пикселей — кнопка прыгала вверх и обратно. Теперь
+   слушаем только 'resize' и поднимаем кнопку лишь над клавиатурой (>120px); мелкие
+   колебания панели Safari игнорируем — кнопка стоит на месте, как в Todoist. */
 (function(){
   const vv=window.visualViewport; if(!vv) return;
-  let raf=false;
+  let raf=false, cur=-1;
   const upd=()=>{ raf=false;
-    const off=Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    /* offsetTop учитываем только при открытой клавиатуре: тогда видимая область
+       может быть сдвинута, и без него кнопка/тост уезжали бы под клавиатуру */
+    const kb=window.innerHeight - vv.height;
+    const off = kb<120 ? 0 : Math.max(0, Math.round(kb - vv.offsetTop));
+    if(off===cur) return; cur=off;
     document.documentElement.style.setProperty('--vvb', off+'px'); };
   const on=()=>{ if(raf) return; raf=true; requestAnimationFrame(upd); };
-  vv.addEventListener('resize',on); vv.addEventListener('scroll',on); on();
+  vv.addEventListener('resize',on); window.addEventListener('orientationchange',on);
+  vv.addEventListener('scroll',()=>{ if(window.innerHeight - vv.height>=120) on(); }); on();
 })();
 
 /* ============ ПЕРЕТАСКИВАНИЕ (движок из «Соберись!») ============ */
